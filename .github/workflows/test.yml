@@ -1,6 +1,5 @@
 name: Python test
-on: 
-  - push
+on: push
 
 jobs:
   test:
