@@ -1,0 +1,16 @@
+name: Python test
+on: push
+
+jobs:
+  test:
+    name: Run unit tests
+    runs-on: ubuntu-latest
+    steps:
+      - 
+        name: Check out the repo
+        uses: actions/checkout@v4
+      - 
+        name: Unit testing 
+        uses: fylein/python-pytest-github-action@v2
+        with:
+          args: pip3 install -r requirements.txt && pytest

@@ -25,6 +25,7 @@ from pptx.enum.text import MSO_VERTICAL_ANCHOR, PP_PARAGRAPH_ALIGNMENT
 from pptx.enum.shapes import MSO_SHAPE
 from decimal import Decimal
 from copy import deepcopy
+from pronto.pronto import get_tmb_string
 
 runID = ""
 DNA_sampleID = ""
@@ -890,7 +891,6 @@ def remisse_mail_writer(remisse_file,ipd_no,ipd_consent,DNA_normal_sampleID,RNA_
 	from docx.enum.text import WD_ALIGN_PARAGRAPH
 	impress_id = ipd_consent
 	sample_type = sample_type.replace("\n", "")
-	TMB_position = "Not available"
 	doc = Document()
 	doc.styles['Normal'].font.name = 'Calibri'
 	doc.styles['Normal'].font.size = Pt(12)
@@ -923,13 +923,7 @@ def remisse_mail_writer(remisse_file,ipd_no,ipd_consent,DNA_normal_sampleID,RNA_
 	if(str_TMB_DRUP == "NA"):
 		TMB_string = "Upålitelig, ikke beregnet\n"
 	else:
-		if(TMB_DRUP >= 0 and TMB_DRUP <= 5):
-			TMB_position = "lav"
-		if(TMB_DRUP > 5 and TMB_DRUP <= 20):
-			TMB_position = "intermediær"
-		if(TMB_DRUP > 20):
-			TMB_position = "høy"
-		TMB_string = str(TMB_DRUP) + " mut/Mb; " + TMB_position + "\n"
+		TMB_string = get_tmb_string(TMB_DRUP)
 	if(stable_text == "Unstable"):
 		stable_text = "Ustabil"
 	if(stable_text == "Stable"):
