@@ -15,6 +15,8 @@ import sys
 import shutil
 import getopt
 import time
+import logging
+import pandas
 from configparser import ConfigParser
 from xlutils.copy import copy
 from pptx import Presentation
@@ -25,7 +27,7 @@ from pptx.enum.text import MSO_VERTICAL_ANCHOR, PP_PARAGRAPH_ALIGNMENT
 from pptx.enum.shapes import MSO_SHAPE
 from decimal import Decimal
 from copy import deepcopy
-from pronto.pronto import get_tmb_string
+import pronto.pronto as pronto
 
 runID = ""
 DNA_sampleID = ""
@@ -108,123 +110,39 @@ def read_exl(data_file,filter_column,key_word):
 	return data
 
 
-def read_exl_col(data_file,filter_column,key_word,columns,MTB_format):
-	data_issue = False
-	mark = False
-	nrow_mark = 0
-	col0 = "Sample_ID"
-	global DNA_sampleID
-	nlines = len(open(data_file).readlines())
-	data = [[] for n in range(nlines)]
-	column_mark = []
-	columnNames = columns.split(',')
-	d = 0
-	# Verify the column numbers only for filtering the sequence_summary table. (MTB_format==True)
-	RefSeq_mRNA_col = 3
-	cDNA_change_col = 6
-	Change_summary_col = 10
-	Depth_tumor_DNA_col = 12
-	AF_tumor_DNA_col = 13
-	for line in open(data_file):
-		line_cells = line.split('\t')
-		if(line_cells[0] == col0 and not mark):
-			for col in range(len(line_cells)):
-				if(line_cells[col] == "IGV_QC"):
-					IGV_QC_col = col
-				if(line_cells[col] == "Class_judgement"):
-					Class_judgement_col = col
-				if(line_cells[col] == filter_column):
-					filter_column_n = col
-				if(line_cells[col] == "Coding_status"):
-					Coding_status_col = col
-				if(line_cells[col] == "Genomic_location"):
-					Genomic_location_col = col
-				if(line_cells[col] == "DNA_change"):
-					DNA_change_col = col
-				if(line_cells[col] == "Gene_symbol"):
-					Gene_symbol_col = col
-				for m in range(len(columnNames)):
-					if(line_cells[col] in columnNames):
-						line_cells_string = line_cells[col] + '\t'
-						data[0].append(line_cells_string)
-						column_mark.append(col)
-						break
-			if(MTB_format == True):
-				data[0].insert(1,"Genomic corrdinates in hg19 build\t")
-				data[0].insert(5,"HGVS syntax\t")
-				data[0].insert(6,"Change_summary\t")
-				data[0].insert(8,"Read depth(variant reads/total reads)\t")
-			data[0].append('\n')
-			mark = True
-		if(line.startswith(DNA_sampleID) and mark):
-			if(line_cells[IGV_QC_col] == "Not OK" and line_cells[Class_judgement_col] != "exclude"):
-				print ("""              Dataset error: 
-			IGV_QC is 'Not OK', but Class_judement is not 'exclude'. Please check the QC Excel file and fix the mistake before run this script again!
-				 """)
-				sys.exit(0)
-			filter_column_data = line_cells[filter_column_n]
-			if key_word.startswith('!'):
-				if("&&" in key_word):
-					not_key = key_word.replace('!','')
-					key = not_key.split(" && ")
-				else:
-					key = key_word.split('!')
-				appear = False
-				for filter_column in filter_column_data.split(','):
-					if(filter_column in key):
-						appear = True
-				if(appear == False):
-					d += 1
-					for num in column_mark:
-						if(num == Coding_status_col):
-							line_cells[num] = line_cells[num].replace("_variant", "") + '\t'
-						else:
-							line_cells[num] = line_cells[num] + '\t'
-						data[d].append(line_cells[num])
-					if(MTB_format == True):
-						try:
-							MTB_format_str = "chr" + line_cells[Genomic_location_col].split(":")[0] + ":g." + line_cells[Genomic_location_col].split(":")[1].replace('\t','') + line_cells[DNA_change_col] + '\t'
-							data[d].insert(1,MTB_format_str)
-							HGVS_syntax_str = line_cells[RefSeq_mRNA_col] + ":" + line_cells[cDNA_change_col] + '\t'
-							data[d].insert(5,HGVS_syntax_str)
-							include_exon = True
-							Change_summary_format = ""
-							Change_summary_ori = line_cells[Change_summary_col].replace(":NA", "")
-							for string in Change_summary_ori.split(":"):
-								if("exon" in string):
-									include_exon = False
-									continue
-								else:
-									if(include_exon):
-										Change_summary_format += string
-									else:
-										Change_summary_format += ",p.(" + string + ")"
-							Change_summary_str = line_cells[Gene_symbol_col].replace('\t',' ') + line_cells[RefSeq_mRNA_col] + ":" + Change_summary_format + '\t'
-							data[d].insert(6,Change_summary_str)
-							variant_reads_str = int(int(line_cells[Depth_tumor_DNA_col]) * float(line_cells[AF_tumor_DNA_col]))
-							total_reads_str = str(line_cells[Depth_tumor_DNA_col])
-							Read_depth_str = str(variant_reads_str) + "/" + total_reads_str + '\t'
-							data[d].insert(8,Read_depth_str)
-							AF_tumor_DNA_ori = float(line_cells[AF_tumor_DNA_col]) * 100
-							AF_tumor_DNA_str = format(AF_tumor_DNA_ori, '.1f') + '%'
-							data[d][9] = AF_tumor_DNA_str  + '\t'
-						except:
-							data_issue = True
-			else:
-				key = key_word.split(',')
-				if(line_cells[filter_column_n] in key):
-					d += 1
-					for num in column_mark:
-						if(num == Coding_status_col):
-							line_cells[num] = line_cells[num].replace("_variant", "") + '\t'
-						else:
-							line_cells[num] = line_cells[num] + '\t'
-						data[d].append(line_cells[num])
-			data[d].append('\n')
-	if(data_issue):
-		print("Warning: Data issue for " + DNA_sampleID + "! Please check the small_variant_table from TSOPPI. The report will be generated for further QC.")		
-	return data
+def read_tsv_col(data_file,filter_column,key_word,columns,MTB_format):
 
+	columnNames = columns.split(',')
+	if MTB_format:
+		columnNames.insert(1,"Genomic corrdinates in hg19 build")
+		columnNames.insert(5,"HGVS syntax")
+		columnNames.insert(6,"Change_summary")
+		columnNames.insert(8,"Read depth(variant reads/total reads)")
+	keys = pronto.parse_keys(key_word)
+
+	# import data, exclude all comments and use tabs as separators
+	dataframe = pandas.read_csv(data_file, comment="#", sep='\t')
+	if len(dataframe[(dataframe['IGV_QC'] == 'Not OK') & (dataframe['Class_judgement'] != 'exclude')].index) > 0:
+		logging.error('Dataset error: IGV_QC is "Not OK" but Class_judgement is not "exclude". Please check the QC Excel file and fix the mistake before run this script again!') # maybe log the file and is it really excel?
+		sys.exit(0)
+
+	# filter dataframe according to the keys in key_word, either inclusion or exclusion
+	if keys['include']:
+		dataframe = dataframe[dataframe[filter_column].str.contains(keys['include'])]
+	if keys['exclude']:
+		dataframe = dataframe[~dataframe[filter_column].str.contains(keys['exclude'])]
+	
+	# formatting
+	dataframe.loc[:,'Coding_status'] = dataframe['Coding_status'].str.replace('_variant', '')
+	if MTB_format:
+		dataframe = pronto.create_mtb_columns(dataframe)
+
+	# select columns
+	dataframe = dataframe[columnNames]
+
+	# convert into list
+	data = pronto.dataframe_to_list(dataframe)
+	return data
 
 def filter_depth_tumor_all_col(data_config,depth_tumor_DNA):
 	data = []
@@ -1003,7 +921,7 @@ def remisse_mail_writer(remisse_file,ipd_no,ipd_consent,DNA_normal_sampleID,RNA_
 	if(str_TMB_DRUP == "NA"):
 		TMB_string = "Upålitelig, ikke beregnet\n"
 	else:
-		TMB_string = get_tmb_string(TMB_DRUP)
+		TMB_string = pronto.get_tmb_string(TMB_DRUP)
 	if(stable_text == "Unstable"):
 		stable_text = "Ustabil"
 	if(stable_text == "Stable"):
