@@ -131,7 +131,7 @@ def read_tsv_col(data_file,filter_column,key_word,columns,MTB_format):
 		dataframe = dataframe[dataframe[filter_column].str.contains(keys['include'])]
 	if keys['exclude']:
 		dataframe = dataframe[~dataframe[filter_column].str.contains(keys['exclude'])]
-	
+
 	# formatting
 	dataframe.loc[:,'Coding_status'] = dataframe['Coding_status'].str.replace('_variant', '')
 	if MTB_format:
