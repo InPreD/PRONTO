@@ -1289,14 +1289,14 @@ def main(argv):
 							clear_blank_line(output_table_file_config_pre,output_table_file_config)
 					if(j == "1"):
 						filter1_min_depth_tumor_DNA = int(cfg.get("FILTER"+j, "min_depth_tumor_DNA"))
-						data = read_exl_col(data_file_small_variant_table,filter_column,key_word,columns,MTB_format)
+						data = read_tsv_col(data_file_small_variant_table,filter_column,key_word,columns,MTB_format)
 						if(data == []):
 							data_DepthTumor_DNA = ""
 						else:
 							data_DepthTumor_DNA = filter_depth_tumor_cols(data,filter1_min_depth_tumor_DNA)
 						write_exl(output_table_file_config_pre,data_DepthTumor_DNA)
 					else:
-						data = read_exl_col(output_file_preMTB_workingTable,filter_column,key_word,columns,MTB_format)
+						data = read_tsv_col(output_file_preMTB_workingTable,filter_column,key_word,columns,MTB_format)
 						write_exl(output_table_file_config_pre,data)
 					clear_blank_line(output_table_file_config_pre,output_table_file_config)
 					MTB_format = False
