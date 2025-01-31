@@ -1,6 +1,9 @@
+import glob
 import logging
 import math
+import os
 import re
+import sys
 
 # add and format certain columns to match the MTB format requirements
 def create_mtb_columns(df):
@@ -66,6 +69,16 @@ def get_tmb_string(val):
 	elif(val > 20):
 		level = "høy"
 	return "{} mut/Mb; {}\n".format(val, level)
+
+# use glob to find file in different folder structures
+def glob_sample_file(*path_units):
+	glob_string = os.path.join(*path_units)
+	files = glob.glob(glob_string, recursive=True)
+	if len(files) == 1:
+		return files[0]
+	else:
+		logging.error("unsuccessful glob: {}".format(glob_string))
+		raise ValueError
 
 # parse keys and divide in keys to include or exclude
 def parse_keys(keys):

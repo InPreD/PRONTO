@@ -152,6 +152,78 @@ def test_get_tmb_string(input, exception, want):
         assert pronto.pronto.get_tmb_string(input) == want
 
 @pytest.mark.parametrize(
+    "inputs, exception, want",
+    [
+        (
+            (
+                'pronto/tests/data/ous',
+                '250101_NDX012345_RUO_0001_01234ABCDE*',
+                '**',
+                'IPH0001-D01-R01-A01',
+                'test.txt'
+            ),
+            does_not_raise(),
+            'pronto/tests/data/ous/250101_NDX012345_RUO_0001_01234ABCDE_TSO_500_LocalApp_postprocessing_results/IPH0001-D01-R01-A01/test.txt'
+        ),
+        (
+            (
+                'pronto/tests/data/hus/',
+                '250101_NDX012345_RUO_0001_01234ABCDE*',
+                '**',
+                'IPH0001-D01-R01-A01',
+                'test*.txt'
+            ),
+            does_not_raise(),
+            'pronto/tests/data/hus/250101_NDX012345_RUO_0001_01234ABCDE/250101_NDX012345_RUO_0001_01234ABCDE_ppr/IPH0001-D01-R01-A01/test.txt'
+        ),
+        (
+            (
+                'pronto/tests/data/hus/',
+                '250101_NDX012345_RUO_0001_01234ABCDE*',
+                '**',
+                'IPH0001-D01-R01-A01',
+                'tes*.txt'
+            ),
+            does_not_raise(),
+            'pronto/tests/data/hus/250101_NDX012345_RUO_0001_01234ABCDE/250101_NDX012345_RUO_0001_01234ABCDE_ppr/IPH0001-D01-R01-A01/test.txt'
+        ),
+        (
+            (
+                'pronto/tests/data/hus/',
+                '250101_NDX012345_RUO_0001_01234ABCDE*',
+                '**',
+                'IPH0001-D01-R01-A01',
+            ),
+            does_not_raise(),
+            'pronto/tests/data/hus/250101_NDX012345_RUO_0001_01234ABCDE/250101_NDX012345_RUO_0001_01234ABCDE_ppr/IPH0001-D01-R01-A01'
+        ),
+        (
+            (
+                'pronto/tests/data/none',
+                'existent',
+                'test.txt'
+            ),
+            pytest.raises(ValueError),
+            None
+        ),
+        (
+            (
+                'pronto/tests/data/*',
+                '250101_NDX012345_RUO_0001_01234ABCDE*',
+                '**',
+                'IPH0001-D01-R01-A01',
+                'test.txt'
+            ),
+            pytest.raises(ValueError),
+            None
+        ),
+    ]
+)
+def test_glob_sample_file(inputs, exception, want):
+    with exception:
+        assert pronto.pronto.glob_sample_file(*inputs) == want
+
+@pytest.mark.parametrize(
     "input, exception, want",
     [
         ('LikSOM,SOM,LikGL,incon,include', does_not_raise(), {'exclude': '', 'include': 'LikSOM|SOM|LikGL|incon|include'}),
