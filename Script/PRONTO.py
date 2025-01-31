@@ -215,8 +215,6 @@ def get_patient_info_from_MTF_2023(ipd_material_file,ipd_no,DNA_sampleID,RNA_sam
 	col_requisition_hospital = "Requester Hospital"
 	col_material_name = "Original Name"
 	col_consent = "Study ID"
-	col_tumor_content_nr = "Tumor cells [%]"
-	col_sampleID_ori_name = "Sample ID"
 	col_ex_sample_info = "Sample information"
 	col_ex_data_section = "Extraction Data"
 	col_ex_library_pre = "Library Preparation (LP) Data"
@@ -338,9 +336,7 @@ def get_patient_info_from_MTF_2024(ipd_material_file,ipd_no,DNA_sampleID,RNA_sam
 	col_Histopathological_diagnosis = "diagnosis"
 	col_comment = "Comments"
 	col_material_id = "Sample material ID"
-	col_tumor_content_nr = "Tumor cells [%]"
 	col_sample_ID = "Sample ID"
-	col_ex_pathology_info = "Molecular Pathology information"
 	col_ex_sample_info = "Sample information"
 	col_ex_data_section = "Extraction Data"
 	col_ex_library_pre = "Library Preparation (LP) Data"
@@ -1002,9 +998,6 @@ def update_clinical_master_file(InPreD_clinical_data_file,sample_id,if_generate_
 
 def update_clinical_tsoppi_file(InPreD_clinical_tsoppi_data_file,sample_id,if_generate_report,ipd_birth_year,clinical_diagnosis,ipd_gender,ipd_consent,material_id,ipd_collection_year,requisition_hospital,extraction_hospital,tumor_content_nr,batch_nr,sample_material,sample_type,tumor_type,TMB_DRUP,TMB_TSO500,MSI_TSO500,pipline,pathology_comment,sample_info_comment):
 	if_exist = False
-	assay_name = ""
-	nucleicacid = ""
-	RNA_DNA_tumor_normal = ""
 	global ipd_diagnosis_year
 	global runID
 	try:
