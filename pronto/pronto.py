@@ -71,13 +71,16 @@ def get_tmb_string(val):
 	return "{} mut/Mb; {}\n".format(val, level)
 
 # use glob to find file in different folder structures
-def glob_sample_file(*path_units):
-	glob_string = os.path.join(*path_units)
-	files = glob.glob(glob_string, recursive=True)
+def glob_tsoppi_file(root, run_id, *path_units):
+	glob_string_ous = os.path.join(root, '{}_TSO_500_LocalApp_postprocessing_results'.format(run_id), *path_units)
+	glob_string_hus = os.path.join(root, run_id, '{}_ppr'.format(run_id), *path_units)
+	files = []
+	for gl in (glob_string_ous, glob_string_hus):
+		files.extend(glob.glob(gl))
 	if len(files) == 1:
 		return files[0]
 	else:
-		logging.error("unsuccessful glob: {}".format(glob_string))
+		logging.error("unsuccessful glob strings for {}: {}, {}".format(run_id, glob_string_ous, glob_string_hus))
 		raise ValueError
 
 # parse keys and divide in keys to include or exclude
