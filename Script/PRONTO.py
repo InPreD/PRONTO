@@ -124,7 +124,7 @@ def read_tsv_col(data_file,filter_column,key_word,columns,MTB_format):
 	dataframe = pandas.read_csv(data_file, comment="#", sep='\t')
 	if len(dataframe[(dataframe['IGV_QC'] == 'Not OK') & (dataframe['Class_judgement'] != 'exclude')].index) > 0:
 		logging.error('Dataset error: IGV_QC is "Not OK" but Class_judgement is not "exclude". Please check the QC Excel file and fix the mistake before run this script again!') # maybe log the file and is it really excel?
-		sys.exit(0)
+		sys.exit(1)
 
 	# filter dataframe according to the keys in key_word, either inclusion or exclusion
 	if keys['include']:
