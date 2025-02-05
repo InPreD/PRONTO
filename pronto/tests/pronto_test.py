@@ -22,8 +22,7 @@ def test_get_tmb_string(input, exception, want):
         (
             (
                 'pronto/tests/data/ous',
-                '250101_NDX012345_RUO_0001_01234ABCDE*',
-                '**',
+                '250101_NDX012345_RUO_0001_01234ABCDE',
                 'IPH0001-D01-R01-A01',
                 'test.txt'
             ),
@@ -33,8 +32,7 @@ def test_get_tmb_string(input, exception, want):
         (
             (
                 'pronto/tests/data/hus/',
-                '250101_NDX012345_RUO_0001_01234ABCDE*',
-                '**',
+                '250101_NDX012345_RUO_0001_01234ABCDE',
                 'IPH0001-D01-R01-A01',
                 'test*.txt'
             ),
@@ -44,8 +42,7 @@ def test_get_tmb_string(input, exception, want):
         (
             (
                 'pronto/tests/data/hus/',
-                '250101_NDX012345_RUO_0001_01234ABCDE*',
-                '**',
+                '250101_NDX012345_RUO_0001_01234ABCDE',
                 'IPH0001-D01-R01-A01',
                 'tes*.txt'
             ),
@@ -55,8 +52,7 @@ def test_get_tmb_string(input, exception, want):
         (
             (
                 'pronto/tests/data/hus/',
-                '250101_NDX012345_RUO_0001_01234ABCDE*',
-                '**',
+                '250101_NDX012345_RUO_0001_01234ABCDE',
                 'IPH0001-D01-R01-A01',
             ),
             does_not_raise(),
@@ -74,8 +70,7 @@ def test_get_tmb_string(input, exception, want):
         (
             (
                 'pronto/tests/data/*',
-                '250101_NDX012345_RUO_0001_01234ABCDE*',
-                '**',
+                '250101_NDX012345_RUO_0001_01234ABCDE',
                 'IPH0001-D01-R01-A01',
                 'test.txt'
             ),
@@ -84,6 +79,6 @@ def test_get_tmb_string(input, exception, want):
         ),
     ]
 )
-def test_glob_sample_file(inputs, exception, want):
+def test_glob_tsoppi_file(inputs, exception, want):
     with exception:
-        assert pronto.pronto.glob_sample_file(*inputs) == want
+        assert pronto.pronto.glob_tsoppi_file(*inputs) == want
