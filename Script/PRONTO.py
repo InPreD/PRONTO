@@ -15,6 +15,8 @@ import sys
 import shutil
 import getopt
 import time
+import logging
+import pandas
 from configparser import ConfigParser
 from xlutils.copy import copy
 from pptx import Presentation
@@ -25,6 +27,7 @@ from pptx.enum.text import MSO_VERTICAL_ANCHOR, PP_PARAGRAPH_ALIGNMENT
 from pptx.enum.shapes import MSO_SHAPE
 from decimal import Decimal
 from copy import deepcopy
+import pronto.pronto as pronto
 
 runID = ""
 DNA_sampleID = ""
@@ -59,7 +62,6 @@ pipline = ""
 def read_exl(data_file,filter_column,key_word):
 	data = []
 	mark = False
-	nrow_mark = 0
 	col0 = "Sample_ID"
 	global DNA_sampleID
 	for line in open(data_file):
@@ -107,123 +109,39 @@ def read_exl(data_file,filter_column,key_word):
 	return data
 
 
-def read_exl_col(data_file,filter_column,key_word,columns,MTB_format):
-	data_issue = False
-	mark = False
-	nrow_mark = 0
-	col0 = "Sample_ID"
-	global DNA_sampleID
-	nlines = len(open(data_file).readlines())
-	data = [[] for n in range(nlines)]
-	column_mark = []
-	columnNames = columns.split(',')
-	d = 0
-	# Verify the column numbers only for filtering the sequence_summary table. (MTB_format==True)
-	RefSeq_mRNA_col = 3
-	cDNA_change_col = 6
-	Change_summary_col = 10
-	Depth_tumor_DNA_col = 12
-	AF_tumor_DNA_col = 13
-	for line in open(data_file):
-		line_cells = line.split('\t')
-		if(line_cells[0] == col0 and not mark):
-			for col in range(len(line_cells)):
-				if(line_cells[col] == "IGV_QC"):
-					IGV_QC_col = col
-				if(line_cells[col] == "Class_judgement"):
-					Class_judgement_col = col
-				if(line_cells[col] == filter_column):
-					filter_column_n = col
-				if(line_cells[col] == "Coding_status"):
-					Coding_status_col = col
-				if(line_cells[col] == "Genomic_location"):
-					Genomic_location_col = col
-				if(line_cells[col] == "DNA_change"):
-					DNA_change_col = col
-				if(line_cells[col] == "Gene_symbol"):
-					Gene_symbol_col = col
-				for m in range(len(columnNames)):
-					if(line_cells[col] in columnNames):
-						line_cells_string = line_cells[col] + '\t'
-						data[0].append(line_cells_string)
-						column_mark.append(col)
-						break
-			if(MTB_format == True):
-				data[0].insert(1,"Genomic corrdinates in hg19 build\t")
-				data[0].insert(5,"HGVS syntax\t")
-				data[0].insert(6,"Change_summary\t")
-				data[0].insert(8,"Read depth(variant reads/total reads)\t")
-			data[0].append('\n')
-			mark = True
-		if(line.startswith(DNA_sampleID) and mark):
-			if(line_cells[IGV_QC_col] == "Not OK" and line_cells[Class_judgement_col] != "exclude"):
-				print ("""              Dataset error: 
-			IGV_QC is 'Not OK', but Class_judement is not 'exclude'. Please check the QC Excel file and fix the mistake before run this script again!
-				 """)
-				sys.exit(0)
-			filter_column_data = line_cells[filter_column_n]
-			if key_word.startswith('!'):
-				if("&&" in key_word):
-					not_key = key_word.replace('!','')
-					key = not_key.split(" && ")
-				else:
-					key = key_word.split('!')
-				appear = False
-				for filter_column in filter_column_data.split(','):
-					if(filter_column in key):
-						appear = True
-				if(appear == False):
-					d += 1
-					for num in column_mark:
-						if(num == Coding_status_col):
-							line_cells[num] = line_cells[num].replace("_variant", "") + '\t'
-						else:
-							line_cells[num] = line_cells[num] + '\t'
-						data[d].append(line_cells[num])
-					if(MTB_format == True):
-						try:
-							MTB_format_str = "chr" + line_cells[Genomic_location_col].split(":")[0] + ":g." + line_cells[Genomic_location_col].split(":")[1].replace('\t','') + line_cells[DNA_change_col] + '\t'
-							data[d].insert(1,MTB_format_str)
-							HGVS_syntax_str = line_cells[RefSeq_mRNA_col] + ":" + line_cells[cDNA_change_col] + '\t'
-							data[d].insert(5,HGVS_syntax_str)
-							include_exon = True
-							Change_summary_format = ""
-							Change_summary_ori = line_cells[Change_summary_col].replace(":NA", "")
-							for string in Change_summary_ori.split(":"):
-								if("exon" in string):
-									include_exon = False
-									continue
-								else:
-									if(include_exon):
-										Change_summary_format += string
-									else:
-										Change_summary_format += ",p.(" + string + ")"
-							Change_summary_str = line_cells[Gene_symbol_col].replace('\t',' ') + line_cells[RefSeq_mRNA_col] + ":" + Change_summary_format + '\t'
-							data[d].insert(6,Change_summary_str)
-							variant_reads_str = int(int(line_cells[Depth_tumor_DNA_col]) * float(line_cells[AF_tumor_DNA_col]))
-							total_reads_str = str(line_cells[Depth_tumor_DNA_col])
-							Read_depth_str = str(variant_reads_str) + "/" + total_reads_str + '\t'
-							data[d].insert(8,Read_depth_str)
-							AF_tumor_DNA_ori = float(line_cells[AF_tumor_DNA_col]) * 100
-							AF_tumor_DNA_str = format(AF_tumor_DNA_ori, '.1f') + '%'
-							data[d][9] = AF_tumor_DNA_str  + '\t'
-						except:
-							data_issue = True
-			else:
-				key = key_word.split(',')
-				if(line_cells[filter_column_n] in key):
-					d += 1
-					for num in column_mark:
-						if(num == Coding_status_col):
-							line_cells[num] = line_cells[num].replace("_variant", "") + '\t'
-						else:
-							line_cells[num] = line_cells[num] + '\t'
-						data[d].append(line_cells[num])
-			data[d].append('\n')
-	if(data_issue):
-		print("Warning: Data issue for " + DNA_sampleID + "! Please check the small_variant_table from TSOPPI. The report will be generated for further QC.")		
-	return data
+def read_tsv_col(data_file,filter_column,key_word,columns,MTB_format):
 
+	columnNames = columns.split(',')
+	if MTB_format:
+		columnNames.insert(1,"Genomic coordinates in hg19 build")
+		columnNames.insert(5,"HGVS syntax")
+		columnNames.insert(6,"Change_summary")
+		columnNames.insert(8,"Read depth(variant reads/total reads)")
+	keys = pronto.parse_keys(key_word)
+
+	# import data, exclude all comments and use tabs as separators
+	dataframe = pandas.read_csv(data_file, comment="#", sep='\t')
+	if len(dataframe[(dataframe['IGV_QC'] == 'Not OK') & (dataframe['Class_judgement'] != 'exclude')].index) > 0:
+		logging.error('Dataset error: IGV_QC is "Not OK" but Class_judgement is not "exclude". Please check the QC Excel file and fix the mistake before run this script again!') # maybe log the file and is it really excel?
+		sys.exit(1)
+
+	# filter dataframe according to the keys in key_word, either inclusion or exclusion
+	if keys['include']:
+		dataframe = dataframe[dataframe[filter_column].str.contains(keys['include'])]
+	if keys['exclude']:
+		dataframe = dataframe[~dataframe[filter_column].str.contains(keys['exclude'])]
+
+	# formatting
+	dataframe.loc[:,'Coding_status'] = dataframe['Coding_status'].str.replace('_variant', '')
+	if MTB_format:
+		dataframe = pronto.create_mtb_columns(dataframe)
+
+	# select columns
+	dataframe = dataframe[columnNames]
+
+	# convert into list
+	data = pronto.dataframe_to_list(dataframe)
+	return data
 
 def filter_depth_tumor_all_col(data_config,depth_tumor_DNA):
 	data = []
@@ -296,8 +214,6 @@ def get_patient_info_from_MTF_2023(ipd_material_file,ipd_no,DNA_sampleID,RNA_sam
 	col_requisition_hospital = "Requester Hospital"
 	col_material_name = "Original Name"
 	col_consent = "Study ID"
-	col_tumor_content_nr = "Tumor cells [%]"
-	col_sampleID_ori_name = "Sample ID"
 	col_ex_sample_info = "Sample information"
 	col_ex_data_section = "Extraction Data"
 	col_ex_library_pre = "Library Preparation (LP) Data"
@@ -419,9 +335,7 @@ def get_patient_info_from_MTF_2024(ipd_material_file,ipd_no,DNA_sampleID,RNA_sam
 	col_Histopathological_diagnosis = "diagnosis"
 	col_comment = "Comments"
 	col_material_id = "Sample material ID"
-	col_tumor_content_nr = "Tumor cells [%]"
 	col_sample_ID = "Sample ID"
-	col_ex_pathology_info = "Molecular Pathology information"
 	col_ex_sample_info = "Sample information"
 	col_ex_data_section = "Extraction Data"
 	col_ex_library_pre = "Library Preparation (LP) Data"
@@ -970,7 +884,6 @@ def remisse_mail_writer(remisse_file,ipd_no,ipd_consent,DNA_normal_sampleID,RNA_
 	from docx.enum.text import WD_ALIGN_PARAGRAPH
 	impress_id = ipd_consent
 	sample_type = sample_type.replace("\n", "")
-	TMB_position = "Not available"
 	doc = Document()
 	doc.styles['Normal'].font.name = 'Calibri'
 	doc.styles['Normal'].font.size = Pt(12)
@@ -1003,13 +916,7 @@ def remisse_mail_writer(remisse_file,ipd_no,ipd_consent,DNA_normal_sampleID,RNA_
 	if(str_TMB_DRUP == "NA"):
 		TMB_string = "Upålitelig, ikke beregnet\n"
 	else:
-		if(TMB_DRUP >= 0 and TMB_DRUP <= 5):
-			TMB_position = "lav"
-		if(TMB_DRUP > 5 and TMB_DRUP <= 20):
-			TMB_position = "intermediær"
-		if(TMB_DRUP > 20):
-			TMB_position = "høy"
-		TMB_string = str(TMB_DRUP) + " mut/Mb; " + TMB_position + "\n"
+		TMB_string = pronto.get_tmb_string(TMB_DRUP)
 	if(stable_text == "Unstable"):
 		stable_text = "Ustabil"
 	if(stable_text == "Stable"):
@@ -1090,9 +997,6 @@ def update_clinical_master_file(InPreD_clinical_data_file,sample_id,if_generate_
 
 def update_clinical_tsoppi_file(InPreD_clinical_tsoppi_data_file,sample_id,if_generate_report,ipd_birth_year,clinical_diagnosis,ipd_gender,ipd_consent,material_id,ipd_collection_year,requisition_hospital,extraction_hospital,tumor_content_nr,batch_nr,sample_material,sample_type,tumor_type,TMB_DRUP,TMB_TSO500,MSI_TSO500,pipline,pathology_comment,sample_info_comment):
 	if_exist = False
-	assay_name = ""
-	nucleicacid = ""
-	RNA_DNA_tumor_normal = ""
 	global ipd_diagnosis_year
 	global runID
 	try:
@@ -1232,7 +1136,7 @@ def main(argv):
 			print ("""Error: IPD Material Transit Form InPreD NGS file does not exit under the MTF dir. PRONTO meta file could not be updated with patient personal information by parameter -c of this script!""")
 			sys.exit(0)
 		else:
-			sample_list_file = data_path + runID_DNA + "_TSO_500_LocalApp_postprocessing_results/" + DNA_sampleID +"/" + "sample_list.tsv"
+			sample_list_file = pronto.glob_tsoppi_file(data_path, runID_DNA, DNA_sampleID, 'sample_list.tsv')
 			for line in open(sample_list_file):
 				if(line.startswith("RNA_tumor")):
 					RNA_sampleID = line.split('\t')[1]
@@ -1290,12 +1194,9 @@ def main(argv):
 				output_path = output_path_root + runID + "/" + DNA_sampleID + "/"
 				extra_path = output_path + "extra_files"
 				output_file_preMTB_table_path = output_path + DNA_sampleID
-				today = time.strftime("%d %b %Y", time.localtime())
-				sample_list_file = data_path + runID_DNA + "_TSO_500_LocalApp_postprocessing_results/" + DNA_sampleID +"/" + "sample_list.tsv"
-				data_file_small_variant_table = data_path + runID_DNA + "_TSO_500_LocalApp_postprocessing_results/" + DNA_sampleID +"/" + DNA_sampleID + "_small_variant_table_forQC.tsv"
-				if not os.path.exists(data_file_small_variant_table):
-					data_file_small_variant_table = data_path + runID_DNA + "_TSO_500_LocalApp_postprocessing_results/" + DNA_sampleID +"/" + DNA_sampleID + "_small_variant_table.tsv"
-				data_file_cnv_overview_plots = data_path + runID_DNA + "_TSO_500_LocalApp_postprocessing_results/" + DNA_sampleID +"/" + DNA_sampleID + "_CNV_overview_plots.pdf"
+				sample_list_file = pronto.glob_tsoppi_file(data_path, runID_DNA, DNA_sampleID, 'sample_list.tsv')
+				data_file_small_variant_table = pronto.glob_tsoppi_file(data_path, runID_DNA, DNA_sampleID, '{}_small_variant_table*.tsv'.format(DNA_sampleID))
+				data_file_cnv_overview_plots = pronto.glob_tsoppi_file(data_path, runID_DNA, DNA_sampleID, '{}_CNV_overview_plots.pdf'.format(DNA_sampleID))
 
 				if not os.path.exists(data_file_small_variant_table):
 					print ("Error:  The data input file " + data_file_small_variant_table + " does not exist!")
@@ -1325,8 +1226,10 @@ def main(argv):
 					if (DNA_run_dir == RNA_run_dir):
 						runID_RNA = runID_DNA
 					else:
-						RNA_run_dir_short = RNA_run_dir.split('/')[-1]
-						runID_RNA = RNA_run_dir_short.split('_TSO')[0]
+						# define capture group for string in front of _TSO or _LocalApp and use on RNA_run_dir basename (last element in path)
+						tokens = re.search('^(.*)_(?:TSO|LocalApp)', os.path.basename(RNA_run_dir))
+						# set runID_RNA to string captured by first group
+						runID_RNA = tokens.group(1)
 					RNA_material_id = get_RNA_material_id(InPreD_clinical_data_file,RNA_sampleID,encoding_sys)
 					ipd_material_id = "DNA:" + DNA_material_id + ",RNA:" + RNA_material_id
 				else:
@@ -1377,33 +1280,32 @@ def main(argv):
 							clear_blank_line(output_table_file_config_pre,output_table_file_config)
 					if(j == "1"):
 						filter1_min_depth_tumor_DNA = int(cfg.get("FILTER"+j, "min_depth_tumor_DNA"))
-						data = read_exl_col(data_file_small_variant_table,filter_column,key_word,columns,MTB_format)
+						data = read_tsv_col(data_file_small_variant_table,filter_column,key_word,columns,MTB_format)
 						if(data == []):
 							data_DepthTumor_DNA = ""
 						else:
 							data_DepthTumor_DNA = filter_depth_tumor_cols(data,filter1_min_depth_tumor_DNA)
 						write_exl(output_table_file_config_pre,data_DepthTumor_DNA)
 					else:
-						data = read_exl_col(output_file_preMTB_workingTable,filter_column,key_word,columns,MTB_format)
+						data = read_tsv_col(output_file_preMTB_workingTable,filter_column,key_word,columns,MTB_format)
 						write_exl(output_table_file_config_pre,data)
 					clear_blank_line(output_table_file_config_pre,output_table_file_config)
 					MTB_format = False
 
 				ppt_template = base_dir + "/In/Template/InPreD_MTB_template.pptx"
-				DNA_variant_summary_file = data_path + runID_DNA + "_TSO_500_LocalApp_postprocessing_results/" + runID_DNA + "_variant_summary.tsv"
+				DNA_variant_summary_file = pronto.glob_tsoppi_file(data_path, runID_DNA, '{}_variant_summary.tsv'.format(runID_DNA))
 				if(runID_RNA != ""):
-					RNA_variant_summary_file = data_path + runID_RNA + "_TSO_500_LocalApp_postprocessing_results/" + runID_RNA + "_variant_summary.tsv"
+					RNA_variant_summary_file = pronto.glob_tsoppi_file(data_path, runID_RNA, '{}_variant_summary.tsv'.format(runID_RNA))
 				else:
 					RNA_variant_summary_file = ""
 				output_ppt_file = output_path + DNA_sampleID + "_MTB_report.pptx"
-				DNA_image_path = data_path + runID_DNA + "_TSO_500_LocalApp_postprocessing_results/" + DNA_sampleID +"/"
+				DNA_image_path = pronto.glob_tsoppi_file(data_path, runID_DNA, DNA_sampleID)
 				if(RNA_sampleID != ""):
 					RNA_image_path = DNA_image_path
 				else:
 					RNA_image_path = ""
 
 				file = os.path.split(data_file_small_variant_table)[1]
-				ipd_no_str = file.split('_')[0]
 				try:
 					sample_type_string = file.split('-')[2]
 					sample_type_short = sample_type_string[0:1]
@@ -1457,11 +1359,6 @@ def main(argv):
 						if(AF_tumor_DNA >= min_AF_tumor_DNA and Depth_tumor_DNA >= min_depth_tumor_DNA):
 							rows_preMTB_AFTumor += 1
 		
-				if(target_cod_region == 0):
-					TMB_In_house = -1
-				else:
-					TMB_In_house = round(rows_preMTB_AFTumor/target_cod_region, 1)
-
 				rows_TMB_DRUP_AFTumor = 0
 				for line in open(TMB_DURP_coding_file):
 					line_cells = line.split('\t')
