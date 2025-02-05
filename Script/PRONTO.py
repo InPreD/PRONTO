@@ -113,7 +113,7 @@ def read_tsv_col(data_file,filter_column,key_word,columns,MTB_format):
 
 	columnNames = columns.split(',')
 	if MTB_format:
-		columnNames.insert(1,"Genomic corrdinates in hg19 build")
+		columnNames.insert(1,"Genomic coordinates in hg19 build")
 		columnNames.insert(5,"HGVS syntax")
 		columnNames.insert(6,"Change_summary")
 		columnNames.insert(8,"Read depth(variant reads/total reads)")
