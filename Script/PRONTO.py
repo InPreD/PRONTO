@@ -1226,8 +1226,8 @@ def main(argv):
 					if (DNA_run_dir == RNA_run_dir):
 						runID_RNA = runID_DNA
 					else:
-						RNA_run_dir_short = RNA_run_dir.split('/')[-1]
-						runID_RNA = RNA_run_dir_short.split('_TSO')[0]
+						tokens = re.search('^(.*)_(?:TSO|LocalApp)', os.path.basename(RNA_run_dir))
+						runID_RNA = tokens.group(1)
 					RNA_material_id = get_RNA_material_id(InPreD_clinical_data_file,RNA_sampleID,encoding_sys)
 					ipd_material_id = "DNA:" + DNA_material_id + ",RNA:" + RNA_material_id
 				else:
