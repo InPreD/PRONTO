@@ -1137,7 +1137,7 @@ def main(argv):
 			print ("""Error: IPD Material Transit Form InPreD NGS file does not exit under the MTF dir. PRONTO meta file could not be updated with patient personal information by parameter -c of this script!""")
 			sys.exit(0)
 		else:
-			sample_list_file = data_path + runID_DNA + "_TSO_500_LocalApp_postprocessing_results/" + DNA_sampleID +"/" + "sample_list.tsv"
+			sample_list_file = pronto.glob_tsoppi_file(data_path, runID_DNA, DNA_sampleID, 'sample_list.tsv')
 			for line in open(sample_list_file):
 				if(line.startswith("RNA_tumor")):
 					RNA_sampleID = line.split('\t')[1]
@@ -1196,11 +1196,9 @@ def main(argv):
 				extra_path = output_path + "extra_files"
 				output_file_preMTB_table_path = output_path + DNA_sampleID
 				today = time.strftime("%d %b %Y", time.localtime())
-				sample_list_file = data_path + runID_DNA + "_TSO_500_LocalApp_postprocessing_results/" + DNA_sampleID +"/" + "sample_list.tsv"
-				data_file_small_variant_table = data_path + runID_DNA + "_TSO_500_LocalApp_postprocessing_results/" + DNA_sampleID +"/" + DNA_sampleID + "_small_variant_table_forQC.tsv"
-				if not os.path.exists(data_file_small_variant_table):
-					data_file_small_variant_table = data_path + runID_DNA + "_TSO_500_LocalApp_postprocessing_results/" + DNA_sampleID +"/" + DNA_sampleID + "_small_variant_table.tsv"
-				data_file_cnv_overview_plots = data_path + runID_DNA + "_TSO_500_LocalApp_postprocessing_results/" + DNA_sampleID +"/" + DNA_sampleID + "_CNV_overview_plots.pdf"
+				sample_list_file = pronto.glob_tsoppi_file(data_path, runID_DNA, DNA_sampleID, 'sample_list.tsv')
+				data_file_small_variant_table = pronto.glob_tsoppi_file(data_path, runID_DNA, DNA_sampleID, '{}_small_variant_table*.tsv'.format(DNA_sampleID))
+				data_file_cnv_overview_plots = pronto.glob_tsoppi_file(data_path, runID_DNA, DNA_sampleID, '{}_CNV_overview_plots.pdf'.format(DNA_sampleID))
 
 				if not os.path.exists(data_file_small_variant_table):
 					print ("Error:  The data input file " + data_file_small_variant_table + " does not exist!")
@@ -1295,13 +1293,13 @@ def main(argv):
 					MTB_format = False
 
 				ppt_template = base_dir + "/In/Template/InPreD_MTB_template.pptx"
-				DNA_variant_summary_file = data_path + runID_DNA + "_TSO_500_LocalApp_postprocessing_results/" + runID_DNA + "_variant_summary.tsv"
+				DNA_variant_summary_file = pronto.glob_tsoppi_file(data_path, runID_DNA, '{}_variant_summary.tsv'.format(runID_DNA))
 				if(runID_RNA != ""):
-					RNA_variant_summary_file = data_path + runID_RNA + "_TSO_500_LocalApp_postprocessing_results/" + runID_RNA + "_variant_summary.tsv"
+					RNA_variant_summary_file = pronto.glob_tsoppi_file(data_path, runID_RNA, '{}_variant_summary.tsv'.format(runID_RNA))
 				else:
 					RNA_variant_summary_file = ""
 				output_ppt_file = output_path + DNA_sampleID + "_MTB_report.pptx"
-				DNA_image_path = data_path + runID_DNA + "_TSO_500_LocalApp_postprocessing_results/" + DNA_sampleID +"/"
+				DNA_image_path = pronto.glob_tsoppi_file(data_path, runID_DNA, DNA_sampleID)
 				if(RNA_sampleID != ""):
 					RNA_image_path = DNA_image_path
 				else:
