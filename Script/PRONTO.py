@@ -25,7 +25,7 @@ from pptx.enum.text import MSO_VERTICAL_ANCHOR, PP_PARAGRAPH_ALIGNMENT
 from pptx.enum.shapes import MSO_SHAPE
 from decimal import Decimal
 from copy import deepcopy
-from pronto.pronto import get_tmb_string
+import pronto.pronto as pronto
 
 runID = ""
 DNA_sampleID = ""
@@ -781,7 +781,7 @@ def update_ppt_variant_summary_table(data_nrows,DNA_sampleID,RNA_sampleID,TMB_DR
 	for line in DNA_summary_file:
 		if(line.startswith(DNA_sampleID)):
 			if(line.split('\t')[1] == 'NA'):
-				 TMB_illumina = "TMB = NA"
+				TMB_illumina = "TMB = NA"
 			else:
 				TMB_illumina = "TMB = " + line.split('\t')[1]
 				TMB_TSO500 = line.split('\t')[1]
@@ -1003,7 +1003,7 @@ def remisse_mail_writer(remisse_file,ipd_no,ipd_consent,DNA_normal_sampleID,RNA_
 	if(str_TMB_DRUP == "NA"):
 		TMB_string = "Upålitelig, ikke beregnet\n"
 	else:
-		TMB_string = get_tmb_string(TMB_DRUP)
+		TMB_string = pronto.get_tmb_string(TMB_DRUP)
 	if(stable_text == "Unstable"):
 		stable_text = "Ustabil"
 	if(stable_text == "Stable"):
