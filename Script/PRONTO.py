@@ -25,6 +25,7 @@ from pptx.enum.text import MSO_VERTICAL_ANCHOR, PP_PARAGRAPH_ALIGNMENT
 from pptx.enum.shapes import MSO_SHAPE
 from decimal import Decimal
 from copy import deepcopy
+import pronto.pronto as pronto
 
 runID = ""
 DNA_sampleID = ""
@@ -780,7 +781,7 @@ def update_ppt_variant_summary_table(data_nrows,DNA_sampleID,RNA_sampleID,TMB_DR
 	for line in DNA_summary_file:
 		if(line.startswith(DNA_sampleID)):
 			if(line.split('\t')[1] == 'NA'):
-				 TMB_illumina = "TMB = NA"
+				TMB_illumina = "TMB = NA"
 			else:
 				TMB_illumina = "TMB = " + line.split('\t')[1]
 				TMB_TSO500 = line.split('\t')[1]
@@ -970,7 +971,6 @@ def remisse_mail_writer(remisse_file,ipd_no,ipd_consent,DNA_normal_sampleID,RNA_
 	from docx.enum.text import WD_ALIGN_PARAGRAPH
 	impress_id = ipd_consent
 	sample_type = sample_type.replace("\n", "")
-	TMB_position = "Not available"
 	doc = Document()
 	doc.styles['Normal'].font.name = 'Calibri'
 	doc.styles['Normal'].font.size = Pt(12)
@@ -1003,13 +1003,7 @@ def remisse_mail_writer(remisse_file,ipd_no,ipd_consent,DNA_normal_sampleID,RNA_
 	if(str_TMB_DRUP == "NA"):
 		TMB_string = "Upålitelig, ikke beregnet\n"
 	else:
-		if(TMB_DRUP >= 0 and TMB_DRUP <= 5):
-			TMB_position = "lav"
-		if(TMB_DRUP > 5 and TMB_DRUP <= 20):
-			TMB_position = "intermediær"
-		if(TMB_DRUP > 20):
-			TMB_position = "høy"
-		TMB_string = str(TMB_DRUP) + " mut/Mb; " + TMB_position + "\n"
+		TMB_string = pronto.get_tmb_string(TMB_DRUP)
 	if(stable_text == "Unstable"):
 		stable_text = "Ustabil"
 	if(stable_text == "Stable"):
@@ -1232,7 +1226,7 @@ def main(argv):
 			print ("""Error: IPD Material Transit Form InPreD NGS file does not exit under the MTF dir. PRONTO meta file could not be updated with patient personal information by parameter -c of this script!""")
 			sys.exit(0)
 		else:
-			sample_list_file = data_path + runID_DNA + "_TSO_500_LocalApp_postprocessing_results/" + DNA_sampleID +"/" + "sample_list.tsv"
+			sample_list_file = pronto.glob_tsoppi_file(data_path, runID_DNA, DNA_sampleID, 'sample_list.tsv')
 			for line in open(sample_list_file):
 				if(line.startswith("RNA_tumor")):
 					RNA_sampleID = line.split('\t')[1]
@@ -1291,11 +1285,9 @@ def main(argv):
 				extra_path = output_path + "extra_files"
 				output_file_preMTB_table_path = output_path + DNA_sampleID
 				today = time.strftime("%d %b %Y", time.localtime())
-				sample_list_file = data_path + runID_DNA + "_TSO_500_LocalApp_postprocessing_results/" + DNA_sampleID +"/" + "sample_list.tsv"
-				data_file_small_variant_table = data_path + runID_DNA + "_TSO_500_LocalApp_postprocessing_results/" + DNA_sampleID +"/" + DNA_sampleID + "_small_variant_table_forQC.tsv"
-				if not os.path.exists(data_file_small_variant_table):
-					data_file_small_variant_table = data_path + runID_DNA + "_TSO_500_LocalApp_postprocessing_results/" + DNA_sampleID +"/" + DNA_sampleID + "_small_variant_table.tsv"
-				data_file_cnv_overview_plots = data_path + runID_DNA + "_TSO_500_LocalApp_postprocessing_results/" + DNA_sampleID +"/" + DNA_sampleID + "_CNV_overview_plots.pdf"
+				sample_list_file = pronto.glob_tsoppi_file(data_path, runID_DNA, DNA_sampleID, 'sample_list.tsv')
+				data_file_small_variant_table = pronto.glob_tsoppi_file(data_path, runID_DNA, DNA_sampleID, '{}_small_variant_table*.tsv'.format(DNA_sampleID))
+				data_file_cnv_overview_plots = pronto.glob_tsoppi_file(data_path, runID_DNA, DNA_sampleID, '{}_CNV_overview_plots.pdf'.format(DNA_sampleID))
 
 				if not os.path.exists(data_file_small_variant_table):
 					print ("Error:  The data input file " + data_file_small_variant_table + " does not exist!")
@@ -1325,8 +1317,10 @@ def main(argv):
 					if (DNA_run_dir == RNA_run_dir):
 						runID_RNA = runID_DNA
 					else:
-						RNA_run_dir_short = RNA_run_dir.split('/')[-1]
-						runID_RNA = RNA_run_dir_short.split('_TSO')[0]
+						# define capture group for string in front of _TSO or _LocalApp and use on RNA_run_dir basename (last element in path)
+						tokens = re.search('^(.*)_(?:TSO|LocalApp)', os.path.basename(RNA_run_dir))
+						# set runID_RNA to string captured by first group
+						runID_RNA = tokens.group(1)
 					RNA_material_id = get_RNA_material_id(InPreD_clinical_data_file,RNA_sampleID,encoding_sys)
 					ipd_material_id = "DNA:" + DNA_material_id + ",RNA:" + RNA_material_id
 				else:
@@ -1390,13 +1384,13 @@ def main(argv):
 					MTB_format = False
 
 				ppt_template = base_dir + "/In/Template/InPreD_MTB_template.pptx"
-				DNA_variant_summary_file = data_path + runID_DNA + "_TSO_500_LocalApp_postprocessing_results/" + runID_DNA + "_variant_summary.tsv"
+				DNA_variant_summary_file = pronto.glob_tsoppi_file(data_path, runID_DNA, '{}_variant_summary.tsv'.format(runID_DNA))
 				if(runID_RNA != ""):
-					RNA_variant_summary_file = data_path + runID_RNA + "_TSO_500_LocalApp_postprocessing_results/" + runID_RNA + "_variant_summary.tsv"
+					RNA_variant_summary_file = pronto.glob_tsoppi_file(data_path, runID_RNA, '{}_variant_summary.tsv'.format(runID_RNA))
 				else:
 					RNA_variant_summary_file = ""
 				output_ppt_file = output_path + DNA_sampleID + "_MTB_report.pptx"
-				DNA_image_path = data_path + runID_DNA + "_TSO_500_LocalApp_postprocessing_results/" + DNA_sampleID +"/"
+				DNA_image_path = pronto.glob_tsoppi_file(data_path, runID_DNA, DNA_sampleID)
 				if(RNA_sampleID != ""):
 					RNA_image_path = DNA_image_path
 				else:
