@@ -1,0 +1,3 @@
+#sample_type	sample_ID	sample_pair_ID	sample_output_ID	sample_host_system_run_directory
+DNA_tumor	CL-AcroMetrix-D01	CL-AcroMetrix-D01_P	CL-AcroMetrix-D01	/path/to/191206_NB501498_0174_AHWCNMBGXC_LocalApp_results
+RNA_tumor	CL-AcroMetrix-R01	CL-AcroMetrix-R01_P	CL-AcroMetrix-R01	/path/to/191206_NB501498_0174_AHWCNMBGXC_LocalApp_results

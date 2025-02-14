@@ -19,6 +19,7 @@
 # - "Extraction_hospital": hospital undertaking the sample extraction; in string format;
 # - "Tumor_content_pathology": tumor content in percent estimated by the pathologist; not necessarily the value used in TSOPPI and written into the mol-MDT report;
 # - "Batch": batch information from the wet lab.
-Sample_id	Sequencing_run_id	Create_report	Year_of_birth	Year_of_diagnosis	Clinical_diagnosis	Sex	Study_id	Sample_material_id	Year_of_sample_collection	Requisition_hospital	Extraction_hospital	Tumor_content_pathology	Batch
-CL-AcroMetrix	191206_NB501498_0174_AHWCNMBGXC	Y	1985	-	None	F	IMPR.X-0999	MP23-19991	-	TEST	Mol. Pat. OUS	-	999
-CL-NA12878N25	191206_NB501498_0174_AHWCNMBGXC	Y	1967	1900	-	F	IMPR.X-0999	MP23-19992	-	TEST	Mol. Pat. OUS	-	999
+Sample_id	Sequencing_run_id	Create_report	Year_of_birth	Year_of_diagnosis	Clinical_diagnosis	Sex	Study_id	Sample_material_id	Year_of_sample_collection	Requisition_hospital	Extraction_hospital	Tumor_content_pathology	Batch	Pathology_comment	Sample_info_comment
+CL-AcroMetrix-D01	191206_NB501498_0174_AHWCNMBGXC	Y	1985	-	None	F	IMPR.X-0999	MP23-19991	-	TEST	Mol. Pat. OUS	-	999	NA	NA
+CL-AcroMetrix-R01	191206_NB501498_0174_AHWCNMBGXC	-	1985	-	None	F	IMPR.X-0999	MP23-19991	-	TEST	Mol. Pat. OUS	-	999	NA	NA
+CL-NA12878N25-D01	191206_NB501498_0174_AHWCNMBGXC	Y	1967	1900	-	F	IMPR.X-0999	MP23-19992	-	TEST	Mol. Pat. OUS	-	999	NA	NA

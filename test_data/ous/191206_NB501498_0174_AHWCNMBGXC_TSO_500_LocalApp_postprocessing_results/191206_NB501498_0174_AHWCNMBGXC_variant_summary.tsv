@@ -1,0 +1,10 @@
+# Field formats:					
+# - TMB: TMB (elligible_variants)					
+# - MSI: percentage_of_unstable_MSI_sites (unstable_MSI_site_count/usable_MSI_site_count)					
+# - gene_amplifications: gene (fold_change)					
+# - splice_variants: gene[affected_exon] (breakpoint_gene_1-breakpoint_gene_2) splice_supporting_reads/reference_reads					
+# - fusions: gene_1-gene_2 (breakpoint_gene_1-breakpoint_gene_2) fusion_supporting_reads/ref_reads_gene_1/ref_reads_gene_2					
+sample_id	TMB	MSI	gene_amplifications	splice_variants	fusions
+CL-AcroMetrix-D01_P	238.5 (305)	4.42 (5/113)	NA	NA	NA
+CL-AcroMetrix-R01_P	NA	NA	NA	NA	NA
+CL-NA12878N25-D01_P	0.8 (1)	0.00 (0/92)	NA	NA	NA
