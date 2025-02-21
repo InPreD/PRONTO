@@ -829,8 +829,7 @@ def update_ppt_variant_summary_table(data_nrows,DNA_sampleID,RNA_sampleID,TMB_DR
 					splicing = "splicing: None reported"
 				else:
 					splicing = "splicing: " + splice_variants_str.split('(')[0]
-					pattern_splicing = "\|(.*?)\("
-					splicing_end = re.findall(pattern_splicing, splice_variants_str)
+					splicing_end = re.findall('\\|(.*?)\\(', splice_variants_str)
 					if(splicing_end):
 						for splice in splicing_end:
 							splicing += ',' + splice
@@ -839,8 +838,7 @@ def update_ppt_variant_summary_table(data_nrows,DNA_sampleID,RNA_sampleID,TMB_DR
 					fusion = "fusion: None reported"
 				else:
 					fusion = "fusion: " + gene_fusion_str.split('(')[0]
-					pattern_fusion = "\|(.*?)\("
-					fusion_end = re.findall(pattern_fusion, gene_fusion_str)
+					fusion_end = re.findall('\\|(.*?)\\(', gene_fusion_str)
 					if(fusion_end):
 						for fus in fusion_end:
 							fusion += ';' + fus
@@ -1198,7 +1196,7 @@ def main(argv):
 		elif opt in ("-c", "--clinicalFile"):
 			update_clinical_file = True
 	runID_DNA = runID
-	DNA_sampleID_format = "IP\w\d\d\d\d-D(\d|X)(\d|X)-\w(\d|X)(\d|X)-\w(\d|X)(\d|X)"
+	DNA_sampleID_format = '^IP[A-Z]\\d{4}-D(\\d|X){2}-[A-z](\\d|X){2}-[A-z](\\d|X){2}'
 
 	base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 	config_file = base_dir + "/Config/configure_PRONTO.ini"
