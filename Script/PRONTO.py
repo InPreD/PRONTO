@@ -1284,7 +1284,7 @@ def main(argv):
 				output_file_preMTB_table_path = output_path + DNA_sampleID
 				today = time.strftime("%d %b %Y", time.localtime())
 				sample_list_file = pronto.glob_tsoppi_file(data_path, runID_DNA, DNA_sampleID, 'sample_list.tsv')
-				data_file_small_variant_table = pronto.glob_tsoppi_file(data_path, runID_DNA, DNA_sampleID, '{}_small_variant_table*.tsv'.format(DNA_sampleID))
+				data_file_small_variant_table = pronto.glob_tsoppi_file(data_path, runID_DNA, DNA_sampleID, '{}_small_variant_table.tsv'.format(DNA_sampleID))
 				data_file_cnv_overview_plots = pronto.glob_tsoppi_file(data_path, runID_DNA, DNA_sampleID, '{}_CNV_overview_plots.pdf'.format(DNA_sampleID))
 
 				if not os.path.exists(data_file_small_variant_table):
@@ -1315,8 +1315,8 @@ def main(argv):
 					if (DNA_run_dir == RNA_run_dir):
 						runID_RNA = runID_DNA
 					else:
-						# define capture group for string in front of _TSO or _LocalApp and use on RNA_run_dir basename (last element in path)
-						tokens = re.search('^(.*)_(?:TSO|LocalApp)', os.path.basename(RNA_run_dir))
+						# define capture group for string in front of _TSO_500_LocalApp and use on RNA_run_dir basename (last element in path)
+						tokens = re.search('^(.*)_(?:TSO_500_LocalApp)', os.path.basename(RNA_run_dir))
 						# set runID_RNA to string captured by first group
 						runID_RNA = tokens.group(1)
 					RNA_material_id = get_RNA_material_id(InPreD_clinical_data_file,RNA_sampleID,encoding_sys)
