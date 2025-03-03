@@ -1053,7 +1053,7 @@ def update_clinical_master_file(InPreD_clinical_data_file,sample_id,if_generate_
 	for ln in fr:
 		if(ln.split('\t')[0] == sample_id):
 			if_exist = True
-			line = sample_id + "\t" + runID + "\t" + if_generate_report + "\t" + ipd_birth_year + "\t" + ipd_diagnosis_year + "\t" + clinical_diagnosis + "\t" + ipd_gender[0] + "\t" + ipd_consent + "\t" + material_id + "\t" + ipd_collection_year + "\t" + requisition_hospital + "\t" + extraction_hospital + "\t" + str(tumor_content_nr) + "\t" + batch_nr + "\t" + pathology_comment + "\t" + sample_info_comment + "\n"
+			line = '\t'.join([sample_id, runID, if_generate_report, ipd_birth_year, ipd_diagnosis_year, clinical_diagnosis, ipd_gender[0], ipd_consent, material_id, ipd_collection_year, requisition_hospital, extraction_hospital, str(tumor_content_nr), batch_nr, pathology_comment, sample_info_comment + '\n'])
 			new_line = ln.replace(ln,line)
 			new_content = new_content + new_line
 		else:
@@ -1064,7 +1064,7 @@ def update_clinical_master_file(InPreD_clinical_data_file,sample_id,if_generate_
 	else:
 		fa = open(InPreD_clinical_data_file, 'a')
 	if(if_exist == False):
-		line = sample_id + "\t" + runID + "\t" + if_generate_report + "\t" + ipd_birth_year + "\t" + ipd_diagnosis_year + "\t" + clinical_diagnosis + "\t" + ipd_gender[0] + "\t" + ipd_consent + "\t" + material_id + "\t" + ipd_collection_year + "\t" + requisition_hospital + "\t" + extraction_hospital + "\t" + str(tumor_content_nr) + "\t" + batch_nr + "\t" + pathology_comment + "\t" + sample_info_comment + "\n"
+		line = '\t'.join([sample_id, runID, if_generate_report, ipd_birth_year, ipd_diagnosis_year, clinical_diagnosis, ipd_gender[0], ipd_consent, material_id, ipd_collection_year, requisition_hospital, extraction_hospital, str(tumor_content_nr), batch_nr, pathology_comment, sample_info_comment + '\n'])
 		if(encoding_sys != ""):
 			fa = open(InPreD_clinical_data_file, 'a', encoding=encoding_sys)
 		else:
@@ -1102,14 +1102,14 @@ def update_clinical_tsoppi_file(InPreD_clinical_tsoppi_data_file,sample_id,if_ge
 		for ln in fr:
 			if(ln.split('\t')[0] == sample_id):
 				if_exist = True
-				line = sample_id + "\t" + runID + "\t" + if_generate_report + "\t" + ipd_birth_year + "\t" + ipd_diagnosis_year + "\t" + clinical_diagnosis + "\t" + ipd_gender[0] + "\t" + ipd_consent + "\t" + material_id + "\t" + ipd_collection_year + "\t" + requisition_hospital + "\t" + extraction_hospital + "\t" + str(tumor_content_nr) + "\t" + batch_nr + "\t" + sample_material + "\t" + sample_type + "\t" + tumor_type + "\t" + str(TMB_DRUP) + "\t" + TMB_TSO500 + "\t" + MSI_TSO500 + "\t" + pipline + "\t" + pathology_comment + "\t" + sample_info_comment +"\n"
+				line = '\t'.join([sample_id, runID, if_generate_report, ipd_birth_year, ipd_diagnosis_year, clinical_diagnosis, ipd_gender[0], ipd_consent, material_id, ipd_collection_year, requisition_hospital, extraction_hospital, str(tumor_content_nr), batch_nr, sample_material, sample_type, tumor_type, str(TMB_DRUP), TMB_TSO500, MSI_TSO500, pipline, pathology_comment, sample_info_comment + '\n'])
 				new_line = ln.replace(ln,line)
 				new_content = new_content + new_line
 			else:
 				new_content = new_content + ln
 	fr.close()
 	if(if_exist == False):
-		line = sample_id + "\t" + runID + "\t" + if_generate_report + "\t" + ipd_birth_year + "\t" + ipd_diagnosis_year + "\t" + clinical_diagnosis + "\t" + ipd_gender[0] + "\t" + ipd_consent + "\t" + material_id + "\t" + ipd_collection_year + "\t" + requisition_hospital + "\t" + extraction_hospital + "\t" + str(tumor_content_nr) + "\t" + batch_nr + "\t" + sample_material + "\t" + sample_type + "\t" + tumor_type + "\t" + str(TMB_DRUP) + "\t" + TMB_TSO500 + "\t" + MSI_TSO500 + "\t" + pipline + "\t" + pathology_comment + "\t" + sample_info_comment +"\n"
+		line = '\t'.join([sample_id, runID, if_generate_report, ipd_birth_year, ipd_diagnosis_year, clinical_diagnosis, ipd_gender[0], ipd_consent, material_id, ipd_collection_year, requisition_hospital, extraction_hospital, str(tumor_content_nr), batch_nr, sample_material, sample_type, tumor_type, str(TMB_DRUP), TMB_TSO500, MSI_TSO500, pipline, pathology_comment, sample_info_comment + '\n'])
 		with open(InPreD_clinical_tsoppi_data_file, 'a') as fa:
 			fa.write(line)
 		fa.close()
