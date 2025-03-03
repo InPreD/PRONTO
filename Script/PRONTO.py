@@ -1282,7 +1282,6 @@ def main(argv):
 				output_path = output_path_root + runID + "/" + DNA_sampleID + "/"
 				extra_path = output_path + "extra_files"
 				output_file_preMTB_table_path = output_path + DNA_sampleID
-				today = time.strftime("%d %b %Y", time.localtime())
 				sample_list_file = pronto.glob_tsoppi_file(data_path, runID_DNA, DNA_sampleID, 'sample_list.tsv')
 				data_file_small_variant_table = pronto.glob_tsoppi_file(data_path, runID_DNA, DNA_sampleID, '{}_small_variant_table.tsv'.format(DNA_sampleID))
 				data_file_cnv_overview_plots = pronto.glob_tsoppi_file(data_path, runID_DNA, DNA_sampleID, '{}_CNV_overview_plots.pdf'.format(DNA_sampleID))
@@ -1396,7 +1395,6 @@ def main(argv):
 					RNA_image_path = ""
 
 				file = os.path.split(data_file_small_variant_table)[1]
-				ipd_no_str = file.split('_')[0]
 				try:
 					sample_type_string = file.split('-')[2]
 					sample_type_short = sample_type_string[0:1]
@@ -1450,11 +1448,6 @@ def main(argv):
 						if(AF_tumor_DNA >= min_AF_tumor_DNA and Depth_tumor_DNA >= min_depth_tumor_DNA):
 							rows_preMTB_AFTumor += 1
 		
-				if(target_cod_region == 0):
-					TMB_In_house = -1
-				else:
-					TMB_In_house = round(rows_preMTB_AFTumor/target_cod_region, 1)
-
 				rows_TMB_DRUP_AFTumor = 0
 				for line in open(TMB_DURP_coding_file):
 					line_cells = line.split('\t')
