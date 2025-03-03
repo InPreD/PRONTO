@@ -147,7 +147,7 @@ def read_tsv_col(data_file,filter_column,key_word,columns,MTB_format):
 						column_mark.append(col)
 						break
 			if(MTB_format == True):
-				data[0].insert(1,"Genomic corrdinates in hg19 build\t")
+				data[0].insert(1,"Genomic coordinates in hg19 build\t")
 				data[0].insert(5,"HGVS syntax\t")
 				data[0].insert(6,"Change_summary\t")
 				data[0].insert(8,"Read depth(variant reads/total reads)\t")
@@ -1482,7 +1482,7 @@ def main(argv):
 				insert_image_to_ppt(DNA_sampleID,DNA_normal_sampleID,RNA_sampleID,DNA_image_path,RNA_image_path,output_ppt_file)
 
                 		# Insert tables into PP file:
-				slide8_table_header = ["Gene_symbol", "Genomic corrdinates in hg19 build", "Ensembl_transcript_ID", "Exon_number", "Protein_change_short", "HGVS syntax", "Change_summary", "Coding_status", "Read depth(variant reads/total reads)", "AF_tumor_DNA"]
+				slide8_table_header = ["Gene_symbol", "Genomic coordinates in hg19 build", "Ensembl_transcript_ID", "Exon_number", "Protein_change_short", "HGVS syntax", "Change_summary", "Coding_status", "Read depth(variant reads/total reads)", "AF_tumor_DNA"]
 				slide8_table_header_aliases = ["Gene symbol", "Genomic coordinates in hg19 build", "Ensembl_transcript_ID", "Exon", "Protein change", "HGVS syntax", "Change_summary", "Coding status", "Read depth (variant reads/total reads)", "VAF"]
 				if(DNA_normal_sampleID != ""):
 					slide6_table_header = ["Gene_symbol", "Protein_change_short", "Coding_status", "AF_tumor_DNA", "AF_normal_DNA"]
