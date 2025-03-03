@@ -301,20 +301,6 @@ def get_patient_info_from_MTF_2023(ipd_material_file,ipd_no,DNA_sampleID,RNA_sam
 		'extraction_hospital': 'Extraction Hospital',
 		'batch_nr': 'LP batch'
 	}
-#	col_ipd = "InPreD ID"
-#	col_gender = "Gender"
-#	col_age = "Age"
-#	col_birth_date = "Date of birth"
-#	col_requisition_hospital = "Requester Hospital"
-#	col_material_name = "Original Name"
-#	col_consent = "Study ID"
-#	col_tumor_content_nr = "Tumor cells [%]"
-#	col_sampleID_ori_name = "Sample ID"
-#	col_ex_sample_info = "Sample information"
-#	col_ex_data_section = "Extraction Data"
-#	col_ex_library_pre = "Library Preparation (LP) Data"
-#	col_extraction_hospital = "Extraction Hospital"
-#	col_batch_nr = "LP batch"
 	ipd_birth_date = ""
 	sample_info_row = 0
 	extra_data_row = 0
@@ -442,24 +428,6 @@ def get_patient_info_from_MTF_new(ipd_material_file,ipd_no,DNA_sampleID,RNA_samp
 		'extraction_hospital': 'Extraction Hospital',
 		'batch_nr': 'LP batch'
 		}
-#	col_ipd = "InPreD ID"
-#	col_gender = "Gender"
-#	col_age = "Age"
-#	col_birth_date = "Date of birth"
-#	col_DIT_number = "DIT number"
-#	col_consent = "Study ID"
-#	col_requisition_hospital = "Requester Hospital"
-#	col_Histopathological_diagnosis = "diagnosis"
-#	col_comment = "Comments"
-#	col_material_id = "Sample material ID"
-#	col_tumor_content_nr = "Tumor cells [%]"
-#	col_sample_ID = "Sample ID"
-#	col_ex_pathology_info = "Molecular Pathology information"
-#	col_ex_sample_info = "Sample information"
-#	col_ex_data_section = "Extraction Data"
-#	col_ex_library_pre = "Library Preparation (LP) Data"
-#	col_extraction_hospital = "Extraction Hospital"
-#	col_batch_nr = "LP batch" columns['batch_nr']
 	ipd_birth_date = ""
 	sample_info_row = 0
 	extra_data_row = 0
