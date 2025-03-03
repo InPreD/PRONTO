@@ -505,7 +505,7 @@ def get_patient_info_from_MTF_new(ipd_material_file,ipd_no,DNA_sampleID,RNA_samp
 					if(sheet_material.cell_value(r,10) == columns['comment'] and sheet_material.cell_value(r+2,10) != "" and str(sheet_material.cell_value(r+2,10)) != "0.0" and str(sheet_material.cell_value(r+2,10)) != "0"):
 						comments = str(sheet_material.cell_value(r+2,10))
 					if(sample_info_comment == ""):
-						sample_info_comment = sample_ID + ": " + comments
+						sample_info_comment = "{}: {}".format(sample_ID, comments)
 					else:
 						if(sample_ID != "-" or comments != "-"):
 							sample_info_comment += "|" + sample_ID + ": " + comments
@@ -1515,7 +1515,7 @@ def main(argv):
 				# Slide8 Table: Sequence data summary: Variants alter protein code*
 				slide8_table_data_file = output_file_sequence_summary_table
 				slide8_table_ppSlide = 9
-				slide8_table_name = "Sequence data summary for " + DNA_sampleID + ": Variants that alter protein code and splice sites." + "  TSOPPI Version string: " + pipline + " "
+				slide8_table_name = "Sequence data summary for {}: Variants that alter protein code and splice sites.  TSOPPI Version string: {} ".format(DNA_sampleID, pipline)
 				slide8_header_left = 0.25
 				slide8_header_top = 0.27
 				slide8_header_width = 8.98
