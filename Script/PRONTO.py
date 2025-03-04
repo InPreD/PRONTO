@@ -147,10 +147,10 @@ def read_tsv_col(data_file,filter_column,key_word,columns,MTB_format):
 						column_mark.append(col)
 						break
 			if(MTB_format == True):
-				data[0].insert(1,"Genomic coordinates in hg19 build\t")
-				data[0].insert(5,"HGVS syntax\t")
+				data[0].insert(1,"Genomic_coordinates_in_hg19_build\t")
+				data[0].insert(5,"HGVS_syntax\t")
 				data[0].insert(6,"Change_summary\t")
-				data[0].insert(8,"Read depth(variant reads/total reads)\t")
+				data[0].insert(8,"Read_depth(variant reads/total reads)\t")
 			data[0].append('\n')
 			mark = True
 		if(line.startswith(DNA_sampleID) and mark):
@@ -713,7 +713,7 @@ def insert_image_to_ppt(DNA_sampleID,DNA_normal_sampleID,RNA_sampleID,DNA_image_
 	ppt.save(output_ppt_file)
 
 
-def insert_table_to_ppt(table_data_file,slide_n,table_name,left_h,top_h,width_h,left_t,top_t,width_t,height_t,font_size,table_header,table_header_aliases,output_ppt_file,if_print_rowNo,table_column_width):
+def insert_table_to_ppt(table_data_file,slide_n,table_name,left_h,top_h,width_h,left_t,top_t,width_t,height_t,font_size,table_header,output_ppt_file,if_print_rowNo,table_column_width):
 	table_file = open(table_data_file)
 	lines = table_file.readlines()
 	if not lines:
@@ -744,7 +744,7 @@ def insert_table_to_ppt(table_data_file,slide_n,table_name,left_h,top_h,width_h,
 	for c in range(cols):
 		if table_column_width:
 			table.columns[c].width = Inches(table_column_width[c])
-		table.cell(0,c).text = table_header_aliases[c]
+		table.cell(0,c).text = table_header[c]
 		table.cell(0,c).text_frame.paragraphs[0].font.size = Pt(font_size)
 
 	row = 1
@@ -1478,14 +1478,11 @@ def main(argv):
 				insert_image_to_ppt(DNA_sampleID,DNA_normal_sampleID,RNA_sampleID,DNA_image_path,RNA_image_path,output_ppt_file)
 
                 		# Insert tables into PP file:
-				slide8_table_header = ["Gene_symbol", "Genomic coordinates in hg19 build", "Ensembl_transcript_ID", "Exon_number", "Protein_change_short", "HGVS syntax", "Change_summary", "Coding_status", "Read depth(variant reads/total reads)", "AF_tumor_DNA"]
-				slide8_table_header_aliases = ["Gene symbol", "Genomic coordinates in hg19 build", "Ensembl_transcript_ID", "Exon", "Protein change", "HGVS syntax", "Change_summary", "Coding status", "Read depth (variant reads/total reads)", "VAF"]
+				slide8_table_header = ["Gene_symbol", "Genomic_coordinates_in_hg19_build", "Ensembl_transcript_ID", "Exon_number", "Protein_change_short", "HGVS_syntax", "Change_summary", "Coding_status", "Read_depth(variant reads/total reads)", "AF_tumor_DNA"]
 				if(DNA_normal_sampleID != ""):
 					slide6_table_header = ["Gene_symbol", "Protein_change_short", "Coding_status", "AF_tumor_DNA", "AF_normal_DNA"]
-					slide6_table_header_aliases = ["Gene symbol", "Protein change", "Coding status", "VAF tumor DNA [0,1]", "VAF normal DNA"]
 				else:
 					slide6_table_header = ["Gene_symbol", "Protein_change_short", "Coding_status", "AF_tumor_DNA"]
-					slide6_table_header_aliases = ["Gene symbol", "Protein change", "Coding status", "VAF tumor DNA [0,1]"]
         
                 		# Slide2, slide6 and slide7 right side table: Variants that alter protein coding sequence
 				slide6_table_data_file = output_file_preMTB_table_path + "_AllReporVariants_AltProtein.txt" 
@@ -1501,7 +1498,7 @@ def main(argv):
 				slide6_table_font_size = 7
 				if_print_rowNo = False
 				for table_index in slide6_table_ppSlide:
-					slide6_table_nrows = insert_table_to_ppt(slide6_table_data_file,table_index,slide6_table_name,slide6_header_left,slide6_header_top,slide6_header_width,slide6_table_left,slide6_table_top,slide6_table_width,slide6_table_height,slide6_table_font_size,slide6_table_header,slide6_table_header_aliases,output_ppt_file,if_print_rowNo,[])
+					slide6_table_nrows = insert_table_to_ppt(slide6_table_data_file,table_index,slide6_table_name,slide6_header_left,slide6_header_top,slide6_header_width,slide6_table_left,slide6_table_top,slide6_table_width,slide6_table_height,slide6_table_font_size,slide6_table_header,output_ppt_file,if_print_rowNo,[])
 				output_file_preMTB_AppendixTable = output_file_preMTB_table_path + "_preMTBTable_Appendix.txt"
 				output_table_file_filterResults_AllReporVariants_CodingRegion = output_file_preMTB_table_path + "_AllReporVariants_CodingRegion.txt"
 				stable_text = update_ppt_variant_summary_table(slide6_table_nrows,DNA_sampleID,RNA_sampleID,TMB_DRUP,TMB_DRUP_str,DNA_variant_summary_file,RNA_variant_summary_file,output_file_preMTB_AppendixTable,output_table_file_filterResults_AllReporVariants_CodingRegion,output_ppt_file)
@@ -1521,7 +1518,7 @@ def main(argv):
 				slide8_table_font_size = 7
 				if_print_rowNo = True
 				table8_column_width = [0.54, 0.96, 0.96, 0.51, 0.73, 1.12, 2.26, 0.79, 0.81, 0.53]
-				slide8_table_nrows = insert_table_to_ppt(slide8_table_data_file,slide8_table_ppSlide,slide8_table_name,slide8_header_left,slide8_header_top,slide8_header_width,slide8_table_left,slide8_table_top,slide8_table_width,slide8_table_height,slide8_table_font_size,slide8_table_header,slide8_table_header_aliases,output_ppt_file,if_print_rowNo,table8_column_width)
+				slide8_table_nrows = insert_table_to_ppt(slide8_table_data_file,slide8_table_ppSlide,slide8_table_name,slide8_header_left,slide8_header_top,slide8_header_width,slide8_table_left,slide8_table_top,slide8_table_width,slide8_table_height,slide8_table_font_size,slide8_table_header,output_ppt_file,if_print_rowNo,table8_column_width)
 
         			# Change slides order.
 				ppt = Presentation(output_ppt_file)
