@@ -147,7 +147,7 @@ def read_tsv_col(data_file,filter_column,key_word,columns,MTB_format):
 						column_mark.append(col)
 						break
 			if(MTB_format == True):
-				data[0].insert(1,"Genomic corrdinates in hg19 build\t")
+				data[0].insert(1,"Genomic coordinates in hg19 build\t")
 				data[0].insert(5,"HGVS syntax\t")
 				data[0].insert(6,"Change_summary\t")
 				data[0].insert(8,"Read depth(variant reads/total reads)\t")
@@ -301,20 +301,6 @@ def get_patient_info_from_MTF_2023(ipd_material_file,ipd_no,DNA_sampleID,RNA_sam
 		'extraction_hospital': 'Extraction Hospital',
 		'batch_nr': 'LP batch'
 	}
-#	col_ipd = "InPreD ID"
-#	col_gender = "Gender"
-#	col_age = "Age"
-#	col_birth_date = "Date of birth"
-#	col_requisition_hospital = "Requester Hospital"
-#	col_material_name = "Original Name"
-#	col_consent = "Study ID"
-#	col_tumor_content_nr = "Tumor cells [%]"
-#	col_sampleID_ori_name = "Sample ID"
-#	col_ex_sample_info = "Sample information"
-#	col_ex_data_section = "Extraction Data"
-#	col_ex_library_pre = "Library Preparation (LP) Data"
-#	col_extraction_hospital = "Extraction Hospital"
-#	col_batch_nr = "LP batch"
 	ipd_birth_date = ""
 	sample_info_row = 0
 	extra_data_row = 0
@@ -442,24 +428,6 @@ def get_patient_info_from_MTF_new(ipd_material_file,ipd_no,DNA_sampleID,RNA_samp
 		'extraction_hospital': 'Extraction Hospital',
 		'batch_nr': 'LP batch'
 		}
-#	col_ipd = "InPreD ID"
-#	col_gender = "Gender"
-#	col_age = "Age"
-#	col_birth_date = "Date of birth"
-#	col_DIT_number = "DIT number"
-#	col_consent = "Study ID"
-#	col_requisition_hospital = "Requester Hospital"
-#	col_Histopathological_diagnosis = "diagnosis"
-#	col_comment = "Comments"
-#	col_material_id = "Sample material ID"
-#	col_tumor_content_nr = "Tumor cells [%]"
-#	col_sample_ID = "Sample ID"
-#	col_ex_pathology_info = "Molecular Pathology information"
-#	col_ex_sample_info = "Sample information"
-#	col_ex_data_section = "Extraction Data"
-#	col_ex_library_pre = "Library Preparation (LP) Data"
-#	col_extraction_hospital = "Extraction Hospital"
-#	col_batch_nr = "LP batch" columns['batch_nr']
 	ipd_birth_date = ""
 	sample_info_row = 0
 	extra_data_row = 0
@@ -537,7 +505,7 @@ def get_patient_info_from_MTF_new(ipd_material_file,ipd_no,DNA_sampleID,RNA_samp
 					if(sheet_material.cell_value(r,10) == columns['comment'] and sheet_material.cell_value(r+2,10) != "" and str(sheet_material.cell_value(r+2,10)) != "0.0" and str(sheet_material.cell_value(r+2,10)) != "0"):
 						comments = str(sheet_material.cell_value(r+2,10))
 					if(sample_info_comment == ""):
-						sample_info_comment = sample_ID + ": " + comments
+						sample_info_comment = "{}: {}".format(sample_ID, comments)
 					else:
 						if(sample_ID != "-" or comments != "-"):
 							sample_info_comment += "|" + sample_ID + ": " + comments
@@ -1085,7 +1053,7 @@ def update_clinical_master_file(InPreD_clinical_data_file,sample_id,if_generate_
 	for ln in fr:
 		if(ln.split('\t')[0] == sample_id):
 			if_exist = True
-			line = sample_id + "\t" + runID + "\t" + if_generate_report + "\t" + ipd_birth_year + "\t" + ipd_diagnosis_year + "\t" + clinical_diagnosis + "\t" + ipd_gender[0] + "\t" + ipd_consent + "\t" + material_id + "\t" + ipd_collection_year + "\t" + requisition_hospital + "\t" + extraction_hospital + "\t" + str(tumor_content_nr) + "\t" + batch_nr + "\t" + pathology_comment + "\t" + sample_info_comment + "\n"
+			line = '\t'.join([sample_id, runID, if_generate_report, ipd_birth_year, ipd_diagnosis_year, clinical_diagnosis, ipd_gender[0], ipd_consent, material_id, ipd_collection_year, requisition_hospital, extraction_hospital, str(tumor_content_nr), batch_nr, pathology_comment, sample_info_comment + '\n'])
 			new_line = ln.replace(ln,line)
 			new_content = new_content + new_line
 		else:
@@ -1096,7 +1064,7 @@ def update_clinical_master_file(InPreD_clinical_data_file,sample_id,if_generate_
 	else:
 		fa = open(InPreD_clinical_data_file, 'a')
 	if(if_exist == False):
-		line = sample_id + "\t" + runID + "\t" + if_generate_report + "\t" + ipd_birth_year + "\t" + ipd_diagnosis_year + "\t" + clinical_diagnosis + "\t" + ipd_gender[0] + "\t" + ipd_consent + "\t" + material_id + "\t" + ipd_collection_year + "\t" + requisition_hospital + "\t" + extraction_hospital + "\t" + str(tumor_content_nr) + "\t" + batch_nr + "\t" + pathology_comment + "\t" + sample_info_comment + "\n"
+		line = '\t'.join([sample_id, runID, if_generate_report, ipd_birth_year, ipd_diagnosis_year, clinical_diagnosis, ipd_gender[0], ipd_consent, material_id, ipd_collection_year, requisition_hospital, extraction_hospital, str(tumor_content_nr), batch_nr, pathology_comment, sample_info_comment + '\n'])
 		if(encoding_sys != ""):
 			fa = open(InPreD_clinical_data_file, 'a', encoding=encoding_sys)
 		else:
@@ -1134,14 +1102,14 @@ def update_clinical_tsoppi_file(InPreD_clinical_tsoppi_data_file,sample_id,if_ge
 		for ln in fr:
 			if(ln.split('\t')[0] == sample_id):
 				if_exist = True
-				line = sample_id + "\t" + runID + "\t" + if_generate_report + "\t" + ipd_birth_year + "\t" + ipd_diagnosis_year + "\t" + clinical_diagnosis + "\t" + ipd_gender[0] + "\t" + ipd_consent + "\t" + material_id + "\t" + ipd_collection_year + "\t" + requisition_hospital + "\t" + extraction_hospital + "\t" + str(tumor_content_nr) + "\t" + batch_nr + "\t" + sample_material + "\t" + sample_type + "\t" + tumor_type + "\t" + str(TMB_DRUP) + "\t" + TMB_TSO500 + "\t" + MSI_TSO500 + "\t" + pipline + "\t" + pathology_comment + "\t" + sample_info_comment +"\n"
+				line = '\t'.join([sample_id, runID, if_generate_report, ipd_birth_year, ipd_diagnosis_year, clinical_diagnosis, ipd_gender[0], ipd_consent, material_id, ipd_collection_year, requisition_hospital, extraction_hospital, str(tumor_content_nr), batch_nr, sample_material, sample_type, tumor_type, str(TMB_DRUP), TMB_TSO500, MSI_TSO500, pipline, pathology_comment, sample_info_comment + '\n'])
 				new_line = ln.replace(ln,line)
 				new_content = new_content + new_line
 			else:
 				new_content = new_content + ln
 	fr.close()
 	if(if_exist == False):
-		line = sample_id + "\t" + runID + "\t" + if_generate_report + "\t" + ipd_birth_year + "\t" + ipd_diagnosis_year + "\t" + clinical_diagnosis + "\t" + ipd_gender[0] + "\t" + ipd_consent + "\t" + material_id + "\t" + ipd_collection_year + "\t" + requisition_hospital + "\t" + extraction_hospital + "\t" + str(tumor_content_nr) + "\t" + batch_nr + "\t" + sample_material + "\t" + sample_type + "\t" + tumor_type + "\t" + str(TMB_DRUP) + "\t" + TMB_TSO500 + "\t" + MSI_TSO500 + "\t" + pipline + "\t" + pathology_comment + "\t" + sample_info_comment +"\n"
+		line = '\t'.join([sample_id, runID, if_generate_report, ipd_birth_year, ipd_diagnosis_year, clinical_diagnosis, ipd_gender[0], ipd_consent, material_id, ipd_collection_year, requisition_hospital, extraction_hospital, str(tumor_content_nr), batch_nr, sample_material, sample_type, tumor_type, str(TMB_DRUP), TMB_TSO500, MSI_TSO500, pipline, pathology_comment, sample_info_comment + '\n'])
 		with open(InPreD_clinical_tsoppi_data_file, 'a') as fa:
 			fa.write(line)
 		fa.close()
@@ -1314,7 +1282,6 @@ def main(argv):
 				output_path = output_path_root + runID + "/" + DNA_sampleID + "/"
 				extra_path = output_path + "extra_files"
 				output_file_preMTB_table_path = output_path + DNA_sampleID
-				today = time.strftime("%d %b %Y", time.localtime())
 				sample_list_file = pronto.glob_tsoppi_file(data_path, runID_DNA, DNA_sampleID, 'sample_list.tsv')
 				data_file_small_variant_table = pronto.glob_tsoppi_file(data_path, runID_DNA, DNA_sampleID, '{}_small_variant_table.tsv'.format(DNA_sampleID))
 				data_file_cnv_overview_plots = pronto.glob_tsoppi_file(data_path, runID_DNA, DNA_sampleID, '{}_CNV_overview_plots.pdf'.format(DNA_sampleID))
@@ -1428,7 +1395,6 @@ def main(argv):
 					RNA_image_path = ""
 
 				file = os.path.split(data_file_small_variant_table)[1]
-				ipd_no_str = file.split('_')[0]
 				try:
 					sample_type_string = file.split('-')[2]
 					sample_type_short = sample_type_string[0:1]
@@ -1482,11 +1448,6 @@ def main(argv):
 						if(AF_tumor_DNA >= min_AF_tumor_DNA and Depth_tumor_DNA >= min_depth_tumor_DNA):
 							rows_preMTB_AFTumor += 1
 		
-				if(target_cod_region == 0):
-					TMB_In_house = -1
-				else:
-					TMB_In_house = round(rows_preMTB_AFTumor/target_cod_region, 1)
-
 				rows_TMB_DRUP_AFTumor = 0
 				for line in open(TMB_DURP_coding_file):
 					line_cells = line.split('\t')
@@ -1514,7 +1475,7 @@ def main(argv):
 				insert_image_to_ppt(DNA_sampleID,DNA_normal_sampleID,RNA_sampleID,DNA_image_path,RNA_image_path,output_ppt_file)
 
                 		# Insert tables into PP file:
-				slide8_table_header = ["Gene_symbol", "Genomic corrdinates in hg19 build", "Ensembl_transcript_ID", "Exon_number", "Protein_change_short", "HGVS syntax", "Change_summary", "Coding_status", "Read depth(variant reads/total reads)", "AF_tumor_DNA"]
+				slide8_table_header = ["Gene_symbol", "Genomic coordinates in hg19 build", "Ensembl_transcript_ID", "Exon_number", "Protein_change_short", "HGVS syntax", "Change_summary", "Coding_status", "Read depth(variant reads/total reads)", "AF_tumor_DNA"]
 				slide8_table_header_aliases = ["Gene symbol", "Genomic coordinates in hg19 build", "Ensembl_transcript_ID", "Exon", "Protein change", "HGVS syntax", "Change_summary", "Coding status", "Read depth (variant reads/total reads)", "VAF"]
 				if(DNA_normal_sampleID != ""):
 					slide6_table_header = ["Gene_symbol", "Protein_change_short", "Coding_status", "AF_tumor_DNA", "AF_normal_DNA"]
@@ -1536,9 +1497,8 @@ def main(argv):
 				slide6_table_height = 1.63
 				slide6_table_font_size = 7
 				if_print_rowNo = False
-				table6_column_width = []
 				for table_index in slide6_table_ppSlide:
-					slide6_table_nrows = insert_table_to_ppt(slide6_table_data_file,table_index,slide6_table_name,slide6_header_left,slide6_header_top,slide6_header_width,slide6_table_left,slide6_table_top,slide6_table_width,slide6_table_height,slide6_table_font_size,slide6_table_header,slide6_table_header_aliases,output_ppt_file,if_print_rowNo,table6_column_width)
+					slide6_table_nrows = insert_table_to_ppt(slide6_table_data_file,table_index,slide6_table_name,slide6_header_left,slide6_header_top,slide6_header_width,slide6_table_left,slide6_table_top,slide6_table_width,slide6_table_height,slide6_table_font_size,slide6_table_header,slide6_table_header_aliases,output_ppt_file,if_print_rowNo,[])
 				output_file_preMTB_AppendixTable = output_file_preMTB_table_path + "_preMTBTable_Appendix.txt"
 				output_table_file_filterResults_AllReporVariants_CodingRegion = output_file_preMTB_table_path + "_AllReporVariants_CodingRegion.txt"
 				stable_text = update_ppt_variant_summary_table(slide6_table_nrows,DNA_sampleID,RNA_sampleID,TMB_DRUP,TMB_DRUP_str,DNA_variant_summary_file,RNA_variant_summary_file,output_file_preMTB_AppendixTable,output_table_file_filterResults_AllReporVariants_CodingRegion,output_ppt_file)
@@ -1547,7 +1507,7 @@ def main(argv):
 				# Slide8 Table: Sequence data summary: Variants alter protein code*
 				slide8_table_data_file = output_file_sequence_summary_table
 				slide8_table_ppSlide = 9
-				slide8_table_name = "Sequence data summary for " + DNA_sampleID + ": Variants that alter protein code and splice sites." + "  TSOPPI Version string: " + pipline + " "
+				slide8_table_name = "Sequence data summary for {}: Variants that alter protein code and splice sites.  TSOPPI Version string: {} ".format(DNA_sampleID, pipline)
 				slide8_header_left = 0.25
 				slide8_header_top = 0.27
 				slide8_header_width = 8.98
