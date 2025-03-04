@@ -1178,6 +1178,8 @@ def main(argv):
 	update_clinical_file = False
 	target_cod_region = 0
 	tumor_content = "XX"
+	ipd_material_file_2023 = ""
+	ipd_material_file_new = ""
 	try:
 		opts, args = getopt.getopt(sys.argv[1:], "hr:D:mc", ["help", "runID=", "DNAsampleID=", "mailDraft", "clinicalFile"])
 	except getopt.GetoptError:
@@ -1216,13 +1218,16 @@ def main(argv):
 		""")
 		sys.exit(0)
 	if(update_clinical_file == True):
-		if not(re.fullmatch(DNA_sampleID_format, DNA_sampleID)):
-			print("Warning: " + DNA_sampleID + " does not fit for the sample id format!")
-		ipd_material_file_new = base_dir + "/In/MTF/" + ipd_no[:3] + '-' + ipd_no[3:] + "_Material Transit Form InPreD NGS_2025.xlsx"
-		ipd_material_file_2023 = base_dir + "/In/MTF/" + ipd_no[:3] + '-' + ipd_no[3:] + "_Material Transit Form InPreD NGS.xlsx"
-		if not (os.path.exists(ipd_material_file_new) or os.path.exists(ipd_material_file_2023)):
+		material_file_version = int(cfg.get("INPUT", "material_file_version"))
+		if(material_file_version <= 2023):
+			ipd_material_file_2023 = base_dir + "/In/MTF/" + ipd_no[:3] + '-' + ipd_no[3:] + "_Material Transit Form InPreD NGS.xlsx"
+		if(material_file_version > 2023):
+			ipd_material_file_new = base_dir + "/In/MTF/" + ipd_no[:3] + '-' + ipd_no[3:] + "_Material Transit Form InPreD NGS_" + material_file_version + ".xlsx"
+		if not(os.path.exists(ipd_material_file_new) or os.path.exists(ipd_material_file_2023)):
 			print ("""Error: IPD Material Transit Form InPreD NGS file does not exit under the MTF dir. PRONTO meta file could not be updated with patient personal information by parameter -c of this script!""")
 			sys.exit(0)
+		if not(re.fullmatch(DNA_sampleID_format, DNA_sampleID)):
+			print("Warning: " + DNA_sampleID + " does not fit for the sample id format!")
 		else:
 			sample_list_file = pronto.glob_tsoppi_file(data_path, runID_DNA, DNA_sampleID, 'sample_list.tsv')
 			for line in open(sample_list_file):
@@ -1316,8 +1321,6 @@ def main(argv):
 					else:
 						# split according to suffix (_TSO_500)_LocalApp_results and use on RNA_run_dir basename (last element in path)
 						tokens = re.split('(_TSO_500)?_LocalApp_results', os.path.basename(RNA_run_dir))
-						#tokens = re.search('^(.*)_(?:TSO_500_LocalApp)', os.path.basename(RNA_run_dir))
-						# set runID_RNA to string captured by first group
 						runID_RNA = tokens[0]
 					RNA_material_id = get_RNA_material_id(InPreD_clinical_data_file,RNA_sampleID,encoding_sys)
 					ipd_material_id = "DNA:" + DNA_material_id + ",RNA:" + RNA_material_id
@@ -1549,10 +1552,9 @@ def main(argv):
 				if(remisse_mail == True):
 					remisse_file = output_path + ipd_no + "_Remisse_draft.docx"
 					remisse_mail_writer(remisse_file,ipd_no,ipd_consent,DNA_normal_sampleID,RNA_sampleID,extraction_hospital,ipd_material_id,str_TMB_DRUP,TMB_DRUP,stable_text,str(sample_material),sample_type,sample_list,pipline)
-				ipd_material_file_2024 = base_dir + "/In/MTF/" + ipd_no[:3] + '-' + ipd_no[3:] + "_Material Transit Form InPreD NGS_2024.xlsx"
-				ipd_material_file_2023 = base_dir + "/In/MTF/" + ipd_no[:3] + '-' + ipd_no[3:] + "_Material Transit Form InPreD NGS.xlsx"
-				if os.path.exists(ipd_material_file_2024):
-					move_ipd_material_file = shutil.move(ipd_material_file_2024, extra_path)
+				# Move MTF file into extra_files folder if it exists.
+				if os.path.exists(ipd_material_file_new):
+					move_ipd_material_file = shutil.move(ipd_material_file_new, extra_path)
 				if os.path.exists(ipd_material_file_2023):
 					move_ipd_material_file = shutil.move(ipd_material_file_2023, extra_path)
 				if os.path.exists(InPreD_clinical_tsoppi_data_file):
