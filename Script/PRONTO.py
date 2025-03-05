@@ -1282,9 +1282,11 @@ def main(argv):
 				output_path = output_path_root + runID + "/" + DNA_sampleID + "/"
 				extra_path = output_path + "extra_files"
 				output_file_preMTB_table_path = output_path + DNA_sampleID
-				sample_list_file = pronto.glob_tsoppi_file(data_path, runID_DNA, DNA_sampleID, 'sample_list.tsv')
-				data_file_small_variant_table = pronto.glob_tsoppi_file(data_path, runID_DNA, DNA_sampleID, '{}_small_variant_table.tsv'.format(DNA_sampleID))
-				data_file_cnv_overview_plots = pronto.glob_tsoppi_file(data_path, runID_DNA, DNA_sampleID, '{}_CNV_overview_plots.pdf'.format(DNA_sampleID))
+				sample_list_file = pronto.glob_tsoppi_file(True, data_path, runID_DNA, DNA_sampleID, 'sample_list.tsv')
+				data_file_small_variant_table = pronto.glob_tsoppi_file(False, data_path, runID_DNA, DNA_sampleID, '{}_small_variant_table_forQC.tsv'.format(DNA_sampleID))
+				if not data_file_small_variant_table:
+					data_file_small_variant_table = pronto.glob_tsoppi_file(True, data_path, runID_DNA, DNA_sampleID, '{}_small_variant_table.tsv'.format(DNA_sampleID))
+				data_file_cnv_overview_plots = pronto.glob_tsoppi_file(True, data_path, runID_DNA, DNA_sampleID, '{}_CNV_overview_plots.pdf'.format(DNA_sampleID))
 
 				if not os.path.exists(data_file_small_variant_table):
 					print ("Error:  The data input file " + data_file_small_variant_table + " does not exist!")
@@ -1382,13 +1384,13 @@ def main(argv):
 					MTB_format = False
 
 				ppt_template = base_dir + "/In/Template/InPreD_MTB_template.pptx"
-				DNA_variant_summary_file = pronto.glob_tsoppi_file(data_path, runID_DNA, '{}_variant_summary.tsv'.format(runID_DNA))
+				DNA_variant_summary_file = pronto.glob_tsoppi_file(True, data_path, runID_DNA, '{}_variant_summary.tsv'.format(runID_DNA))
 				if(runID_RNA != ""):
-					RNA_variant_summary_file = pronto.glob_tsoppi_file(data_path, runID_RNA, '{}_variant_summary.tsv'.format(runID_RNA))
+					RNA_variant_summary_file = pronto.glob_tsoppi_file(True, data_path, runID_RNA, '{}_variant_summary.tsv'.format(runID_RNA))
 				else:
 					RNA_variant_summary_file = ""
 				output_ppt_file = output_path + DNA_sampleID + "_MTB_report.pptx"
-				DNA_image_path = pronto.glob_tsoppi_file(data_path, runID_DNA, DNA_sampleID)
+				DNA_image_path = pronto.glob_tsoppi_file(True, data_path, runID_DNA, DNA_sampleID)
 				if(RNA_sampleID != ""):
 					RNA_image_path = DNA_image_path
 				else:

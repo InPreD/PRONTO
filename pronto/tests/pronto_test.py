@@ -21,6 +21,7 @@ def test_get_tmb_string(input, exception, want):
     [
         (
             (
+                True,
                 'pronto/tests/data/ous',
                 '250101_NDX012345_RUO_0001_01234ABCDE',
                 'IPH0001-D01-R01-A01',
@@ -31,6 +32,7 @@ def test_get_tmb_string(input, exception, want):
         ),
         (
             (
+                True,
                 'pronto/tests/data/hus/',
                 '250101_NDX012345_RUO_0001_01234ABCDE',
                 'IPH0001-D01-R01-A01',
@@ -41,6 +43,7 @@ def test_get_tmb_string(input, exception, want):
         ),
         (
             (
+                True,
                 'pronto/tests/data/hus/',
                 '250101_NDX012345_RUO_0001_01234ABCDE',
                 'IPH0001-D01-R01-A01',
@@ -51,6 +54,7 @@ def test_get_tmb_string(input, exception, want):
         ),
         (
             (
+                True,
                 'pronto/tests/data/hus/',
                 '250101_NDX012345_RUO_0001_01234ABCDE',
                 'IPH0001-D01-R01-A01',
@@ -60,6 +64,7 @@ def test_get_tmb_string(input, exception, want):
         ),
         (
             (
+                True,
                 'pronto/tests/data/none',
                 'existent',
                 'test.txt'
@@ -69,12 +74,24 @@ def test_get_tmb_string(input, exception, want):
         ),
         (
             (
+                True,
                 'pronto/tests/data/*',
                 '250101_NDX012345_RUO_0001_01234ABCDE',
                 'IPH0001-D01-R01-A01',
                 'test.txt'
             ),
             pytest.raises(ValueError),
+            None
+        ),
+        (
+            (
+                False,
+                'pronto/tests/data/*',
+                '250101_NDX012345_RUO_0001_01234ABCDE',
+                'IPH0001-D01-R01-A01',
+                'test.txt'
+            ),
+            does_not_raise(),
             None
         ),
     ]
