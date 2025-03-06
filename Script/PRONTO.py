@@ -147,10 +147,10 @@ def read_tsv_col(data_file,filter_column,key_word,columns,MTB_format):
 						column_mark.append(col)
 						break
 			if(MTB_format == True):
-				data[0].insert(1,"Genomic coordinates in hg19 build\t")
-				data[0].insert(5,"HGVS syntax\t")
+				data[0].insert(1,"Genomic_coordinates_in_hg19_build\t")
+				data[0].insert(5,"HGVS_syntax\t")
 				data[0].insert(6,"Change_summary\t")
-				data[0].insert(8,"Read depth(variant reads/total reads)\t")
+				data[0].insert(8,"Read_depth(variant reads/total reads)\t")
 			data[0].append('\n')
 			mark = True
 		if(line.startswith(DNA_sampleID) and mark):
@@ -713,7 +713,7 @@ def insert_image_to_ppt(DNA_sampleID,DNA_normal_sampleID,RNA_sampleID,DNA_image_
 	ppt.save(output_ppt_file)
 
 
-def insert_table_to_ppt(table_data_file,slide_n,table_name,left_h,top_h,width_h,left_t,top_t,width_t,height_t,font_size,table_header,table_header_aliases,output_ppt_file,if_print_rowNo,table_column_width):
+def insert_table_to_ppt(table_data_file,slide_n,table_name,left_h,top_h,width_h,left_t,top_t,width_t,height_t,font_size,table_header,output_ppt_file,if_print_rowNo,table_column_width):
 	table_file = open(table_data_file)
 	lines = table_file.readlines()
 	if not lines:
@@ -744,7 +744,7 @@ def insert_table_to_ppt(table_data_file,slide_n,table_name,left_h,top_h,width_h,
 	for c in range(cols):
 		if table_column_width:
 			table.columns[c].width = Inches(table_column_width[c])
-		table.cell(0,c).text = table_header_aliases[c]
+		table.cell(0,c).text = table_header[c]
 		table.cell(0,c).text_frame.paragraphs[0].font.size = Pt(font_size)
 
 	row = 1
@@ -1178,6 +1178,8 @@ def main(argv):
 	update_clinical_file = False
 	target_cod_region = 0
 	tumor_content = "XX"
+	ipd_material_file_2023 = ""
+	ipd_material_file_new = ""
 	try:
 		opts, args = getopt.getopt(sys.argv[1:], "hr:D:mc", ["help", "runID=", "DNAsampleID=", "mailDraft", "clinicalFile"])
 	except getopt.GetoptError:
@@ -1216,13 +1218,16 @@ def main(argv):
 		""")
 		sys.exit(0)
 	if(update_clinical_file == True):
-		if not(re.fullmatch(DNA_sampleID_format, DNA_sampleID)):
-			print("Warning: " + DNA_sampleID + " does not fit for the sample id format!")
-		ipd_material_file_new = base_dir + "/In/MTF/" + ipd_no[:3] + '-' + ipd_no[3:] + "_Material Transit Form InPreD NGS_2025.xlsx"
-		ipd_material_file_2023 = base_dir + "/In/MTF/" + ipd_no[:3] + '-' + ipd_no[3:] + "_Material Transit Form InPreD NGS.xlsx"
-		if not (os.path.exists(ipd_material_file_new) or os.path.exists(ipd_material_file_2023)):
+		material_file_version = int(cfg.get("INPUT", "material_file_version"))
+		if(material_file_version <= 2023):
+			ipd_material_file_2023 = base_dir + "/In/MTF/" + ipd_no[:3] + '-' + ipd_no[3:] + "_Material Transit Form InPreD NGS.xlsx"
+		if(material_file_version > 2023):
+			ipd_material_file_new = base_dir + "/In/MTF/" + ipd_no[:3] + '-' + ipd_no[3:] + "_Material Transit Form InPreD NGS_" + material_file_version + ".xlsx"
+		if not(os.path.exists(ipd_material_file_new) or os.path.exists(ipd_material_file_2023)):
 			print ("""Error: IPD Material Transit Form InPreD NGS file does not exit under the MTF dir. PRONTO meta file could not be updated with patient personal information by parameter -c of this script!""")
 			sys.exit(0)
+		if not(re.fullmatch(DNA_sampleID_format, DNA_sampleID)):
+			print("Warning: " + DNA_sampleID + " does not fit for the sample id format!")
 		else:
 			sample_list_file = pronto.glob_tsoppi_file(data_path, runID_DNA, DNA_sampleID, 'sample_list.tsv')
 			for line in open(sample_list_file):
@@ -1318,8 +1323,6 @@ def main(argv):
 					else:
 						# split according to suffix (_TSO_500)_LocalApp_results and use on RNA_run_dir basename (last element in path)
 						tokens = re.split('(_TSO_500)?_LocalApp_results', os.path.basename(RNA_run_dir))
-						#tokens = re.search('^(.*)_(?:TSO_500_LocalApp)', os.path.basename(RNA_run_dir))
-						# set runID_RNA to string captured by first group
 						runID_RNA = tokens[0]
 					RNA_material_id = get_RNA_material_id(InPreD_clinical_data_file,RNA_sampleID,encoding_sys)
 					ipd_material_id = "DNA:" + DNA_material_id + ",RNA:" + RNA_material_id
@@ -1477,14 +1480,11 @@ def main(argv):
 				insert_image_to_ppt(DNA_sampleID,DNA_normal_sampleID,RNA_sampleID,DNA_image_path,RNA_image_path,output_ppt_file)
 
                 		# Insert tables into PP file:
-				slide8_table_header = ["Gene_symbol", "Genomic coordinates in hg19 build", "Ensembl_transcript_ID", "Exon_number", "Protein_change_short", "HGVS syntax", "Change_summary", "Coding_status", "Read depth(variant reads/total reads)", "AF_tumor_DNA"]
-				slide8_table_header_aliases = ["Gene symbol", "Genomic coordinates in hg19 build", "Ensembl_transcript_ID", "Exon", "Protein change", "HGVS syntax", "Change_summary", "Coding status", "Read depth (variant reads/total reads)", "VAF"]
+				slide8_table_header = ["Gene_symbol", "Genomic_coordinates_in_hg19_build", "Ensembl_transcript_ID", "Exon_number", "Protein_change_short", "HGVS_syntax", "Change_summary", "Coding_status", "Read_depth(variant reads/total reads)", "AF_tumor_DNA"]
 				if(DNA_normal_sampleID != ""):
 					slide6_table_header = ["Gene_symbol", "Protein_change_short", "Coding_status", "AF_tumor_DNA", "AF_normal_DNA"]
-					slide6_table_header_aliases = ["Gene symbol", "Protein change", "Coding status", "VAF tumor DNA [0,1]", "VAF normal DNA"]
 				else:
 					slide6_table_header = ["Gene_symbol", "Protein_change_short", "Coding_status", "AF_tumor_DNA"]
-					slide6_table_header_aliases = ["Gene symbol", "Protein change", "Coding status", "VAF tumor DNA [0,1]"]
         
                 		# Slide2, slide6 and slide7 right side table: Variants that alter protein coding sequence
 				slide6_table_data_file = output_file_preMTB_table_path + "_AllReporVariants_AltProtein.txt" 
@@ -1500,7 +1500,7 @@ def main(argv):
 				slide6_table_font_size = 7
 				if_print_rowNo = False
 				for table_index in slide6_table_ppSlide:
-					slide6_table_nrows = insert_table_to_ppt(slide6_table_data_file,table_index,slide6_table_name,slide6_header_left,slide6_header_top,slide6_header_width,slide6_table_left,slide6_table_top,slide6_table_width,slide6_table_height,slide6_table_font_size,slide6_table_header,slide6_table_header_aliases,output_ppt_file,if_print_rowNo,[])
+					slide6_table_nrows = insert_table_to_ppt(slide6_table_data_file,table_index,slide6_table_name,slide6_header_left,slide6_header_top,slide6_header_width,slide6_table_left,slide6_table_top,slide6_table_width,slide6_table_height,slide6_table_font_size,slide6_table_header,output_ppt_file,if_print_rowNo,[])
 				output_file_preMTB_AppendixTable = output_file_preMTB_table_path + "_preMTBTable_Appendix.txt"
 				output_table_file_filterResults_AllReporVariants_CodingRegion = output_file_preMTB_table_path + "_AllReporVariants_CodingRegion.txt"
 				stable_text = update_ppt_variant_summary_table(slide6_table_nrows,DNA_sampleID,RNA_sampleID,TMB_DRUP,TMB_DRUP_str,DNA_variant_summary_file,RNA_variant_summary_file,output_file_preMTB_AppendixTable,output_table_file_filterResults_AllReporVariants_CodingRegion,output_ppt_file)
@@ -1520,7 +1520,7 @@ def main(argv):
 				slide8_table_font_size = 7
 				if_print_rowNo = True
 				table8_column_width = [0.54, 0.96, 0.96, 0.51, 0.73, 1.12, 2.26, 0.79, 0.81, 0.53]
-				slide8_table_nrows = insert_table_to_ppt(slide8_table_data_file,slide8_table_ppSlide,slide8_table_name,slide8_header_left,slide8_header_top,slide8_header_width,slide8_table_left,slide8_table_top,slide8_table_width,slide8_table_height,slide8_table_font_size,slide8_table_header,slide8_table_header_aliases,output_ppt_file,if_print_rowNo,table8_column_width)
+				slide8_table_nrows = insert_table_to_ppt(slide8_table_data_file,slide8_table_ppSlide,slide8_table_name,slide8_header_left,slide8_header_top,slide8_header_width,slide8_table_left,slide8_table_top,slide8_table_width,slide8_table_height,slide8_table_font_size,slide8_table_header,output_ppt_file,if_print_rowNo,table8_column_width)
 
         			# Change slides order.
 				ppt = Presentation(output_ppt_file)
@@ -1551,10 +1551,9 @@ def main(argv):
 				if(remisse_mail == True):
 					remisse_file = output_path + ipd_no + "_Remisse_draft.docx"
 					remisse_mail_writer(remisse_file,ipd_no,ipd_consent,DNA_normal_sampleID,RNA_sampleID,extraction_hospital,ipd_material_id,str_TMB_DRUP,TMB_DRUP,stable_text,str(sample_material),sample_type,sample_list,pipline)
-				ipd_material_file_2024 = base_dir + "/In/MTF/" + ipd_no[:3] + '-' + ipd_no[3:] + "_Material Transit Form InPreD NGS_2024.xlsx"
-				ipd_material_file_2023 = base_dir + "/In/MTF/" + ipd_no[:3] + '-' + ipd_no[3:] + "_Material Transit Form InPreD NGS.xlsx"
-				if os.path.exists(ipd_material_file_2024):
-					move_ipd_material_file = shutil.move(ipd_material_file_2024, extra_path)
+				# Move MTF file into extra_files folder if it exists.
+				if os.path.exists(ipd_material_file_new):
+					move_ipd_material_file = shutil.move(ipd_material_file_new, extra_path)
 				if os.path.exists(ipd_material_file_2023):
 					move_ipd_material_file = shutil.move(ipd_material_file_2023, extra_path)
 				if os.path.exists(InPreD_clinical_tsoppi_data_file):
