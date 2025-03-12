@@ -9,8 +9,21 @@ jobs:
       - 
         name: Check out the repo
         uses: actions/checkout@v4
+      -
+        name: Set up Python 3.12.8
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.12.8
+      - 
+        name: Install dependencies
+        run: pip install -r requirements.txt -r requirements-test.txt
       - 
         name: Unit testing 
-        uses: fylein/python-pytest-github-action@v2
+        uses: pavelzw/pytest-action@v2
         with:
-          args: pip3 install -r requirements.txt && pytest
+          verbose: true
+          emoji: true
+          job-summary: true
+          custom-arguments: -q
+          click-to-expand: true
+          report-title: 'PRONTO unit testing'
