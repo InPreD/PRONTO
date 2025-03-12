@@ -1257,22 +1257,9 @@ def main(argv):
 				global extra_path
 				RNA_sampleID = ""
 				sample_list = []
-				DNA_sampleID = ln.split('\t')[0]
-				runID_DNA = ln.split('\t')[1]
 				runID = runID_DNA
-				ipd_birth_year = ln.split('\t')[3]
-				ipd_diagnosis_year = ln.split('\t')[4]
-				ipd_clinical_diagnosis_meta = ln.split('\t')[5]
-				ipd_gender = ln.split('\t')[6]
-				ipd_consent = ln.split('\t')[7]
-				DNA_material_id = ln.split('\t')[8]
-				ipd_collection_year = ln.split('\t')[9]
-				requisition_hospital = ln.split('\t')[10]
-				extraction_hospital = ln.split('\t')[11]
-				tumor_content_nr = ln.split('\t')[12]
-				batch_nr = ln.split('\t')[13]
-				pathology_comment = ln.split('\t')[14]
-				sample_info_comment = ln.split('\t')[15]
+				ln = ln + '\t' * (15-ln.count('\t'))
+				[DNA_sampleID, runID_DNA, _, ipd_birth_year, ipd_diagnosis_year, ipd_clinical_diagnosis_meta, ipd_gender, ipd_consent, DNA_material_id, ipd_collection_year, requisition_hospital, extraction_hospital, tumor_content_nr, batch_nr, pathology_comment, sample_info_comment] = ln.split('\t')
 				if not(re.fullmatch(DNA_sampleID_format, DNA_sampleID)):
 					print("Warning: " + DNA_sampleID + " does not fit for the sample id format!")
 				try:
