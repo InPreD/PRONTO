@@ -1257,9 +1257,9 @@ def main(argv):
 				global extra_path
 				RNA_sampleID = ""
 				sample_list = []
-				runID = runID_DNA
 				ln = ln + '\t' * (15-ln.count('\t'))
 				[DNA_sampleID, runID_DNA, _, ipd_birth_year, ipd_diagnosis_year, ipd_clinical_diagnosis_meta, ipd_gender, ipd_consent, DNA_material_id, ipd_collection_year, requisition_hospital, extraction_hospital, tumor_content_nr, batch_nr, pathology_comment, sample_info_comment] = ln.split('\t')
+				runID = runID_DNA
 				if not(re.fullmatch(DNA_sampleID_format, DNA_sampleID)):
 					print("Warning: " + DNA_sampleID + " does not fit for the sample id format!")
 				try:
