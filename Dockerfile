@@ -1,7 +1,7 @@
 FROM python:3.14.0a2-slim
 LABEL maintainer="Xiaoli.Zhang@rr-research.no"
 # install dependencies
-COPY requirements.txt .
+COPY requirements.txt /
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
         build-essential=12.9 \
@@ -11,8 +11,8 @@ RUN apt-get update \
         zlib1g-dev=1:1.2.13.dfsg-1 \
     && rm -rf /var/lib/apt/lists/* \
     && apt-get clean \
-    && pip install -r requirements.txt \
-    && rm requirements.txt
+    && pip install --no-cache-dir -r requirements.txt \
+    && rm /requirements.txt
 # copy over config, template and script
 COPY Config /pronto/Config
 COPY In /pronto/In
