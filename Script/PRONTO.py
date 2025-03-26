@@ -795,12 +795,10 @@ def update_ppt_variant_summary_table(data_nrows,DNA_sampleID,RNA_sampleID,TMB_DR
 				MSI_TSO500 = line.split('\t')[2]
 			# X(Y/Z) 
 			# Z<40: evaluation not reliable. Z>=40 && X=<10: MSI/Stable. Z>=40 && X>=20: MSI/Unstable. Z>=40 && 10<X<20: MSI/Likely unstable.
-				X = float(line.split()[3])
-				YZ = line.split()[4]
-				Y_str = YZ.split('/')[0]
-				Y = int(Y_str.split('(')[1])
-				Z_str = YZ.split('/')[1]	
-				Z = int(Z_str.split(')')[0])
+				X = float(MSI_TSO500.split()[0])
+				YZ = MSI_TSO500.split("(")[1].split(")")[0]
+				Y = int(YZ.split('/')[0])
+				Z = int(YZ.split('/')[1])
 				if(Z >= 40 and X >= 20):
 					msi_text = "MS"
 					stable_text = "Unstable"
