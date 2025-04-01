@@ -1530,7 +1530,10 @@ def main(argv):
 				slide8_table_nrows = insert_table_to_ppt(slide8_table_data_file,slide8_table_ppSlide,slide8_table_name,slide8_header_left,slide8_header_top,slide8_header_width,slide8_table_left,slide8_table_top,slide8_table_width,slide8_table_height,slide8_table_font_size,slide8_table_header,output_ppt_file,if_print_rowNo,table8_column_width)
 
 				# Insert the CNV_overveiw_plots pictures A2, B3 and C1 into report.
-				pages_to_extract = [2, 4, 5]
+				if(DNA_normal_sampleID != ""):
+					pages_to_extract = [2, 5, 6]
+				else:
+					pages_to_extract = [2, 4, 5]
 				pdf_page_image_to_ppt(CNV_overview_plots_pdf,pages_to_extract,output_ppt_file)
 
         			# Change slides order.
