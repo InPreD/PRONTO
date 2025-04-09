@@ -1216,10 +1216,10 @@ def main(argv):
 		""")
 		sys.exit(0)
 	if(update_clinical_file == True):
-		material_file_version = int(cfg.get("INPUT", "material_file_version"))
-		if(material_file_version <= 2023):
+		material_file_version = cfg.get("INPUT", "material_file_version")
+		if(int(material_file_version) <= 2023):
 			ipd_material_file_2023 = base_dir + "/In/MTF/" + ipd_no[:3] + '-' + ipd_no[3:] + "_Material Transit Form InPreD NGS.xlsx"
-		if(material_file_version > 2023):
+		if(int(material_file_version) > 2023):
 			ipd_material_file_new = base_dir + "/In/MTF/" + ipd_no[:3] + '-' + ipd_no[3:] + "_Material Transit Form InPreD NGS_" + material_file_version + ".xlsx"
 		if not(os.path.exists(ipd_material_file_new) or os.path.exists(ipd_material_file_2023)):
 			print ("""Error: IPD Material Transit Form InPreD NGS file does not exit under the MTF dir. PRONTO meta file could not be updated with patient personal information by parameter -c of this script!""")
@@ -1227,7 +1227,7 @@ def main(argv):
 		if not(re.fullmatch(DNA_sampleID_format, DNA_sampleID)):
 			print("Warning: " + DNA_sampleID + " does not fit for the sample id format!")
 		else:
-			sample_list_file = pronto.glob_tsoppi_file(data_path, runID_DNA, DNA_sampleID, 'sample_list.tsv')
+			sample_list_file = pronto.glob_tsoppi_file(True, data_path, runID_DNA, DNA_sampleID, 'sample_list.tsv')
 			for line in open(sample_list_file):
 				if(line.startswith("RNA_tumor")):
 					RNA_sampleID = line.split('\t')[1]
