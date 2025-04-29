@@ -500,9 +500,9 @@ def get_patient_info_from_MTF_new(ipd_material_file,ipd_no,DNA_sampleID,RNA_samp
 							RNA_material_id = str(sheet_material.cell_value(r+2,c))
 						else:
 							RNA_material_id = RNA_material_id + "," + str(sheet_material.cell_value(r+2,c))
-					if(sheet_material.cell_value(r,9) == columns['sample_ID'] and sheet_material.cell_value(r+2,9) != ""):
+					if(sheet_material.cell_value(r+2,9) != ""):
 						sample_ID = sheet_material.cell_value(r+2,9)
-					if(sheet_material.cell_value(r,10) == columns['comment'] and sheet_material.cell_value(r+2,10) != "" and str(sheet_material.cell_value(r+2,10)) != "0.0" and str(sheet_material.cell_value(r+2,10)) != "0"):
+					if(sheet_material.cell_value(r+2,10) != "" and str(sheet_material.cell_value(r+2,10)) != "0.0" and str(sheet_material.cell_value(r+2,10)) != "0"):
 						comments = str(sheet_material.cell_value(r+2,10))
 					if(sample_info_comment == ""):
 						sample_info_comment = "{}: {}".format(sample_ID, comments)
@@ -659,7 +659,7 @@ def update_ppt_template_data(inpred_node,ipd_no,ipd_gender,ipd_age,ipd_diagnosis
 		if(index == 3):
 			textbox11 = slide.shapes.add_textbox(Inches(1.85), Inches(1.25), Inches(3.25), Inches(0.27))
 			tf11 = textbox11.text_frame
-			tf11.paragraphs[0].text = pathology_comment + "\n\n" + sample_info_comment
+			tf11.paragraphs[0].text = pathology_comment + "\n\n" + sample_info_comment.replace("|","\n")
 			tf11.paragraphs[0].font.size = Pt(10)
 			tf11.paragraphs[0].alignment = PP_ALIGN.LEFT
 		gender_age = gender + '/' + age + 'y'
