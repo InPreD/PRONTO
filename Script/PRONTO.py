@@ -1132,8 +1132,7 @@ def pdf_page_image_to_ppt(pdf_file,pages,output_ppt_file):
 		slide = ppt.slides.add_slide(ppt.slide_layouts[6])
 		image_path = f"temp_page_{page_num}.jpg"
 		images[0].save(image_path, 'JPEG')
-		left = top = 0
-		slide.shapes.add_picture(image_path, left, top, width=slide_width, height=slide_height)
+		slide.shapes.add_picture(image_path, left=0, top=0, width=slide_width, height=slide_height)
 		os.remove(image_path)
 	ppt.save(output_ppt_file)
 		
