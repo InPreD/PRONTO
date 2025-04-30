@@ -1122,8 +1122,6 @@ def update_clinical_tsoppi_file(InPreD_clinical_tsoppi_data_file,sample_id,if_ge
 
 def pdf_page_image_to_ppt(pdf_file,pages,output_ppt_file):
 	ppt = Presentation(output_ppt_file)
-	slide_width = ppt.slide_width
-	slide_height = ppt.slide_height
 	for page_num in pages:
 		images = convert_from_path(pdf_file, first_page=page_num, last_page=page_num)
 		if not images:
@@ -1132,7 +1130,7 @@ def pdf_page_image_to_ppt(pdf_file,pages,output_ppt_file):
 		slide = ppt.slides.add_slide(ppt.slide_layouts[6])
 		image_path = f"temp_page_{page_num}.jpg"
 		images[0].save(image_path, 'JPEG')
-		slide.shapes.add_picture(image_path, left=0, top=0, width=slide_width, height=slide_height)
+		slide.shapes.add_picture(image_path, left=0, top=0, width=ppt.slide_width, height=ppt.slide_height)
 		os.remove(image_path)
 	ppt.save(output_ppt_file)
 		
