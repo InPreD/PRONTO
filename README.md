@@ -97,6 +97,13 @@ PRONTO is a tool used to filter and analyse data from TSO500 analysis (in the fo
 
 Manually write the clinical data into file `In/InPreD_PRONTO_metadata.txt`. Reports will be generated for the `Sample_id` for which the `Create_report` value is set to `Y` in this file.
 
+### Load local pronto module:
+Load pronto module to make python could find it in local env:
+
+```
+export PYTHONPATH=$PYTHONPATH:$local_pronto_path/pronto/
+```
+
 ### Run PRONTO: 
 
 PRONTO takes in TSOPPI data, clinical info provided in `In/InPreD_PRONTO_metadata.txt`, and powerpoint template `In/Templates/MTB_template.pptx`. It generates a patient report for every `Sample_id` with the `Create_report` set to `Y` in the `Out` folder and updates the file `Out/InPreD_PRONTO_metadata_tsoppi.txt` with the TSOPPI results of the patients for which the reports were generated.
