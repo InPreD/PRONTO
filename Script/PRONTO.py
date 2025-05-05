@@ -1128,7 +1128,7 @@ def pdf_page_image_to_ppt(pdf_file,pages,output_ppt_file):
 			logger.warning("The page number {} in {} is not found!".format(page_num, pdf_file))
 			continue
 		slide = ppt.slides.add_slide(ppt.slide_layouts[6])
-		image_path = f"temp_page_{page_num}.jpg"
+		image_path = "temp_page_{}.jpg".format(page_num)
 		images[0].save(image_path, 'JPEG')
 		slide.shapes.add_picture(image_path, left=0, top=0, width=ppt.slide_width, height=ppt.slide_height)
 		os.remove(image_path)
