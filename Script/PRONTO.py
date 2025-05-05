@@ -26,6 +26,7 @@ from pptx.enum.shapes import MSO_SHAPE
 from decimal import Decimal
 from copy import deepcopy
 import pronto.pronto as pronto
+from pdf2image import convert_from_path
 
 runID = ""
 DNA_sampleID = ""
@@ -1117,6 +1118,21 @@ def update_clinical_tsoppi_file(InPreD_clinical_tsoppi_data_file,sample_id,if_ge
 		fw.close()
 
 
+def pdf_page_image_to_ppt(pdf_file,pages,output_ppt_file):
+	ppt = Presentation(output_ppt_file)
+	for page_num in pages:
+		images = convert_from_path(pdf_file, first_page=page_num, last_page=page_num)
+		if not images:
+			logger.warning("The page number {} in {} is not found!".format(page_num, pdf_file))
+			continue
+		slide = ppt.slides.add_slide(ppt.slide_layouts[6])
+		image_path = "temp_page_{}.jpg".format(page_num)
+		images[0].save(image_path, 'JPEG')
+		slide.shapes.add_picture(image_path, left=0, top=0, width=ppt.slide_width, height=ppt.slide_height)
+		os.remove(image_path)
+	ppt.save(output_ppt_file)
+		
+
 def usage(exit_status = 0):
 	print ("""Usage: python3  %s
         This script is a tool used to generate the paitent report based on the TSO500 analysis results and the personal intomation from the clinical data in In/InPreD_PRONTO_metadata.txt,
@@ -1274,6 +1290,7 @@ def main(argv):
 				output_file_preMTB_table_path = output_path + DNA_sampleID
 				sample_list_file = pronto.glob_tsoppi_file(True, data_path, runID_DNA, DNA_sampleID, 'sample_list.tsv')
 				data_file_small_variant_table = pronto.glob_tsoppi_file(False, data_path, runID_DNA, DNA_sampleID, '{}_small_variant_table_forQC.tsv'.format(DNA_sampleID))
+				CNV_overview_plots_pdf = pronto.glob_tsoppi_file(True, data_path, runID_DNA, DNA_sampleID, '{}_CNV_overview_plots.pdf'.format(DNA_sampleID))
 				if not data_file_small_variant_table:
 					data_file_small_variant_table = pronto.glob_tsoppi_file(True, data_path, runID_DNA, DNA_sampleID, '{}_small_variant_table.tsv'.format(DNA_sampleID))
 				data_file_cnv_overview_plots = pronto.glob_tsoppi_file(True, data_path, runID_DNA, DNA_sampleID, '{}_CNV_overview_plots.pdf'.format(DNA_sampleID))
@@ -1507,12 +1524,19 @@ def main(argv):
 				table8_column_width = [0.54, 0.96, 0.96, 0.51, 0.73, 1.12, 2.26, 0.79, 0.81, 0.53]
 				slide8_table_nrows = insert_table_to_ppt(slide8_table_data_file,slide8_table_ppSlide,slide8_table_name,slide8_header_left,slide8_header_top,slide8_header_width,slide8_table_left,slide8_table_top,slide8_table_width,slide8_table_height,slide8_table_font_size,slide8_table_header,output_ppt_file,if_print_rowNo,table8_column_width)
 
+				# Insert the CNV_overveiw_plots pictures A2, B3 and C1 into report.
+				if(DNA_normal_sampleID != ""):
+					pages_to_extract = [2, 5, 6]
+				else:
+					pages_to_extract = [2, 4, 5]
+				pdf_page_image_to_ppt(CNV_overview_plots_pdf,pages_to_extract,output_ppt_file)
+
         			# Change slides order.
 				ppt = Presentation(output_ppt_file)
 				slides = ppt.slides._sldIdLst
 				slides_list = list(slides)
 				slides.remove(slides_list[7])
-				slides.insert(9,slides_list[7])
+				slides.insert(12,slides_list[7])
 				ppt.save(output_ppt_file)
 				print("Generate report for " + DNA_sampleID)
 				ppt_nr += 1
