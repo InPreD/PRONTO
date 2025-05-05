@@ -42,7 +42,12 @@ PRONTO is a tool used to filter and analyse data from TSO500 analysis (in the fo
 		```
 		sudo python setup.py install
 		```
-
+4. Module pdf2image is needed for getting CNV overview plots from TSOPPI results to report:
+   	- To install module pdf2image, run the command:
+	 
+		```
+		sudo pip3 install pdf2image
+		```
 <br />
 
 ## Repository contents
@@ -50,6 +55,7 @@ PRONTO is a tool used to filter and analyse data from TSO500 analysis (in the fo
 | INPUT file name: | Details: |
 |:---|:---|
 | `Script/PRONTO.py`   | The executable python script.|
+| `pronto/pronto.py`   | The glob function configurable and check for different types of small variant tables.|
 | `Config/configure_PRONTO.ini` | The configure file. Needs to be modified prior to its first use.|
 | `In/Templates/MTB_template.pptx` | The template file used for generating PP report. (TODO: explain PP) |
 | `In/InPreD_PRONTO_metadata.txt` | The clinical data file. Reports will be generated for the `Sample_id` for which the `Create_report` value is set to `Y` in this file. |
@@ -192,6 +198,7 @@ singularity pull PRONTO_singularity_image.sif docker://inpred/pronto:latest
 ```
 singularity exec \
 	--no-home \
+	-B $config_file:/pronto/Config/configure_PRONTO.ini \
 	-B $tsoppi_data:/pronto/tsoppi_data \
 	-B $InPreD_PRONTO_metadata_file:/pronto/In/InPreD_PRONTO_metadata.txt \
 	-B $pronto_output_dir:/pronto/Out \
@@ -209,8 +216,41 @@ singularity exec \
 
 ## ChangeLog
 
-### v1.1
+### v2.1.2
+- New Features:
+  	[ #68](https://github.com/InPreD/PRONTO/pull/68)
+- Resolved Isses:
+  	[ #71](https://github.com/InPreD/PRONTO/issues/71)
+  	[ #72](https://github.com/InPreD/PRONTO/pull/72)
 
+### v2.0.1
+- New Features: (TODO: fill in)
+- Resolved Isses:
+  	Bug fix reported from OUS (https://github.com/InPreD/PRONTO/commit/e34fe6a70d20c60503207ddd13319950312dd02b)
+
+### v2.0.0
+- New Features:
+  	[ #53](https://github.com/InPreD/PRONTO/pull/53)
+  	[ #55](https://github.com/InPreD/PRONTO/pull/55)
+  	[ #56](https://github.com/InPreD/PRONTO/pull/56)
+  	[ #60](https://github.com/InPreD/PRONTO/pull/60)
+  	[ #61](https://github.com/InPreD/PRONTO/pull/61)
+- Resolved Issues:
+  	[ #48](https://github.com/InPreD/PRONTO/pull/48)
+  	[ #50](https://github.com/InPreD/PRONTO/pull/50)
+  	[ #63](https://github.com/InPreD/PRONTO/pull/63)
+  	[ #67](https://github.com/InPreD/PRONTO/pull/67)
+
+### v1.3.0
+- New Features: Developments from Martin.
+- Resolved Issues: (TODO: fill in)
+
+### v1.2.0
+- New Features: (TODO: fill in)
+- Resolved Issues:
+    	Fixed the bug of RNA_material_id, problem reported in the "Issues", update all the script fitting for the new MTF format version 2024.
+
+### v1.1
 - New Features: (TODO: fill in)
 - Resolved Issues:
 	[ #5](https://github.com/InPreD/PRONTO/issues/5) 
