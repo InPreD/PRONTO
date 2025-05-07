@@ -55,7 +55,7 @@ PRONTO is a tool used to filter and analyse data from TSO500 analysis (in the fo
 | INPUT file name: | Details: |
 |:---|:---|
 | `Script/PRONTO.py`   | The executable python script.|
-| `pronto/pronto.py`   | The glob function configurable and check for different types of small variant tables.|
+| `pronto/pronto.py`   | PRONTO module containing auxiliary functions |
 | `Config/configure_PRONTO.ini` | The configure file. Needs to be modified prior to its first use.|
 | `In/Templates/MTB_template.pptx` | The template file used for generating PP report. (TODO: explain PP) |
 | `In/InPreD_PRONTO_metadata.txt` | The clinical data file. Reports will be generated for the `Sample_id` for which the `Create_report` value is set to `Y` in this file. |
