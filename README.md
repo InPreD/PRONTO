@@ -98,7 +98,7 @@ PRONTO is a tool used to filter and analyse data from TSO500 analysis (in the fo
 Manually write the clinical data into file `In/InPreD_PRONTO_metadata.txt`. Reports will be generated for the `Sample_id` for which the `Create_report` value is set to `Y` in this file.
 
 ### Load local pronto module:
-Load pronto module to make python could find it in local env:
+Load pronto module into local env to allow python to find it:
 
 ```
 export PYTHONPATH=$PYTHONPATH:$local_pronto_path/pronto/
