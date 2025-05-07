@@ -249,7 +249,7 @@ singularity exec \
   	[ #67](https://github.com/InPreD/PRONTO/pull/67)
 
 ### v1.3.0
-- New Features: Developments from Martin.
+- New Features: Developed by Martin.
 - Resolved Issues: (TODO: fill in)
 
 ### v1.2.0
