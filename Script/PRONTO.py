@@ -10,6 +10,7 @@ And generate the PP report based on the results data and template file.
 """
 
 import os
+import logging
 import re
 import sys
 import shutil
@@ -1123,7 +1124,7 @@ def pdf_page_image_to_ppt(pdf_file,pages,output_ppt_file):
 	for page_num in pages:
 		images = convert_from_path(pdf_file, first_page=page_num, last_page=page_num)
 		if not images:
-			logger.warning("The page number {} in {} is not found!".format(page_num, pdf_file))
+			logging.warning("The page number {} in {} is not found!".format(page_num, pdf_file))
 			continue
 		slide = ppt.slides.add_slide(ppt.slide_layouts[6])
 		image_path = "temp_page_{}.jpg".format(page_num)
