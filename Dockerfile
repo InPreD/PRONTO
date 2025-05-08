@@ -8,6 +8,7 @@ RUN apt-get update \
         libjpeg-dev=1:2.1.5-2 \
         libxml2=2.9.14+dfsg-1.3~deb12u1 \
         libxslt1-dev=1.1.35-1+deb12u1 \
+        poppler-utils=22.12.0-2+b1 \
         zlib1g-dev=1:1.2.13.dfsg-1 \
     && rm -rf /var/lib/apt/lists/* \
     && apt-get clean \
