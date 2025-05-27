@@ -1119,20 +1119,27 @@ def update_clinical_tsoppi_file(InPreD_clinical_tsoppi_data_file,sample_id,if_ge
 		fw.close()
 
 
-def pdf_page_image_to_ppt(pdf_file,pages,output_ppt_file):
+def pdf_page_image_to_ppt(pdf_file,output_ppt_file,pages,width_scale,height_scale):
 	ppt = Presentation(output_ppt_file)
-	for page_num in pages:
-		images = convert_from_path(pdf_file, first_page=page_num, last_page=page_num)
+	slide = ppt.slides.add_slide(ppt.slide_layouts[6])
+	image_width = ppt.slide_width * width_scale
+	image_height = ppt.slide_height * height_scale
+	for i in range(0, len(pages)):
+		images = convert_from_path(pdf_file, first_page=pages[i], last_page=pages[i])
 		if not images:
-			logging.warning("The page number {} in {} is not found!".format(page_num, pdf_file))
+			logging.warning("The page number {} in {} is not found!".format(pages[i], pdf_file))
 			continue
-		slide = ppt.slides.add_slide(ppt.slide_layouts[6])
-		image_path = "temp_page_{}.jpg".format(page_num)
+		image_path = "temp_page_{}.jpg".format(pages[i])
 		images[0].save(image_path, 'JPEG')
-		slide.shapes.add_picture(image_path, left=0, top=0, width=ppt.slide_width, height=ppt.slide_height)
+		if(len(pages) == 1):
+			image_top = ppt.slide_height/4
+		else:
+			image_top = image_height*i
+		slide.shapes.add_picture(image_path, left=0, top=image_top, width=image_width, height=image_height)
 		os.remove(image_path)
 	ppt.save(output_ppt_file)
-		
+	
+
 
 def usage(exit_status = 0):
 	print ("""Usage: python3  %s
@@ -1526,11 +1533,13 @@ def main(argv):
 				slide8_table_nrows = insert_table_to_ppt(slide8_table_data_file,slide8_table_ppSlide,slide8_table_name,slide8_header_left,slide8_header_top,slide8_header_width,slide8_table_left,slide8_table_top,slide8_table_width,slide8_table_height,slide8_table_font_size,slide8_table_header,output_ppt_file,if_print_rowNo,table8_column_width)
 
 				# Insert the CNV_overveiw_plots pictures A2, B3 and C1 into report.
+				A2_to_extract=[2]
+				pdf_page_image_to_ppt(CNV_overview_plots_pdf,output_ppt_file,A2_to_extract,width_scale=1,height_scale=0.5)
 				if(DNA_normal_sampleID != ""):
-					pages_to_extract = [2, 5, 6]
+					B3_C1_to_extract = [5, 6]
 				else:
-					pages_to_extract = [2, 4, 5]
-				pdf_page_image_to_ppt(CNV_overview_plots_pdf,pages_to_extract,output_ppt_file)
+					B3_C1_to_extract = [4, 5]
+				pdf_page_image_to_ppt(CNV_overview_plots_pdf,output_ppt_file,B3_C1_to_extract,width_scale=1,height_scale=0.5)
 
         			# Change slides order.
 				ppt = Presentation(output_ppt_file)
