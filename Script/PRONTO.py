@@ -16,6 +16,7 @@ import sys
 import shutil
 import getopt
 import time
+from datetime import datetime
 from configparser import ConfigParser
 from xlutils.copy import copy
 from pptx import Presentation
@@ -457,7 +458,12 @@ def get_patient_info_from_MTF_new(ipd_material_file,ipd_no,DNA_sampleID,RNA_samp
 					datetime_date = str(xlrd.xldate_as_datetime(ipd_birth_date_exl,0))
 					ipd_birth_year = datetime_date.split('-')[0]
 				except:
-					ipd_birth_year = "-"
+					try:
+						day, month, year = map(int, ipd_birth_date_exl.split('.'))
+						datetime(year,month,day)
+						ipd_birth_year = str(year)
+					except:
+						ipd_birth_year = "-"
 			if(sheet_material.cell_value(r,c) == columns['gender'] and ipd_gender == ""):
 				ipd_gender = str(sheet_material.cell_value(r+2,c))
 			if(sheet_material.cell_value(r,c) == columns['age']):
