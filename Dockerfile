@@ -7,7 +7,7 @@ RUN apt-get update \
         build-essential=12.9 \
         libjpeg-dev=1:2.1.5-2 \
         libxml2=2.9.14+dfsg-1.3~deb12u4 \
-        libxslt1-dev=1.1.35-1+deb12u2 \
+        libxslt1-dev=1.1.35-1+deb12u3 \
         poppler-utils=22.12.0-2+deb12u1 \
         zlib1g-dev=1:1.2.13.dfsg-1 \
     && rm -rf /var/lib/apt/lists/* \
