@@ -1124,7 +1124,6 @@ def update_clinical_tsoppi_file(InPreD_clinical_tsoppi_data_file,sample_id,if_ge
 			fw.write(new_content)
 		fw.close()
 
-
 def pdf_page_image_to_ppt(pdf_file,output_ppt_file,pages,width_scale,height_scale):
 	ppt = Presentation(output_ppt_file)
 	slide = ppt.slides.add_slide(ppt.slide_layouts[6])
@@ -1144,8 +1143,6 @@ def pdf_page_image_to_ppt(pdf_file,output_ppt_file,pages,width_scale,height_scal
 		slide.shapes.add_picture(image_path, left=0, top=image_top, width=image_width, height=image_height)
 		os.remove(image_path)
 	ppt.save(output_ppt_file)
-	
-
 
 def usage(exit_status = 0):
 	print ("""Usage: python3  %s
@@ -1547,7 +1544,7 @@ def main(argv):
 					B3_C1_to_extract = [4, 5]
 				pdf_page_image_to_ppt(CNV_overview_plots_pdf,output_ppt_file,B3_C1_to_extract,width_scale=1,height_scale=0.5)
 
-        			# Change slides order.
+        		# Change slides order.
 				ppt = Presentation(output_ppt_file)
 				slides = ppt.slides._sldIdLst
 				slides_list = list(slides)
