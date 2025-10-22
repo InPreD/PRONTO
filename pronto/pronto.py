@@ -6,11 +6,11 @@ import os
 def get_tmb_string(val):
 	level = "Not available"
 	if(0 <= val <= 5):
-		level = "lav"
+		level = "Lav"
 	elif(5 < val <= 20):
-		level = "intermediær"
+		level = "Intermediær"
 	elif(val > 20):
-		level = "høy"
+		level = "Høy"
 	return "{} mut/Mb; {}\n".format(val, level)
 
 # use glob to find file in different folder structures
