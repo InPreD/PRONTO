@@ -1011,7 +1011,6 @@ def remisse_mail_writer(remisse_file,ipd_no,ipd_consent,DNA_normal_sampleID,RNA_
 			ipd_material_id_remisse = DNA_material_id
 		else:
 			ipd_material_id_remisse = ipd_material_id 
-		
 	except:
 		ipd_material_id_remisse = ipd_material_id
 	pg2.add_run("Utvidet genpanelanalyse, TSO500, DNA" + if_RNA_sampleID + "(ekstrahert fra " + extraction_hospital + ") " + ipd_material_id_remisse + ":\n\n")
