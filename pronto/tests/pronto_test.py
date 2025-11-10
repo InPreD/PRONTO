@@ -7,9 +7,9 @@ from contextlib import nullcontext as does_not_raise
     "input, exception, want",
     [
         (-1, does_not_raise(), "-1 mut/Mb; Not available\n"),
-        (2.5, does_not_raise(), "2.5 mut/Mb; lav\n"),
-        (7, does_not_raise(), "7 mut/Mb; intermediær\n"),
-        (23, does_not_raise(), "23 mut/Mb; høy\n"),
+        (2.5, does_not_raise(), "2.5 mut/Mb; Lav\n"),
+        (7, does_not_raise(), "7 mut/Mb; Intermediær\n"),
+        (23, does_not_raise(), "23 mut/Mb; Høy\n"),
     ]
 )
 def test_get_tmb_string(input, exception, want):
