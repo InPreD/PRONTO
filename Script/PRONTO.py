@@ -519,8 +519,11 @@ def get_patient_info_from_MTF_new(ipd_material_file,ipd_no,DNA_sampleID,RNA_samp
 							sample_info_comment += "|" + sample_ID + ": " + comments
 			if(sheet_material.cell_value(r,c) == columns['extraction_hospital'] and extraction_hospital == ""):
 				for r in range(r,(library_pre_row-2)):
-					if(sheet_material.cell_value(r+2,8) == DNA_sampleID):
-						extraction_hospital = str(sheet_material.cell_value(r+2,c))
+					if(sheet_material.cell_value(r+2,9) == DNA_sampleID):
+						try:
+							extraction_hospital = str(sheet_material.cell_value(r+2,c)).split(",")[1]
+						except:
+							extraction_hospital = str(sheet_material.cell_value(r+2,c))
 						break
 			if(sheet_material.cell_value(r,c) == columns['batch_nr'] and batch_nr == ""):
 				for r in range(r,(nrows_material-2)):
@@ -987,11 +990,11 @@ def remisse_mail_writer(remisse_file,ipd_no,ipd_consent,DNA_normal_sampleID,RNA_
 	text1.bold = True
 	pg1.alignment = WD_ALIGN_PARAGRAPH.CENTER
 	pg2 = doc.add_paragraph()
-	text2 = pg2.add_run("Merket grønt = fylles inn av molekylærbiolog og/eller patolog manuelt\n")
+	text2 = pg2.add_run("Merket grønt = fylles inn av molekylærbiolog og/eller patolog manuelt\n\n")
 	text2.font.color.rgb = docRGBColor(0,176,80)
-	pg2.add_run("##########################################################\n\n")
 	pg2.add_run("PASIENT ID: " + ipd_no + "/" + impress_id + "\n\n")
-	pg2.add_run("DIAGNOSE:\n")
+	pg2.add_run("(lim inn tekst under # i LVMS i diagnose feltet)\n")
+	pg2.add_run("##########################################################\n\n")
 	if(DNA_normal_sampleID != ""):
 		if_normal_sampleID = ") og DNA ekstrahert fra blod:\n\n"
 	else:
@@ -1000,10 +1003,17 @@ def remisse_mail_writer(remisse_file,ipd_no,ipd_consent,DNA_normal_sampleID,RNA_
 		if_RNA_sampleID = " og RNA "
 	else:
 		if_RNA_sampleID = " "
-	pg2.add_run("Utvidet genpanelanalyse, TSO500, DNA" + if_RNA_sampleID + "(ekstrahert ved " + extraction_hospital + " fra " + ipd_material_id + ": ")
-	text3 = pg2.add_run("diagnose")
-	text3.font.color.rgb = docRGBColor(0,176,80)
-	pg2.add_run(if_normal_sampleID)
+	try:
+		ipd_material_id_str = ipd_material_id.split(",")
+		DNA_material_id = ipd_material_id_str[0].split(":")[1]
+		RNA_material_id = ipd_material_id_str[1].split(":")[1]
+		if(DNA_material_id == RNA_material_id):
+			ipd_material_id_remisse = DNA_material_id
+		else:
+			ipd_material_id_remisse = ipd_material_id 
+	except:
+		ipd_material_id_remisse = ipd_material_id
+	pg2.add_run("Utvidet genpanelanalyse, TSO500, DNA" + if_RNA_sampleID + "(ekstrahert fra " + extraction_hospital + ") " + ipd_material_id_remisse + ":\n\n")
 	if(str_TMB_DRUP == "NA"):
 		TMB_string = "Upålitelig, ikke beregnet\n"
 	else:
@@ -1014,31 +1024,22 @@ def remisse_mail_writer(remisse_file,ipd_no,ipd_consent,DNA_normal_sampleID,RNA_
 		stable_text = "Stabil"
 	if(stable_text == "Not reliable"):
 		stable_text = "Inkonklusiv"
-	pg2.add_run("Tumor mutasjonsbyrde (TMB) estimat og kategori: " + TMB_string + "Mikrosatellitt (MS) status: " + stable_text + "\nDNA-kopitallsendringer (estimert kopitall): ")	
-	text4 = pg2.add_run("Ingen kopitall av sikker klinisk betydning\n")
+	pg2.add_run("Tumor mutasjons byrde (TMB) estimat og kategori: " + TMB_string + "Mikrosatellitt (MS) status: " + stable_text + "\nDNA kopitall endringer (estimert kopitall): ") 
+	text3 = pg2.add_run("Ingen kopitall av sikker klinisk betydning.\n")
+	text3.font.color.rgb = docRGBColor(0,176,80)
+	pg2.add_run("Gen-fusjoner: ")
+	text4 = pg2.add_run("Ingen funn av sikker klinisk betydning.\n")
 	text4.font.color.rgb = docRGBColor(0,176,80)
-	pg2.add_run("Genfusjoner: ")
-	text5 = pg2.add_run("Ingen funn\n")
+	pg2.add_run("Somatiske punkt mutasjoner/insersjoner/delesjoner: ")
+	text5 = pg2.add_run("Ingen funn av sikker klinisk betydning.\n\n")
 	text5.font.color.rgb = docRGBColor(0,176,80)
-	pg2.add_run("Somatiske punktmutasjoner/insersjoner/delesjoner: ")
-	text6 = pg2.add_run("Ingen funn av sikker klinisk betydning\n\n")
+	pg2.add_run("Se vurdering og vedlegg. \n\n")
+	pg2.add_run("(lim inn tekst under # i LVMS i vurderingsfeltet)\n")
+	pg2.add_run("##########################################################\n\n")
+	year = time.strftime("%Y", time.localtime())
+	text6 = pg2.add_run("Funnene er diskutert med overlege XXXX på Mol-MDT-møtet XX.XX." + year + ".\n\nPasienten er diskutert på pre-Mol-MDT-møte XX.XX." + year +".Ettersom det ikke er funn som tilsier utprøvende behandlingsmulighet har man ikke kalt inn behandlende lege til Mol-MDT-møte. Ta kontakt dersom noe er uklart.\n\nKimbane funn som skal følges opp? XXXXXXX. HGVS nomenklatur:\nGEN:ENSTxxx:c.xxx>y:p.AxxxB\n\nDet var dessverre ikke tilstrekkelig mengde og/eller kvalitet av DNA/RNA til at sekvenseringsanalysen kunne gjennomføres.\n\n")
 	text6.font.color.rgb = docRGBColor(0,176,80)
-	pg2.add_run("Se vurdering og vedlegg. \n\n\nVURDERING:\n")
-	text7 = pg2.add_run("Funnene er diskutert med overlege XXXX på Mol-MDT-møtet XX.XX.2022.\n\nEttersom det ikke er funn med klinisk betydning har man ikke kalt inn behandlende lege til Mol-MDT-møte. Ta kontakt dersom noe er uklart.\n\nSom ledd i IMPRESS-Norway-studien ble det utført FoundationOne CDx liquid test, med funn av XXXXXXXXXX.\n\nKimbane funn som skal følges opp? XXXXXXX.\n\nDet var dessverre ikke tilstrekkelig mengde og/eller kvalitet av DNA/RNA til at sekvenseringsanalysen kunne gjennomføres.\n\nSom ledd i IMPRESS-Norway-studien ble det utført TSO500 ctDNA analyse på pasientens blod hvor det ble påvist GEN:p.AxxxB.\n\nFra denne analysen rapporteres kun varianter med klinisk/diagnostisk betydning som ikke er påvist i TSO500-analysen av vevsprøven. Kopitall, MSI og TMB fra ctDNA analyse vurderes ikke.\n\nHGVS nomenklatur: GEN:ENSTxxx:c.xxx>y:p.AxxxB")
-	text7.font.color.rgb = docRGBColor(0,176,80)
-	pg2.add_run("Kun funn med klinisk/diagnostisk betydning er rapportert, men se den vedlagte Mol-MDT-rapporten for utfyllende informasjon om testresultatet.\n\nFor teknisk beskrivelse og metodeprinsipp av analyse, vennligst se «TSO 500 genpanelanalyse (utvidet molekylæranalyse)» på nettsiden Labfag.no.\n\n\nMOLEKYLÆRPATOLOGISK UNDERSØKELSE:\nBIOMATERIALET: " + ipd_material_id + "(" + sample_material + "; " + sample_type + ")\n\nTEST PANEL: TruSight Oncology 500 panel (Illumina)\n\n")
-	if(extraction_hospital == "Enhet for studierelatert diagnostikk, OUS"):
-		pg2.add_run("Materialet ekstrahert fra biomaterialet ved OUS sykehus ble kvalitetssikret før dypsekvensering med respektive protokoller og analyse pipelines.\n")
-	else:
-		pg2.add_run("Materialet mottatt ferdig isolert fra " + extraction_hospital + " sykehus ble kvalitetssikret før dypsekvensering med respektive protokoller og analysepipelines.\n")
-	for i in range(len(sample_list)):
-		pg2.add_run(str(sample_list[i]) + "\n")
-	pg2.add_run("\nANALYSE AV DNA\nMengde DNA analysert: 50ng\n\nUtført dypsekvensering for deteksjon av punktmutasjoner, indeler og kopitallsendringer ved bruk av TruSight Oncology 500 panel (Illumina) som inkluderer 523 gener for DNA-analyser. Analysen inkluderer estimering av tumor mutasjonsbyrde (TMB) og mikrosatelitt (MS) status.\n\nProgramvare og analyseparametere: TruSight Oncology 500 Local App og in-house bioinformatisk pipeline for kvalitetssikring og variantfiltrering (" + pipline + "). Referansegenom GRCh37 ble brukt for kartlegging av sekvenser. Analysen er kjørt i \"Tumor ")
-	if(DNA_normal_sampleID != ""):
-		pg2.add_run("normal\"-innstilling for å ekskludere kimbanevarianter. ")
-	else:
-		pg2.add_run("only\"-innstilling og populasjonsdatabaser er benyttet for å ekskludere frekvente kimbanevarianter. ")
-	pg2.add_run("Kvalitetssikring blir gjennomgått per enhet (chip) og per prøve sekvensert. For estimering av TMB benyttes antall ikke-synonyme mutasjoner detektert innenfor kodende DNA-områder delt på antall Mb sekvensert. Filter for varianter som inngår i TMB-beregningen er satt til minimum 5% variant allelfrekvens og minimum 50 sekvensfragmenter som dekker mutasjonssete. TMB-klassifiseringen er som følger: \"lav TMB\" for <5 mut/Mb, \"intermediær TMB\" for 5-20 mut/Mb, and \"høy TMB\" for >20 mut/Mb. TSO500-panelet analyserer 130 predefinerte MSI-seter for vurdering av MS-status. Et minimum av 40 slike seter må være analyserbare for å kunne pålitelig konkludere MS-status. Kopitallsendringer rapporteres som hovedregel kun ved kopitall >6.\n\nANALYSE AV RNA\nMengde RNA analysert: 40ng\n\nUtført dypsekvensering for deteksjon av fusjonsgener og spleisevarianter ved bruk av TruSight Oncology 500 panel (Illumina) som inkluderer 56 gener for RNA-analyser. Referansegenom GRCh37 ble brukt for kartlegging av sekvenser.\n\nProgramvare og analyseparametere: TruSight Oncology 500 Local App og in-house bioinformatisk pipeline for kvalitetssikring og variantfiltrering (" + pipline + "). Referansegenom GRCh37 ble brukt for kartlegging av sekvenser. En påvist fusjon må ha minst 3 unike sekvenser (reads) som støtter funnet.\n\nRESULTAT: Se diagnosefeltet og vedlagte Mol-MDT-rapport.\n\nResultater og tolkning er i henhold til, og innenfor rammene av kvalitet på prøvemateriale, det genomiske dekningsområdet til genpanelet, metodologi og anvendte kunnskapsdatabaser ved analysetidspunkt. Den operasjonelle pipelinen for TSO500-analyser ved InPreD OUS er i en utviklingsfase. Den kliniske signifikansen av TMB-verdien bør betraktes på bakgrunn av pasientens tumortype. En rapportering av funn med mulig terapeutisk implikasjon er ingen garanti eller lovnad om behandlingseffekt i pasienten. En klinisk helhetsvurdering av pasienten må foretas av behandlede lege ved mulig behandlingskonsekvens av analyseresultater. ")
+	pg2.add_run("Kun funn med klinisk/diagnostisk betydning er rapportert, men se den vedlagte Mol-MDT-rapporten for utfyllende informasjon om testresultatet.\n\nFor teknisk beskrivelse og metodeprinsipp av analyse, vennligst se «TSO 500 genpanelanalyse (utvidet molekylæranalyse)» på nettsiden Metodebok.no under Helse Sør-Øst og OUS.")
 
 	doc.save(remisse_file)
 
