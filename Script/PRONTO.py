@@ -487,7 +487,7 @@ def get_patient_info_from_MTF_new(ipd_material_file,ipd_no,DNA_sampleID,RNA_samp
 						else:
 							ipd_consent = ipd_consent + "," + str(sheet_material.cell_value(r+2,c))
 					if(sheet_material.cell_value(r,10) == columns['comment'] and sheet_material.cell_value(r+2,10) != "" and str(sheet_material.cell_value(r+2,10)) != "0.0" and str(sheet_material.cell_value(r+2,10)) != "0"):
-						comments = str(sheet_material.cell_value(r+2,10))
+						comments = str(sheet_material.cell_value(r+2,10)).replace("\n", " ")
 					if(pathology_comment == ""):
 						pathology_comment = DIT_number + ":" + comments
 					else:
@@ -511,7 +511,7 @@ def get_patient_info_from_MTF_new(ipd_material_file,ipd_no,DNA_sampleID,RNA_samp
 					if(sheet_material.cell_value(r+2,9) != ""):
 						sample_ID = sheet_material.cell_value(r+2,9)
 					if(sheet_material.cell_value(r+2,10) != "" and str(sheet_material.cell_value(r+2,10)) != "0.0" and str(sheet_material.cell_value(r+2,10)) != "0"):
-						comments = str(sheet_material.cell_value(r+2,10))
+						comments = str(sheet_material.cell_value(r+2,10)).replace("\n", " ")
 					if(sample_info_comment == ""):
 						sample_info_comment = "{}: {}".format(sample_ID, comments)
 					else:
