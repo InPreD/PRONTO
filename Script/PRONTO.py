@@ -752,6 +752,7 @@ def insert_table_to_ppt(table_data_file,slide_n,table_name,left_h,top_h,width_h,
 	height = Inches(height_t)
 	table = shapes.add_table(rows,cols,left,top,width,height).table
 	table_rows = rows-1
+	col_protein_change_short_position = table_header.index("Protein_change_short")
 	for c in range(cols):
 		if table_column_width:
 			table.columns[c].width = Inches(table_column_width[c])
@@ -765,6 +766,8 @@ def insert_table_to_ppt(table_data_file,slide_n,table_name,left_h,top_h,width_h,
 			if header_not_exist_in_table:
 				for num in header_not_exist_in_table:
 					line_cells.insert(num," ")
+			if(line_cells[col_protein_change_short_position].endswith('X')):
+				line_cells[col_protein_change_short_position] = line_cells[col_protein_change_short_position][:-1] + '*'
 			for j in range(len(line_cells) - 1):
 				table.cell(row,j).text = str(line_cells[j])
 				table.cell(row,j).text_frame.paragraphs[0].font.size = Pt(font_size)
