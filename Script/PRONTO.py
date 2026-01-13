@@ -818,6 +818,7 @@ def insert_table_to_ppt_end(table_data_file,slide_n,table_name,left_h,top_h,widt
 
 	total_rows = len (data_rows)
 	start_idx = 0
+	table_page_num = 1
 	while start_idx < total_rows:
 		end_idx  = min(start_idx + table_max_rows_per_slide, total_rows)
 		slide_data = data_rows[start_idx:end_idx]
@@ -845,12 +846,13 @@ def insert_table_to_ppt_end(table_data_file,slide_n,table_name,left_h,top_h,widt
 		textbox = slide.shapes.add_textbox(Inches(left_h),Inches(top_h),Inches(width_h),Inches(0.25))
 		tf = textbox.text_frame
 		if(if_print_rowNo == True):
-			tf.paragraphs[0].text = table_name +" (N=" + str(table_rows - 1) + ")"
+			tf.paragraphs[0].text = table_name +" (N=" + str(total_rows) + ", Page " + str(table_page_num) + "/" + str(total_slides_needed) + ")"
 		else:
 			tf.paragraphs[0].text = table_name
 		tf.paragraphs[0].font.size = Pt(8)
 		tf.paragraphs[0].font.bold = True
 		tf.paragraphs[0].alignment = PP_ALIGN.CENTER
+		table_page_num = table_page_num + 1
 
 	ppt.save(output_ppt_file)
 	return total_slides_needed
