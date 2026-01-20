@@ -333,7 +333,9 @@ def get_patient_info_from_MTF_2023(ipd_material_file,ipd_no,DNA_sampleID,RNA_sam
 				except:
 					ipd_birth_year = "-"
 			if(sheet_material.cell_value(r,c) == columns['gender'] and ipd_gender == ""):
-				ipd_gender = str(sheet_material.cell_value(r+2,c))
+				gender = str(sheet_material.cell_value(r+2,c))
+				if(gender != "" and gender != "X"):
+					ipd_gender = gender[0]
 			if(sheet_material.cell_value(r,c) == columns['age']):
 				ipd_age = str(sheet_material.cell_value(r+2,c))
 			if(sheet_material.cell_value(r,c) == columns['consent'] and ipd_consent == ""):
@@ -465,7 +467,9 @@ def get_patient_info_from_MTF_new(ipd_material_file,ipd_no,DNA_sampleID,RNA_samp
 					except:
 						ipd_birth_year = "-"
 			if(sheet_material.cell_value(r,c) == columns['gender'] and ipd_gender == ""):
-				ipd_gender = str(sheet_material.cell_value(r+2,c))
+				gender = str(sheet_material.cell_value(r+2,c))
+				if(gender != "" and gender != "X"):
+					ipd_gender = gender[0]
 			if(sheet_material.cell_value(r,c) == columns['age']):
 				ipd_age = str(sheet_material.cell_value(r+2,c))
 			if(sheet_material.cell_value(r,c) == columns['Histopathological_diagnosis'] and sheet_material.cell_value(r+1,c) != ""):
@@ -563,10 +567,6 @@ def get_RNA_material_id(InPreD_clinical_data_file,RNA_sampleID,encoding_sys):
 
 
 def update_ppt_template_data(inpred_node,ipd_no,ipd_gender,ipd_age,ipd_diagnosis_year,DNA_material_id,RNA_material_id,ipd_consent,requisition_hospital,pathology_comment,ipd_clinical_diagnosis,tumor_type,sample_type,sample_material,sample_info_comment,pipline,tumor_content,ppt_template,output_ppt_file):
-	if(ipd_gender != "" and ipd_gender != "X"):
-		gender = ipd_gender[0]
-	else:
-		gender = ""
 	if(ipd_age != "" and ipd_age != "-" and ipd_age != "XX" and ipd_age != "<1"):
 		age = str(int(float(ipd_age)))
 	else:
@@ -680,7 +680,7 @@ def update_ppt_template_data(inpred_node,ipd_no,ipd_gender,ipd_age,ipd_diagnosis
 			tf11.paragraphs[0].text = pathology_comment + "\n\n" + sample_info_comment.replace("|","\n")
 			tf11.paragraphs[0].font.size = Pt(10)
 			tf11.paragraphs[0].alignment = PP_ALIGN.LEFT
-		gender_age = gender + '/' + age + 'y'
+		gender_age = ipd_gender + '/' + age + 'y'
 		if(RNA_material_id != ""):
 			ipd_material_id_index = "DNA:" + DNA_material_id + "\nRNA:" + RNA_material_id
 		else:
@@ -1070,7 +1070,7 @@ def update_clinical_master_file(InPreD_clinical_data_file,sample_id,if_generate_
 	for ln in fr:
 		if(ln.split('\t')[0] == sample_id):
 			if_exist = True
-			line = '\t'.join([sample_id, runID, if_generate_report, ipd_birth_year, ipd_diagnosis_year, clinical_diagnosis, ipd_gender[0], ipd_consent, material_id, ipd_collection_year, requisition_hospital, extraction_hospital, str(tumor_content_nr), batch_nr, pathology_comment, sample_info_comment + '\n'])
+			line = '\t'.join([sample_id, runID, if_generate_report, ipd_birth_year, ipd_diagnosis_year, clinical_diagnosis, ipd_gender, ipd_consent, material_id, ipd_collection_year, requisition_hospital, extraction_hospital, str(tumor_content_nr), batch_nr, pathology_comment, sample_info_comment + '\n'])
 			new_line = ln.replace(ln,line)
 			new_content = new_content + new_line
 		else:
@@ -1081,7 +1081,7 @@ def update_clinical_master_file(InPreD_clinical_data_file,sample_id,if_generate_
 	else:
 		fa = open(InPreD_clinical_data_file, 'a')
 	if(if_exist == False):
-		line = '\t'.join([sample_id, runID, if_generate_report, ipd_birth_year, ipd_diagnosis_year, clinical_diagnosis, ipd_gender[0], ipd_consent, material_id, ipd_collection_year, requisition_hospital, extraction_hospital, str(tumor_content_nr), batch_nr, pathology_comment, sample_info_comment + '\n'])
+		line = '\t'.join([sample_id, runID, if_generate_report, ipd_birth_year, ipd_diagnosis_year, clinical_diagnosis, ipd_gender, ipd_consent, material_id, ipd_collection_year, requisition_hospital, extraction_hospital, str(tumor_content_nr), batch_nr, pathology_comment, sample_info_comment + '\n'])
 		if(encoding_sys != ""):
 			fa = open(InPreD_clinical_data_file, 'a', encoding=encoding_sys)
 		else:
@@ -1119,14 +1119,14 @@ def update_clinical_tsoppi_file(InPreD_clinical_tsoppi_data_file,sample_id,if_ge
 		for ln in fr:
 			if(ln.split('\t')[0] == sample_id):
 				if_exist = True
-				line = '\t'.join([sample_id, runID, if_generate_report, ipd_birth_year, ipd_diagnosis_year, clinical_diagnosis, ipd_gender[0], ipd_consent, material_id, ipd_collection_year, requisition_hospital, extraction_hospital, str(tumor_content_nr), batch_nr, sample_material, sample_type, tumor_type, str(TMB_DRUP), TMB_TSO500, MSI_TSO500, pipline, pathology_comment, sample_info_comment + '\n'])
+				line = '\t'.join([sample_id, runID, if_generate_report, ipd_birth_year, ipd_diagnosis_year, clinical_diagnosis, ipd_gender, ipd_consent, material_id, ipd_collection_year, requisition_hospital, extraction_hospital, str(tumor_content_nr), batch_nr, sample_material, sample_type, tumor_type, str(TMB_DRUP), TMB_TSO500, MSI_TSO500, pipline, pathology_comment, sample_info_comment + '\n'])
 				new_line = ln.replace(ln,line)
 				new_content = new_content + new_line
 			else:
 				new_content = new_content + ln
 	fr.close()
 	if(if_exist == False):
-		line = '\t'.join([sample_id, runID, if_generate_report, ipd_birth_year, ipd_diagnosis_year, clinical_diagnosis, ipd_gender[0], ipd_consent, material_id, ipd_collection_year, requisition_hospital, extraction_hospital, str(tumor_content_nr), batch_nr, sample_material, sample_type, tumor_type, str(TMB_DRUP), TMB_TSO500, MSI_TSO500, pipline, pathology_comment, sample_info_comment + '\n'])
+		line = '\t'.join([sample_id, runID, if_generate_report, ipd_birth_year, ipd_diagnosis_year, clinical_diagnosis, ipd_gender, ipd_consent, material_id, ipd_collection_year, requisition_hospital, extraction_hospital, str(tumor_content_nr), batch_nr, sample_material, sample_type, tumor_type, str(TMB_DRUP), TMB_TSO500, MSI_TSO500, pipline, pathology_comment, sample_info_comment + '\n'])
 		with open(InPreD_clinical_tsoppi_data_file, 'a') as fa:
 			fa.write(line)
 		fa.close()
