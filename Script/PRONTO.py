@@ -724,73 +724,12 @@ def insert_image_to_ppt(DNA_sampleID,DNA_normal_sampleID,RNA_sampleID,DNA_image_
 	ppt.save(output_ppt_file)
 
 
-def insert_table_to_ppt(table_data_file,slide_n,table_name,left_h,top_h,width_h,left_t,top_t,width_t,height_t,font_size,table_header,output_ppt_file,if_print_rowNo,table_column_width):
+def insert_table_to_ppt(table_data_file,slide_n,table_name,left_h,top_h,width_h,left_t,top_t,width_t,height_t,font_size,table_header,output_ppt_file,if_print_rowNo,table_column_width,table_max_rows_per_slide):
 	table_file = open(table_data_file)
 	lines = table_file.readlines()
 	if not lines:
 		return
 	first_line = lines[0]
-	rows = len(lines)
-	first_line_cells = first_line.split('\t')
-	cols = len(table_header)
-	header_not_exist_in_table = []
-	for n in range(len(table_header)):
-		if_exist = False
-		if(table_header[n] in first_line_cells):
-			if_exist = True
-		if not if_exist:
-			header_not_exist_in_table.append(n)
-	ppt = Presentation(output_ppt_file)
-	try:
-		slide = ppt.slides[slide_n-1]
-	except:
-		slide = ppt.slides.add_slide(ppt.slide_layouts[6])
-	shapes = slide.shapes
-	left = Inches(left_t)
-	top = Inches(top_t)
-	width = Inches(width_t)
-	height = Inches(height_t)
-	table = shapes.add_table(rows,cols,left,top,width,height).table
-	table_rows = rows-1
-	for c in range(cols):
-		if table_column_width:
-			table.columns[c].width = Inches(table_column_width[c])
-		table.cell(0,c).text = table_header[c]
-		table.cell(0,c).text_frame.paragraphs[0].font.size = Pt(font_size)
-
-	row = 1
-	for line in open(table_data_file):
-		if(line != first_line):
-			line_cells = line.split('\t')
-			if header_not_exist_in_table:
-				for num in header_not_exist_in_table:
-					line_cells.insert(num," ")
-			for j in range(len(line_cells) - 1):
-				table.cell(row,j).text = str(line_cells[j])
-				table.cell(row,j).text_frame.paragraphs[0].font.size = Pt(font_size)
-			row += 1	
-	textbox = slide.shapes.add_textbox(Inches(left_h),Inches(top_h),Inches(width_h),Inches(0.25))
-	tf = textbox.text_frame
-	if(if_print_rowNo == True):
-		tf.paragraphs[0].text = table_name +" (N=" + str(table_rows) + ")"
-	else:
-		tf.paragraphs[0].text = table_name
-	tf.paragraphs[0].font.size = Pt(8)
-	tf.paragraphs[0].font.bold = True
-	tf.paragraphs[0].alignment = PP_ALIGN.CENTER
-
-	ppt.save(output_ppt_file)
-	data_nrows = table_rows
-	return data_nrows
-
-
-def insert_table_to_ppt_end(table_data_file,slide_n,table_name,left_h,top_h,width_h,left_t,top_t,width_t,height_t,font_size,table_header,output_ppt_file,if_print_rowNo,table_column_width,table_max_rows_per_slide):
-	table_file = open(table_data_file)
-	lines = table_file.readlines()
-	if not lines:
-		return
-	first_line = lines[0]
-	rows = len(lines)
 	first_line_cells = first_line.split('\t')
 	cols = len(table_header)
 	header_not_exist_in_table = []
@@ -801,34 +740,40 @@ def insert_table_to_ppt_end(table_data_file,slide_n,table_name,left_h,top_h,widt
 		if not if_exist:
 			header_not_exist_in_table.append(n)
 	data_rows = []
-	for line in lines:
-		if(line != first_line):
-			line_cells =  line.strip('\t')
-			if header_not_exist_in_table:
-				for num in header_not_exist_in_table:
-					line_cells.insert(num," ")
-			row_data = [cell.strip() for cell in line.split('\t')]
-			data_rows.append(row_data)
+	for line in lines[1:]:
+		line_cells =  line.strip('\t')
+		if header_not_exist_in_table:
+			for num in header_not_exist_in_table:
+				line_cells.insert(num," ")
+		row_data = [cell.strip() for cell in line.split('\t')]
+		data_rows.append(row_data)
+	total_rows = len(data_rows)
 
 	ppt = Presentation(output_ppt_file)
-	if(rows <= table_max_rows_per_slide):
+	if(table_max_rows_per_slide is None or total_rows <= table_max_rows_per_slide):
 		total_slides_needed = 1
+		rows_per_page = total_rows
+		start_slide_index = slide_n
 	else:
-		total_slides_needed = rows // table_max_rows_per_slide + 1
+		total_slides_needed = (total_rows + table_max_rows_per_slide -1) // table_max_rows_per_slide
+		rows_per_page = table_max_rows_per_slide
+		start_slide_index = None
 
-	total_rows = len (data_rows)
-	start_idx = 0
-	table_page_num = 1
-	while start_idx < total_rows:
-		end_idx  = min(start_idx + table_max_rows_per_slide, total_rows)
-		slide_data = data_rows[start_idx:end_idx]
-		slide = ppt.slides.add_slide(ppt.slide_layouts[6])
+	for page_num in range(total_slides_needed):
+		start_idx = page_num * rows_per_page
+		end_idx = min(start_idx + rows_per_page, total_rows)
+		current_page_data = data_rows[start_idx:end_idx]
+		current_page_rows = len(current_page_data)
+		if(start_slide_index is not None and page_num == 0):
+			slide = ppt.slides[slide_n - 1]
+		else:
+			slide = ppt.slides.add_slide(ppt.slide_layouts[6])
 		shapes = slide.shapes
 		left = Inches(left_t)
 		top = Inches(top_t)
 		width = Inches(width_t)
 		height = Inches(height_t)
-		table_rows = len(slide_data) + 1
+		table_rows = current_page_rows + 1
 		table = shapes.add_table(table_rows,cols,left,top,width,height).table
 		for c in range(cols):
 			if table_column_width:
@@ -836,26 +781,26 @@ def insert_table_to_ppt_end(table_data_file,slide_n,table_name,left_h,top_h,widt
 			table.cell(0,c).text = table_header[c]
 			table.cell(0,c).text_frame.paragraphs[0].font.size = Pt(font_size)
 
-		for row_idx, row_data in enumerate(slide_data, start=1):
+		for row_idx, row_data in enumerate(current_page_data, start=1):
 			for col_idx in range(cols):
 				table.cell(row_idx,col_idx).text = str(row_data[col_idx])
 				table.cell(row_idx,col_idx).text_frame.paragraphs[0].font.size = Pt(font_size)
 
-		start_idx = end_idx
-
 		textbox = slide.shapes.add_textbox(Inches(left_h),Inches(top_h),Inches(width_h),Inches(0.25))
 		tf = textbox.text_frame
 		if(if_print_rowNo == True):
-			tf.paragraphs[0].text = table_name +" (N=" + str(total_rows) + ", Page " + str(table_page_num) + "/" + str(total_slides_needed) + ")"
+			if(table_max_rows_per_slide is not None):
+				tf.paragraphs[0].text = table_name +" (N=" + str(total_rows) + ", Page " + str(page_num+1) + "/" + str(total_slides_needed) + ")"
+			else:
+				tf.paragraphs[0].text = table_name +" (N=" + str(total_rows) + ")"
 		else:
 			tf.paragraphs[0].text = table_name
 		tf.paragraphs[0].font.size = Pt(8)
 		tf.paragraphs[0].font.bold = True
 		tf.paragraphs[0].alignment = PP_ALIGN.CENTER
-		table_page_num = table_page_num + 1
 
 	ppt.save(output_ppt_file)
-	return total_slides_needed
+	return total_rows, total_slides_needed
 
 
 def update_ppt_variant_summary_table(data_nrows,DNA_sampleID,RNA_sampleID,TMB_DRUP_nr,TMB_DRUP_str,DNA_variant_summary_file,RNA_variant_summary_file,output_file_preMTB_AppendixTable,output_table_file_filterResults_AllReporVariants_CodingRegion,output_ppt_file):
@@ -1588,7 +1533,7 @@ def main(argv):
 				slide6_table_font_size = 7
 				if_print_rowNo = False
 				for table_index in slide6_table_ppSlide:
-					slide6_table_nrows = insert_table_to_ppt(slide6_table_data_file,table_index,slide6_table_name,slide6_header_left,slide6_header_top,slide6_header_width,slide6_table_left,slide6_table_top,slide6_table_width,slide6_table_height,slide6_table_font_size,slide6_table_header,output_ppt_file,if_print_rowNo,[])
+					slide6_table_nrows, _ = insert_table_to_ppt(slide6_table_data_file,table_index,slide6_table_name,slide6_header_left,slide6_header_top,slide6_header_width,slide6_table_left,slide6_table_top,slide6_table_width,slide6_table_height,slide6_table_font_size,slide6_table_header,output_ppt_file,if_print_rowNo,[],table_max_rows_per_slide=None)
 				output_file_preMTB_AppendixTable = output_file_preMTB_table_path + "_preMTBTable_Appendix.txt"
 				output_table_file_filterResults_AllReporVariants_CodingRegion = output_file_preMTB_table_path + "_AllReporVariants_CodingRegion.txt"
 				stable_text = update_ppt_variant_summary_table(slide6_table_nrows,DNA_sampleID,RNA_sampleID,TMB_DRUP,TMB_DRUP_str,DNA_variant_summary_file,RNA_variant_summary_file,output_file_preMTB_AppendixTable,output_table_file_filterResults_AllReporVariants_CodingRegion,output_ppt_file)
@@ -1608,8 +1553,8 @@ def main(argv):
 				slide8_table_font_size = 7
 				if_print_rowNo = True
 				table8_column_width = [0.54, 0.96, 0.96, 0.51, 0.73, 1.12, 2.26, 0.79, 0.81, 0.53]
-				table_max_rows_per_slide = int(cfg.get("INPUT", "table_max_rows_per_slide")) - 1
-				slide8_table_slides = insert_table_to_ppt_end(slide8_table_data_file,slide8_table_ppSlide,slide8_table_name,slide8_header_left,slide8_header_top,slide8_header_width,slide8_table_left,slide8_table_top,slide8_table_width,slide8_table_height,slide8_table_font_size,slide8_table_header,output_ppt_file,if_print_rowNo,table8_column_width,table_max_rows_per_slide)
+				table_max_rows_per_slide = int(cfg.get("INPUT", "table_max_rows_per_slide"))
+				_, slide8_table_slides_added = insert_table_to_ppt(slide8_table_data_file,slide8_table_ppSlide,slide8_table_name,slide8_header_left,slide8_header_top,slide8_header_width,slide8_table_left,slide8_table_top,slide8_table_width,slide8_table_height,slide8_table_font_size,slide8_table_header,output_ppt_file,if_print_rowNo,table8_column_width,table_max_rows_per_slide)
 
 				# Insert the CNV_overveiw_plots pictures A2, B3 and C1 into report.
 				A2_to_extract=[2]
@@ -1626,7 +1571,7 @@ def main(argv):
 				slides = ppt.slides._sldIdLst
 				slides_list = list(slides)
 				slides.remove(slides_list[7])
-				slides.insert(slide_count + 1,slides_list[7])
+				slides.append(slides_list[7])
 				ppt.save(output_ppt_file)
 				print("Generate report for " + DNA_sampleID)
 				ppt_nr += 1
