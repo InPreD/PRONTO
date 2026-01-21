@@ -579,10 +579,17 @@ def update_ppt_template_data(inpred_node,ipd_no,ipd_gender,ipd_age,ipd_diagnosis
 	today_month = time.strftime("%b", time.localtime())
 	today_year = time.strftime("%Y", time.localtime())
 	today = today_date + '\n' + today_month.upper() + '\n' + today_year
+	year_text =  "XX\nXXX\n" + today_year
 	ppt = Presentation(ppt_template)
 	indexs = [1,3,4,5,6]
 	for index in indexs:
 		slide = ppt.slides[index]
+		textbox0 = slide.shapes.add_textbox(Inches(0.06), Inches(0.06), Inches(0.47), Inches(0.63))
+		tf0 = textbox0.text_frame
+		tf0.paragraphs[0].text = year_text
+		tf0.paragraphs[0].font.size = Pt(11)
+		tf0.paragraphs[0].font.color.rgb = RGBColor(250,250,250)
+		tf0.paragraphs[0].alignment = PP_ALIGN.CENTER
 		textbox1 = slide.shapes.add_textbox(Inches(3.75), Inches(0.11), Inches(1.33), Inches(0.50))
 		tf1 = textbox1.text_frame
 		tf1.paragraphs[0].text = ipd_no
