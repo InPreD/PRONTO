@@ -741,7 +741,7 @@ def insert_table_to_ppt(table_data_file,slide_n,table_name,left_h,top_h,width_h,
 			header_not_exist_in_table.append(n)
 	data_rows = []
 	for line in lines[1:]:
-		line_cells =  line.strip('\t')
+		line_cells =  line.split('\t')
 		if header_not_exist_in_table:
 			for num in header_not_exist_in_table:
 				line_cells.insert(num," ")
@@ -1567,7 +1567,6 @@ def main(argv):
 
         			# Change slides order.
 				ppt = Presentation(output_ppt_file)
-				slide_count = len(ppt.slides)
 				slides = ppt.slides._sldIdLst
 				slides_list = list(slides)
 				slides.remove(slides_list[7])
