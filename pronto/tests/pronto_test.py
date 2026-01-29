@@ -1,3 +1,4 @@
+import pandas
 import pytest
 import pronto.pronto
 
@@ -99,3 +100,85 @@ def test_get_tmb_string(input, exception, want):
 def test_glob_tsoppi_file(inputs, exception, want):
     with exception:
         assert pronto.pronto.glob_tsoppi_file(*inputs) == want
+
+@pytest.mark.parametrize(
+    "inputs, exception, want",
+    [
+        (
+            (
+                pandas.DataFrame({
+                    "one": [1, 2],
+                    "two": [3, 4],
+                    "three": [5, 6],
+                    "four": [7, 8],
+                }),
+                ["one", "two", "three", "four"],
+            ),
+            does_not_raise(),
+            pandas.DataFrame({
+                "one": [1, 2],
+                "two": [3, 4],
+                "three": [5, 6],
+                "four": [7, 8],
+            }),
+        ),
+        (
+            (
+                pandas.DataFrame({
+                    "one": [1, 2],
+                    "two": [3, 4],
+                    "four": [7, 8],
+                }),
+                ["one", "two", "three", "four"],
+            ),
+            does_not_raise(),
+            pandas.DataFrame({
+                "one": [1, 2],
+                "two": [3, 4],
+                "three": [' ', ' '],
+                "four": [7, 8],
+            }),
+        ),
+        (
+            (
+                pandas.DataFrame({
+                    "one": [1, 2],
+                    "two": [3, 4],
+                    "three": [5, 6],
+                    "four": [7, 8],
+                }),
+                ["two", "three", "four"],
+            ),
+            does_not_raise(),
+            pandas.DataFrame({
+                "two": [3, 4],
+                "three": [5, 6],
+                "four": [7, 8],
+                "one": [1, 2],
+            }),
+        ),
+        (
+            (
+                pandas.DataFrame({
+                    "one": [1, 2],
+                    "two": [3, 4],
+                    "four": [7, 8],
+                    "five": [9, 10],
+                }),
+                ["one", "two", "three", "four"],
+            ),
+            does_not_raise(),
+            pandas.DataFrame({
+                "one": [1, 2],
+                "two": [3, 4],
+                "three": [' ', ' '],
+                "four": [7, 8],
+                "five": [9, 10],
+            }),
+        ),
+    ]
+)
+def test_normalize_column_index(inputs, exception, want):
+    with exception:
+        get = pronto.pronto.normalize_column_index(*inputs)
+        assert want.equals(get)
