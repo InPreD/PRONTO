@@ -29,6 +29,7 @@ from decimal import Decimal
 from copy import deepcopy
 import pronto.pronto as pronto
 import pandas
+import math
 from pdf2image import convert_from_path
 
 runID = ""
@@ -748,20 +749,16 @@ def insert_table_to_ppt(table_file,slide_n,table_name,left_h,top_h,width_h,left_
 	cols = len(table_header)
 	rows = len(table_data)
 
-	# how many slides, rows per slide, and start slide index
-	if(table_max_rows_per_slide is None or rows <= table_max_rows_per_slide):
-		total_slides_needed = 1
-		rows_per_page = rows
-		start_slide_index = slide_n
-	else:
-		total_slides_needed = (rows + table_max_rows_per_slide -1) // table_max_rows_per_slide
-		rows_per_page = table_max_rows_per_slide
-		start_slide_index = None
+	# how many slides, and start slide index
+	if not table_max_rows_per_slide:
+		table_max_rows_per_slide = rows
+	total_slides_needed = math.ceil(rows / table_max_rows_per_slide)
+	start_slide_index = None if total_slides_needed > 1 else slide_n
 
 	ppt = Presentation(output_ppt_file)
 	for page_num in range(total_slides_needed):
-		start_idx = page_num * rows_per_page
-		end_idx = min(start_idx + rows_per_page, rows)
+		start_idx = page_num * table_max_rows_per_slide
+		end_idx = min(start_idx + table_max_rows_per_slide, rows)
 		data_rows = table_data.values.tolist()
 		current_page_data = data_rows[start_idx:end_idx] # use df
 		current_page_rows = len(current_page_data)
@@ -790,7 +787,7 @@ def insert_table_to_ppt(table_file,slide_n,table_name,left_h,top_h,width_h,left_
 		textbox = slide.shapes.add_textbox(Inches(left_h),Inches(top_h),Inches(width_h),Inches(0.25))
 		tf = textbox.text_frame
 		if(if_print_rowNo == True):
-			if(table_max_rows_per_slide is not None):
+			if(total_slides_needed > 1):
 				tf.paragraphs[0].text = table_name +" (N=" + str(rows) + ", Page " + str(page_num+1) + "/" + str(total_slides_needed) + ")"
 			else:
 				tf.paragraphs[0].text = table_name +" (N=" + str(rows) + ")"
