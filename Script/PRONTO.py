@@ -738,7 +738,7 @@ def insert_table_to_ppt(table_file,slide_n,table_name,left_h,top_h,width_h,left_
 	try:
 		table_data = pandas.read_csv(table_file, sep='\t')
 	except pandas.errors.EmptyDataError:
-		logging.warning("The file is empty.")
+		logging.warning("{} is empty".format(table_file))
 		return
 	
 	# add empty columns for missing header columns and move additional columns to the right
