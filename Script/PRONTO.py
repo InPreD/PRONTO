@@ -28,6 +28,7 @@ from pptx.enum.shapes import MSO_SHAPE
 from decimal import Decimal
 from copy import deepcopy
 import pronto.pronto as pronto
+import pandas
 from pdf2image import convert_from_path
 
 runID = ""
@@ -731,45 +732,38 @@ def insert_image_to_ppt(DNA_sampleID,DNA_normal_sampleID,RNA_sampleID,DNA_image_
 	ppt.save(output_ppt_file)
 
 
-def insert_table_to_ppt(table_data_file,slide_n,table_name,left_h,top_h,width_h,left_t,top_t,width_t,height_t,font_size,table_header,output_ppt_file,if_print_rowNo,table_column_width,table_max_rows_per_slide):
-	table_file = open(table_data_file)
-	lines = table_file.readlines()
-	if not lines:
-		return
-	first_line = lines[0]
-	first_line_cells = first_line.split('\t')
-	cols = len(table_header)
-	header_not_exist_in_table = []
-	for n in range(len(table_header)):
-		if_exist = False
-		if(table_header[n] in first_line_cells):
-			if_exist = True
-		if not if_exist:
-			header_not_exist_in_table.append(n)
-	data_rows = []
-	for line in lines[1:]:
-		line_cells =  line.split('\t')
-		if header_not_exist_in_table:
-			for num in header_not_exist_in_table:
-				line_cells.insert(num," ")
-		row_data = [cell.strip() for cell in line.split('\t')]
-		data_rows.append(row_data)
-	total_rows = len(data_rows)
+def insert_table_to_ppt(table_file,slide_n,table_name,left_h,top_h,width_h,left_t,top_t,width_t,height_t,font_size,table_header,output_ppt_file,if_print_rowNo,table_column_width,table_max_rows_per_slide):
 
-	ppt = Presentation(output_ppt_file)
-	if(table_max_rows_per_slide is None or total_rows <= table_max_rows_per_slide):
+	# load table data
+	try:
+		table_data = pandas.read_csv(table_file, sep='\t')
+	except pandas.errors.EmptyDataError:
+		logging.warning("The file is empty.")
+		return
+	
+	# add empty columns for missing header columns and move additional columns to the right
+	table_data = pronto.normalize_column_index(table_data, table_header)
+
+	# determine column and row number
+	cols = len(table_header)
+	rows = len(table_data)
+
+	# how many slides, rows per slide, and start slide index
+	if(table_max_rows_per_slide is None or rows <= table_max_rows_per_slide):
 		total_slides_needed = 1
-		rows_per_page = total_rows
+		rows_per_page = rows
 		start_slide_index = slide_n
 	else:
-		total_slides_needed = (total_rows + table_max_rows_per_slide -1) // table_max_rows_per_slide
+		total_slides_needed = (rows + table_max_rows_per_slide -1) // table_max_rows_per_slide
 		rows_per_page = table_max_rows_per_slide
 		start_slide_index = None
 
+	ppt = Presentation(output_ppt_file)
 	for page_num in range(total_slides_needed):
 		start_idx = page_num * rows_per_page
-		end_idx = min(start_idx + rows_per_page, total_rows)
-		current_page_data = data_rows[start_idx:end_idx]
+		end_idx = min(start_idx + rows_per_page, rows)
+		data_rows = table_data.values.tolist()
+		current_page_data = data_rows[start_idx:end_idx] # use df
 		current_page_rows = len(current_page_data)
 		if(start_slide_index is not None and page_num == 0):
 			slide = ppt.slides[slide_n - 1]
@@ -797,9 +791,9 @@ def insert_table_to_ppt(table_data_file,slide_n,table_name,left_h,top_h,width_h,
 		tf = textbox.text_frame
 		if(if_print_rowNo == True):
 			if(table_max_rows_per_slide is not None):
-				tf.paragraphs[0].text = table_name +" (N=" + str(total_rows) + ", Page " + str(page_num+1) + "/" + str(total_slides_needed) + ")"
+				tf.paragraphs[0].text = table_name +" (N=" + str(rows) + ", Page " + str(page_num+1) + "/" + str(total_slides_needed) + ")"
 			else:
-				tf.paragraphs[0].text = table_name +" (N=" + str(total_rows) + ")"
+				tf.paragraphs[0].text = table_name +" (N=" + str(rows) + ")"
 		else:
 			tf.paragraphs[0].text = table_name
 		tf.paragraphs[0].font.size = Pt(8)
@@ -807,7 +801,7 @@ def insert_table_to_ppt(table_data_file,slide_n,table_name,left_h,top_h,width_h,
 		tf.paragraphs[0].alignment = PP_ALIGN.CENTER
 
 	ppt.save(output_ppt_file)
-	return total_rows
+	return rows
 
 
 def update_ppt_variant_summary_table(data_nrows,DNA_sampleID,RNA_sampleID,TMB_DRUP_nr,TMB_DRUP_str,DNA_variant_summary_file,RNA_variant_summary_file,output_file_preMTB_AppendixTable,output_table_file_filterResults_AllReporVariants_CodingRegion,output_ppt_file):
