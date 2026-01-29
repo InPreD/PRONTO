@@ -1,6 +1,7 @@
 import glob
 import logging
 import os
+import pandas
 
 # get tumor mutational burden label
 def get_tmb_string(val):
@@ -27,3 +28,15 @@ def glob_tsoppi_file(is_error, root, run_id, *path_units):
 	else:
 		logging.error("unsuccessful glob strings for {}:\n{}\n{}".format(run_id, glob_string_ous, glob_string_hus))
 		raise ValueError
+
+def normalize_column_index(df: pandas.DataFrame, exp_col_idx: list):
+	# determine current, missing and additional column indices
+	curr_col_idx = df.columns.tolist()
+	miss_col_idx = list(set(exp_col_idx) - set(curr_col_idx))
+	add_col_idx = list(set(curr_col_idx) - set(exp_col_idx))
+	# add missing column indices
+	for i in miss_col_idx:
+		df[i] = ' '
+	# combine expected with additional to get all present column indices and rearrange columns accordingly, additional columns are moved to the right
+	all_col_idx = exp_col_idx + add_col_idx
+	return df[all_col_idx]
