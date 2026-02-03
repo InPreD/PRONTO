@@ -182,3 +182,53 @@ def test_normalize_column_index(inputs, exception, want):
     with exception:
         get = pronto.pronto.normalize_column_index(*inputs)
         assert want.equals(get)
+
+@pytest.mark.parametrize(
+    "inputs, exception, want",
+    [
+        (
+            (
+                pandas.DataFrame({
+                    "one": [1, 2],
+                    "two": [3.333, 4.444],
+                }),
+                "two",
+            ),
+            does_not_raise(),
+            pandas.DataFrame({
+                "one": [1, 2],
+                "two": ["3.33", "4.44"],
+            }),
+        ),
+        (
+            (
+                pandas.DataFrame({
+                    "one": [1, 2],
+                    "two": [3.666, 4.777],
+                }),
+                "two",
+            ),
+            does_not_raise(),
+            pandas.DataFrame({
+                "one": [1, 2],
+                "two": ["3.67", "4.78"],
+            }),
+        ),
+        (
+            (
+                pandas.DataFrame({
+                    "one": [1, 2],
+                }),
+                "two",
+            ),
+            does_not_raise(),
+            pandas.DataFrame({
+                "one": [1, 2],
+            }),
+        ),
+    ]
+)
+def test_set_column_to_2_decimals(inputs, exception, want):
+    with exception:
+        get = pronto.pronto.set_column_to_2_decimals(*inputs)
+        assert want.equals(get)
