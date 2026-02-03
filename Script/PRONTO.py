@@ -745,6 +745,9 @@ def insert_table_to_ppt(table_file,slide_n,table_name,left_h,top_h,width_h,left_
 	# add empty columns for missing header columns and move additional columns to the right
 	table_data = pronto.normalize_column_index(table_data, table_header)
 
+	# round floats to 2 decimal places
+	table_data = pronto.set_column_to_2_decimals(table_data, "AF_tumor_DNA")
+
 	# determine column and row number
 	cols = len(table_header)
 	rows = len(table_data)

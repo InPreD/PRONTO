@@ -40,3 +40,10 @@ def normalize_column_index(df: pandas.DataFrame, exp_col_idx: list):
 	# combine expected with additional to get all present column indices and rearrange columns accordingly, additional columns are moved to the right
 	all_col_idx = exp_col_idx + add_col_idx
 	return df[all_col_idx]
+
+def set_column_to_2_decimals(df: pandas.DataFrame, col_name: str):
+	if col_name in df.columns:
+		df[col_name] = df[col_name].map('{:.2f}'.format)
+	else:
+		logging.info("Column {} not found in dataframe".format(col_name))
+	return df
