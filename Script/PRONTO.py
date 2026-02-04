@@ -759,7 +759,7 @@ def insert_table_to_ppt(table_file,slide_n,table_name,left_h,top_h,width_h,left_
 	start_slide_idx = None if total_slides_needed > 1 else slide_n
 
 	ppt = Presentation(output_ppt_file)
-	for page_num in range(total_slides_needed):
+	for slide_idx in range(total_slides_needed):
 		start_idx = page_num * table_max_rows_per_slide
 		end_idx = min(start_idx + table_max_rows_per_slide, rows)
 		data_rows = table_data.values.tolist()
@@ -791,7 +791,7 @@ def insert_table_to_ppt(table_file,slide_n,table_name,left_h,top_h,width_h,left_
 		tf = textbox.text_frame
 		if(if_print_rowNo == True):
 			if(total_slides_needed > 1):
-				tf.paragraphs[0].text = table_name +" (N=" + str(rows) + ", Page " + str(page_num+1) + "/" + str(total_slides_needed) + ")"
+				tf.paragraphs[0].text = table_name +" (N=" + str(rows) + ", Page " + str(slide_idx+1) + "/" + str(total_slides_needed) + ")"
 			else:
 				tf.paragraphs[0].text = table_name +" (N=" + str(rows) + ")"
 		else:
