@@ -756,7 +756,7 @@ def insert_table_to_ppt(table_file,slide_n,table_name,left_h,top_h,width_h,left_
 	if not table_max_rows_per_slide:
 		table_max_rows_per_slide = rows
 	total_slides_needed = math.ceil(rows / table_max_rows_per_slide)
-	start_slide_index = None if total_slides_needed > 1 else slide_n
+	start_slide_idx = None if total_slides_needed > 1 else slide_n
 
 	ppt = Presentation(output_ppt_file)
 	for page_num in range(total_slides_needed):
@@ -765,7 +765,7 @@ def insert_table_to_ppt(table_file,slide_n,table_name,left_h,top_h,width_h,left_
 		data_rows = table_data.values.tolist()
 		current_page_data = data_rows[start_idx:end_idx] # use df
 		current_page_rows = len(current_page_data)
-		if(start_slide_index is not None and page_num == 0):
+		if(start_slide_idx is not None and slide_idx == 0):
 			slide = ppt.slides[slide_n - 1]
 		else:
 			slide = ppt.slides.add_slide(ppt.slide_layouts[6])
