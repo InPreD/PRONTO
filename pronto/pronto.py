@@ -30,6 +30,7 @@ def glob_tsoppi_file(is_error, root, run_id, *path_units):
 		logging.error("unsuccessful glob strings for {}:\n{}\n{}".format(run_id, glob_string_ous, glob_string_hus))
 		raise ValueError
 
+# normalize dataframe to expected column indices
 def normalize_column_index(df: pandas.DataFrame, exp_col_idx: list):
 	# determine current, missing and additional column indices
 	curr_col_idx = df.columns.tolist()
@@ -42,6 +43,7 @@ def normalize_column_index(df: pandas.DataFrame, exp_col_idx: list):
 	all_col_idx = exp_col_idx + add_col_idx
 	return df[all_col_idx]
 
+# set dataframe column format to 2 decimal points
 def set_column_to_2_decimals(df: pandas.DataFrame, col_name: str):
 	if col_name in df.columns:
 		if df[col_name].dtype != float:
