@@ -204,7 +204,7 @@ def test_normalize_column_index(inputs, exception, want):
             (
                 pandas.DataFrame({
                     "one": [1, 2],
-                    "two": [3.666, 4.777],
+                    "two": ['3.666', '4.777'],
                 }),
                 "two",
             ),
