@@ -2,6 +2,7 @@ import glob
 import logging
 import os
 import pandas
+import pptx
 
 # get tumor mutational burden label
 def get_tmb_string(val):
@@ -49,3 +50,30 @@ def set_column_to_2_decimals(df: pandas.DataFrame, col_name: str):
 	else:
 		logging.info("Column {} not found in dataframe".format(col_name))
 	return df
+
+# get data fitting on one slide based on slide index and max rows per slide
+def get_slide_table_data(df: pandas.DataFrame, slide_idx: int, max_rows: int):
+	start = slide_idx * max_rows
+	stop = min(start + max_rows, len(df))
+	if start >= len(df):
+		return []
+	table = df.values.tolist()
+	header = [df.columns.tolist()]
+	table_data = header + table[start:stop]
+	return table_data
+
+# add constructed table name to slide and format the textbox
+def add_table_name(shapes: pptx.shapes.shapetree.SlideShapes, table_name: str, left: float, top: float, width: float, height: float, font_size: float, print_row_num: bool, slide_idx: int, total_slides: int, rows: int):
+
+	# add textbox to slide
+	paragraph = shapes.add_textbox(pptx.util.Inches(left), pptx.util.Inches(top), pptx.util.Inches(width), pptx.util.Inches(height)).text_frame.paragraphs[0]
+
+	# construct table name with optional row number and slide count
+	part_1 = ", Page {}/{}".format(slide_idx + 1, total_slides) if total_slides > 1 else ''
+	part_2 = " (N={}{})".format(rows, part_1) if print_row_num else ''
+	paragraph.text = "{}{}".format(table_name, part_2)
+
+	# font formatting and placement
+	paragraph.font.size = pptx.util.Pt(font_size)
+	paragraph.font.bold = True
+	paragraph.alignment = pptx.enum.text.PP_ALIGN.CENTER
