@@ -733,7 +733,7 @@ def insert_image_to_ppt(DNA_sampleID,DNA_normal_sampleID,RNA_sampleID,DNA_image_
 	ppt.save(output_ppt_file)
 
 
-def insert_table_to_ppt(table_file,slide_n,table_name,left_h,top_h,width_h,left_t,top_t,width_t,height_t,font_size,table_header,output_ppt_file,if_print_rowNo,table_column_width,table_max_rows_per_slide):
+def insert_table_to_ppt(table_file,slide_n,table_name,left_h,top_h,width_h,left_t,top_t,width_t,height_t,font_size,table_header,output_ppt_file,print_row_num,table_column_width,table_max_rows_per_slide):
 
 	# load table data
 	try:
@@ -752,53 +752,41 @@ def insert_table_to_ppt(table_file,slide_n,table_name,left_h,top_h,width_h,left_
 	cols = len(table_header)
 	rows = len(table_data)
 
-	# how many slides, and start slide index
+	# how many slides are required
 	if not table_max_rows_per_slide:
 		table_max_rows_per_slide = rows
 	total_slides_needed = math.ceil(rows / table_max_rows_per_slide)
-	start_slide_idx = None if total_slides_needed > 1 else slide_n
 
+	# Add data to ppt
 	ppt = Presentation(output_ppt_file)
 	for slide_idx in range(total_slides_needed):
-		start_idx = page_num * table_max_rows_per_slide
-		end_idx = min(start_idx + table_max_rows_per_slide, rows)
-		data_rows = table_data.values.tolist()
-		current_page_data = data_rows[start_idx:end_idx] # use df
-		current_page_rows = len(current_page_data)
-		if(start_slide_idx is not None and slide_idx == 0):
-			slide = ppt.slides[slide_n - 1]
+		current_slide_data = pronto.get_slide_table_data(table_data, slide_idx, table_max_rows_per_slide)
+		if(total_slides_needed == 1):
+			shapes = ppt.slides[slide_n - 1].shapes
 		else:
-			slide = ppt.slides.add_slide(ppt.slide_layouts[6])
-		shapes = slide.shapes
+			shapes = ppt.slides.add_slide(ppt.slide_layouts[6]).shapes
+
+		# create new table on slide
 		left = Inches(left_t)
 		top = Inches(top_t)
 		width = Inches(width_t)
 		height = Inches(height_t)
-		table_rows = current_page_rows + 1
+		table_rows = len(current_slide_data)
 		table = shapes.add_table(table_rows,cols,left,top,width,height).table
-		for c in range(cols):
-			if table_column_width:
-				table.columns[c].width = Inches(table_column_width[c])
-			table.cell(0,c).text = table_header[c]
-			table.cell(0,c).text_frame.paragraphs[0].font.size = Pt(font_size)
 
-		for row_idx, row_data in enumerate(current_page_data, start=1):
-			for col_idx in range(cols):
-				table.cell(row_idx,col_idx).text = str(row_data[col_idx])
-				table.cell(row_idx,col_idx).text_frame.paragraphs[0].font.size = Pt(font_size)
+		# if table_column_width is provided, set the column width
+		if len(table_column_width) == cols:
+			for col_idx, width in enumerate(table_column_width):
+				table.columns[col_idx].width = Inches(width)
+		
+		# fill in the table data and set font size
+		for row_idx, row in enumerate(table.rows):
+			for col_idx, cell in enumerate(row.cells):
+				cell.text = current_slide_data[row_idx][col_idx]
+				cell.text_frame.paragraphs[0].font.size = Pt(font_size)
 
-		textbox = slide.shapes.add_textbox(Inches(left_h),Inches(top_h),Inches(width_h),Inches(0.25))
-		tf = textbox.text_frame
-		if(if_print_rowNo == True):
-			if(total_slides_needed > 1):
-				tf.paragraphs[0].text = table_name +" (N=" + str(rows) + ", Page " + str(slide_idx+1) + "/" + str(total_slides_needed) + ")"
-			else:
-				tf.paragraphs[0].text = table_name +" (N=" + str(rows) + ")"
-		else:
-			tf.paragraphs[0].text = table_name
-		tf.paragraphs[0].font.size = Pt(8)
-		tf.paragraphs[0].font.bold = True
-		tf.paragraphs[0].alignment = PP_ALIGN.CENTER
+		# add table title
+		pronto.add_table_title(shapes, table_name, left_h, top_h, width_h, 0.25, 8, print_row_num, slide_idx, total_slides_needed, rows)
 
 	ppt.save(output_ppt_file)
 	return rows
