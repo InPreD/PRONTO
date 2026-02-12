@@ -786,7 +786,7 @@ def insert_table_to_ppt(table_file,slide_n,table_name,left_h,top_h,width_h,left_
 				cell.text_frame.paragraphs[0].font.size = Pt(font_size)
 
 		# add table title
-		pronto.add_table_title(shapes, table_name, left_h, top_h, width_h, 0.25, 8, print_row_num, slide_idx, total_slides_needed, rows)
+		pronto.add_table_name(shapes, table_name, left_h, top_h, width_h, 0.25, 8, print_row_num, slide_idx, total_slides_needed, rows)
 
 	ppt.save(output_ppt_file)
 	return rows
