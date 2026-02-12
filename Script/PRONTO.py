@@ -673,7 +673,7 @@ def update_ppt_template_data(inpred_node,ipd_no,ipd_gender,ipd_age,ipd_diagnosis
 			tf11.paragraphs[0].text = pathology_comment + "\n\n" + sample_info_comment.replace("|","\n")
 			tf11.paragraphs[0].font.size = Pt(10)
 			tf11.paragraphs[0].alignment = PP_ALIGN.LEFT
-		gender_age = ipd_gender + '/' + age + 'y'
+		gender_age = "{}/{}y'.format(ipd_gender, age)
 		if(RNA_material_id != ""):
 			ipd_material_id_index = "DNA:" + DNA_material_id + "\nRNA:" + RNA_material_id
 		else:
