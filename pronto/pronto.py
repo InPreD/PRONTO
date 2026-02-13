@@ -43,12 +43,11 @@ def normalize_column_index(df: pandas.DataFrame, exp_col_idx: list):
 	all_col_idx = exp_col_idx + add_col_idx
 	return df[all_col_idx]
 
-# set dataframe column format to 2 decimal points
+# set dataframe column format to 2 decimal points if float type
 def set_column_to_2_decimals(df: pandas.DataFrame, col_name: str):
 	if col_name in df.columns:
-		if df[col_name].dtype != float:
-			df[col_name] = df[col_name].astype(float)
-		df[col_name] = df[col_name].map('{:.2f}'.format)
+		if df[col_name].dtype == float:
+			df[col_name] = df[col_name].map('{:.2f}'.format)
 	else:
 		logging.info("Column {} not found in dataframe".format(col_name))
 	return df
