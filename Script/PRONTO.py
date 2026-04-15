@@ -806,6 +806,7 @@ def update_ppt_variant_summary_table(data_nrows,DNA_sampleID,RNA_sampleID,TMB_DR
 			else:
 				TMB_illumina = "TMB = " + line.split('\t')[1]
 				TMB_TSO500 = line.split('\t')[1]
+				TMB_TSO500_nr = round(float(TMB_TSO500.split()[0]))
 			if(line.split('\t')[2] == 'NA'):
 				MSI_illumina = "MSI = NA"
 				msi_text = "-"
@@ -910,32 +911,32 @@ def update_ppt_variant_summary_table(data_nrows,DNA_sampleID,RNA_sampleID,TMB_DR
 		tf5.paragraphs[0].text = str(preMTB_appendix_nrows)
 		tf5.paragraphs[0].font.size = Pt(7)
 		tf5.paragraphs[0].alignment = PP_ALIGN.CENTER
-		if(TMB_DRUP_nr >= 0 and TMB_DRUP_nr <= 5 and str_TMB_DRUP != "" and str_TMB_DRUP != "NA"):
+		if(TMB_TSO500_nr >= 0 and TMB_TSO500_nr <= 5 and TMB_TSO500 != "" and TMB_TSO500 != "NA"):
 			roundshape = slide.shapes.add_shape(MSO_SHAPE.OVAL, Cm(7.07), Cm(3.90), Cm(0.58), Cm(0.58))
 			roundshape.line.color.rgb = RGBColor(255,165,0)
 			textbox5 = slide.shapes.add_textbox(Inches(2.74), Inches(1.54), Inches(0.32), Inches(0.21))
 			tf5 = textbox5.text_frame
-			tf5.paragraphs[0].text = str_TMB_DRUP
+			tf5.paragraphs[0].text = str(TMB_TSO500_nr)
 			tf5.paragraphs[0].font.size = Pt(7)
 			tf5.paragraphs[0].font.bold = True
 			tf5.paragraphs[0].alignment = PP_ALIGN.CENTER
 			tf5.paragraphs[0].font.color.rgb = RGBColor(250,250,250)
-		if((TMB_DRUP_nr > 5 and TMB_DRUP_nr <= 20) or str_TMB_DRUP == "" or str_TMB_DRUP == "NA"):
+		if((TMB_TSO500_nr > 5 and TMB_TSO500_nr <= 20) or TMB_TSO500 == "" or TMB_TSO500 == "NA"):
 			roundshape = slide.shapes.add_shape(MSO_SHAPE.OVAL, Cm(8.27), Cm(3.90), Cm(0.58), Cm(0.58))
 			roundshape.line.color.rgb = RGBColor(255,165,0)
 			textbox5 = slide.shapes.add_textbox(Cm(8.23), Cm(3.90), Cm(0.58), Cm(0.60))
 			tf5 = textbox5.text_frame
-			tf5.paragraphs[0].text = str_TMB_DRUP
+			tf5.paragraphs[0].text = str(TMB_TSO500_nr)
 			tf5.paragraphs[0].font.size = Pt(7)
 			tf5.paragraphs[0].font.bold = True
 			tf5.paragraphs[0].alignment = PP_ALIGN.CENTER
 			tf5.paragraphs[0].font.color.rgb = RGBColor(250,250,250)
-		if(TMB_DRUP_nr > 20 and str_TMB_DRUP != "" and str_TMB_DRUP != "NA"):
+		if(TMB_TSO500_nr > 20 and TMB_TSO500 != "" and TMB_TSO500 != "NA"):
 			roundshape = slide.shapes.add_shape(MSO_SHAPE.OVAL, Cm(10.26), Cm(3.90), Cm(0.58), Cm(0.58))
 			roundshape.line.color.rgb = RGBColor(255,165,0)
 			textbox5 = slide.shapes.add_textbox(Cm(10.20), Cm(3.95), Cm(0.58), Cm(0.60))
 			tf5 = textbox5.text_frame
-			tf5.paragraphs[0].text = str_TMB_DRUP
+			tf5.paragraphs[0].text = str(TMB_TSO500_nr)
 			tf5.paragraphs[0].font.size = Pt(7)
 			tf5.paragraphs[0].font.bold = True
 			tf5.paragraphs[0].alignment = PP_ALIGN.CENTER
