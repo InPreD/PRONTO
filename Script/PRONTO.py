@@ -1460,7 +1460,6 @@ def main(argv):
 					output_table_file_config = output_file_preMTB_table_path + "_" + output_table + ".txt"
 					if(DNA_normal_sampleID != ""):
 						columns = columns + ",AF_normal_DNA"
-					#print(columns)
 					all_data = read_tsv_col(top_filter_output_file,filter_column,key_word,columns,MTB_format)
 					write_exl(output_table_file_config_pre,all_data)
 					clear_blank_line(output_table_file_config_pre,output_table_file_config)
