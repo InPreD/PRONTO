@@ -126,6 +126,7 @@ def read_tsv_col(data_file,filter_column,key_word,columns,MTB_format):
 	Depth_tumor_DNA_col = 12
 	AF_tumor_DNA_col = 13
 	for line in open(data_file):
+		line = line.replace('\n', '')
 		line_cells = line.split('\t')
 		if(line_cells[0] == col0 and not mark):
 			for col in range(len(line_cells)):
@@ -176,6 +177,8 @@ def read_tsv_col(data_file,filter_column,key_word,columns,MTB_format):
 				if(appear == False):
 					d += 1
 					for num in column_mark:
+						while(len(line_cells) <= num):
+							line_cells.append('')
 						if(num == Coding_status_col):
 							line_cells[num] = line_cells[num].replace("_variant", "") + '\t'
 						else:
@@ -221,6 +224,21 @@ def read_tsv_col(data_file,filter_column,key_word,columns,MTB_format):
 							line_cells[num] = line_cells[num] + '\t'
 						data[d].append(line_cells[num])
 			data[d].append('\n')
+	return data
+
+
+def add_filter_column_into_table(data_config,filter_column_add):
+	data = []
+	for i, row in enumerate(data_config):
+		row = [item.replace('\n', '') for item in row]
+		if(row[-1] == ''):
+			row.pop()
+		if(i == 0):
+			row.append(filter_column_add+'\n')
+		else:
+		#	row = [item.replace('\n', 'Yes\n') for item in row]
+			row.append("Yes\n")
+		data.append(row)
 	return data
 
 
@@ -1356,47 +1374,95 @@ def main(argv):
 							tumor_content = '~' + str(int(tumor_content_float*100)) + '%'
 					if(line.startswith('#') and "Size of the target coding region" in line):
 						target_cod_region = float(line.split(':')[1])
-				MTB_format = False
-				for i in range(0,filter_col_nu_config):
-					j = str(i + 1)
-					if(j == "2"):
+				for i in range(0,filter_col_nu_config+1):
+					filter_section = str(i)
+					if(filter_section == "0"):
+						all_data_filter = []
+						top_filter = int(cfg.get("INPUT", "top_filter")) + 1
+						for top_filter_num in range(1,top_filter):	
+							filter_column = cfg.get("FILTER0-"+str(top_filter_num), "filter_column")
+							key_word = cfg.get("FILTER0-"+str(top_filter_num), "key_word")
+							columns = cfg.get("FILTER0-"+str(top_filter_num), "columns")
+							try:
+								filter_column_add = cfg.get("FILTER0-"+str(top_filter_num), "filter_column_add")
+							except:
+								filter_column_add = ""
+							try:
+								filter_min_depth_tumor_DNA = int(cfg.get("FILTER0-"+str(top_filter_num), "min_depth_tumor_DNA"))
+							except:
+								filter_min_depth_tumor_DNA = ""
+							output_table = cfg.get("FILTER0-"+str(top_filter_num), "output_table")
+							output_table_file_config_pre = output_file_preMTB_table_path + "_" + output_table + "_pre.txt"
+							output_table_file_config = output_file_preMTB_table_path + "_" + output_table + ".txt"
+							if(',' in filter_column):
+								for column in filter_column.split(','):
+									all_data = read_tsv(data_file_small_variant_table,column,key_word)
+										
+							else:
+								all_data = read_tsv(data_file_small_variant_table,filter_column,key_word)
+							if(filter_column_add != ""):
+								all_data = add_filter_column_into_table(all_data,filter_column_add)
+							if(filter_min_depth_tumor_DNA != ""):
+								all_data = filter_depth_tumor_all_col(all_data,filter_min_depth_tumor_DNA)
+							write_exl(output_table_file_config_pre,all_data)
+							clear_blank_line(output_table_file_config_pre,output_table_file_config)
+							all_data_filter.append(all_data)
+						
+						all_data_filter = sum(all_data_filter, [])
+						for i in range(len(all_data_filter)):
+							if(i == 0):
+								header_length = len(all_data_filter[i])
+							else:
+								if(len(all_data_filter[i]) < header_length):
+									count = header_length - len(all_data_filter[i])
+									all_data_filter[i] = [[item.replace('\n', '') for item in cell] for cell in all_data_filter[i]]
+									all_data_filter[i].pop()
+									for j in range(1, count):
+										all_data_filter[i].append(' \t')
+									all_data_filter[i].append('\n')
+
+						unique_data = []
+						for current in all_data_filter:
+							if(current[-1] == '\n'):
+								current.pop()
+							if(current[-1].endswith('\n\t')):
+								current[-1] = current[-1].replace('\n\t', '\n')
+							is_appear = False
+							for existing in unique_data:
+								if(len(existing) > len(current)):
+									current_content = current.copy()
+									current_content[-1] = current[-1].replace('\n', '\t')
+									for i in range(len(existing) - len(current_content) + 1):
+										if(existing[i:i+len(current_content)] == current_content):
+											is_appear = True
+											break
+								if is_appear:
+									break
+								if(existing == current):
+									is_appear = True
+									break
+							if not is_appear:
+								unique_data.append(current)
+
+						top_filter_output_file_pre = output_file_preMTB_table_path + "_preMTB_workingTable_pre.txt"
+						top_filter_output_file = output_file_preMTB_table_path + "_preMTB_workingTable.txt"
+						write_exl(top_filter_output_file_pre,unique_data)
+						clear_blank_line(top_filter_output_file_pre,top_filter_output_file)
+						continue
+
+					if(filter_section == "1"):
 						MTB_format = True
-					filter_column = cfg.get("FILTER"+j, "filter_column")
-					key_word = cfg.get("FILTER"+j, "key_word")
-					all_col_output = cfg.get("FILTER"+j, "all_col_output")
-					columns = cfg.get("FILTER"+j, "columns")
-					output_table = cfg.get("FILTER"+j, "output_table")
+					filter_column = cfg.get("FILTER"+filter_section, "filter_column")
+					key_word = cfg.get("FILTER"+filter_section, "key_word")
+					columns = cfg.get("FILTER"+filter_section, "columns")
+					output_table = cfg.get("FILTER"+filter_section, "output_table")
 					output_table_file_config_pre = output_file_preMTB_table_path + "_" + output_table + "_pre.txt"
 					output_table_file_config = output_file_preMTB_table_path + "_" + output_table + ".txt"
 					if(DNA_normal_sampleID != ""):
 						columns = columns + ",AF_normal_DNA"
-					if(all_col_output == "True"):
-						if(j == "1"):
-							filter1_min_depth_tumor_DNA = int(cfg.get("FILTER"+j, "min_depth_tumor_DNA"))
-							all_data = read_tsv(data_file_small_variant_table,filter_column,key_word)
-							if(all_data == []):
-								all_data_config_DepthTumor_DNA = ""
-							else:
-								all_data_config_DepthTumor_DNA = filter_depth_tumor_all_col(all_data,filter1_min_depth_tumor_DNA)
-							output_file_preMTB_workingTable_pre = output_file_preMTB_table_path + "_preMTB_workingTable_pre.txt"
-							output_file_preMTB_workingTable = output_file_preMTB_table_path + "_preMTB_workingTable.txt"
-							write_exl(output_file_preMTB_workingTable_pre,all_data_config_DepthTumor_DNA)
-							clear_blank_line(output_file_preMTB_workingTable_pre,output_file_preMTB_workingTable)
-						else:
-							all_data = read_tsv(output_file_preMTB_workingTable,filter_column,key_word)
-							write_exl(output_table_file_config_pre,all_data)
-							clear_blank_line(output_table_file_config_pre,output_table_file_config)
-					if(j == "1"):
-						filter1_min_depth_tumor_DNA = int(cfg.get("FILTER"+j, "min_depth_tumor_DNA"))
-						data = read_tsv_col(data_file_small_variant_table,filter_column,key_word,columns,MTB_format)
-						if(data == []):
-							data_DepthTumor_DNA = ""
-						else:
-							data_DepthTumor_DNA = filter_depth_tumor_cols(data,filter1_min_depth_tumor_DNA)
-						write_exl(output_table_file_config_pre,data_DepthTumor_DNA)
-					else:
-						data = read_tsv_col(output_file_preMTB_workingTable,filter_column,key_word,columns,MTB_format)
-						write_exl(output_table_file_config_pre,data)
+					#print(columns)
+					all_data = read_tsv_col(top_filter_output_file,filter_column,key_word,columns,MTB_format)
+					write_exl(output_table_file_config_pre,all_data)
 					clear_blank_line(output_table_file_config_pre,output_table_file_config)
 					MTB_format = False
 
@@ -1445,10 +1511,10 @@ def main(argv):
 				TMB_DURP_coding_file = output_path + DNA_sampleID + "_TMB_DURP_coding.txt"
 				TMB_DRUP_filter_key_word = cfg.get("TMB", "TMB_DRUP_filter_key_word")
 
-				TMB_coding_data = read_tsv(output_file_preMTB_workingTable,TMB_filter_column,TMB_filter_key_word)
+				TMB_coding_data = read_tsv(top_filter_output_file,TMB_filter_column,TMB_filter_key_word)
 				write_exl(TMB_coding_file_pre,TMB_coding_data)
 				clear_blank_line(TMB_coding_file_pre,TMB_coding_file)
-				TMB_DRUP_coding_data = read_tsv(output_file_preMTB_workingTable,TMB_filter_column,TMB_DRUP_filter_key_word)
+				TMB_DRUP_coding_data = read_tsv(top_filter_output_file,TMB_filter_column,TMB_DRUP_filter_key_word)
 				write_exl(TMB_DURP_coding_file_pre,TMB_DRUP_coding_data)
 				clear_blank_line(TMB_DURP_coding_file_pre,TMB_DURP_coding_file)
 
@@ -1494,11 +1560,11 @@ def main(argv):
 				insert_image_to_ppt(DNA_sampleID,DNA_normal_sampleID,RNA_sampleID,DNA_image_path,RNA_image_path,output_ppt_file)
 
                 		# Insert tables into PP file:
-				slide8_table_header = ["Gene_symbol", "Genomic_coordinates_in_hg19_build", "Ensembl_transcript_ID", "Exon_number", "Protein_change_short", "HGVS_syntax", "Change_summary", "Coding_status", "Read_depth(variant reads/total reads)", "AF_tumor_DNA"]
+				slide8_table_header = ["Gene_symbol", "Genomic_coordinates_in_hg19_build", "Ensembl_transcript_ID", "Exon_number", "Protein_change_short", "HGVS_syntax", "Change_summary", "Coding_status", "Read_depth(variant reads/total reads)", "AF_tumor_DNA", "Filter_rescued"]
 				if(DNA_normal_sampleID != ""):
-					slide6_table_header = ["Gene_symbol", "Protein_change_short", "Coding_status", "AF_tumor_DNA", "AF_normal_DNA"]
+					slide6_table_header = ["Gene_symbol", "Protein_change_short", "Coding_status", "AF_tumor_DNA", "AF_normal_DNA", "Filter_rescued"]
 				else:
-					slide6_table_header = ["Gene_symbol", "Protein_change_short", "Coding_status", "AF_tumor_DNA"]
+					slide6_table_header = ["Gene_symbol", "Protein_change_short", "Coding_status", "AF_tumor_DNA", "Filter_rescued"]
         
                 		# Slide2, slide6 and slide7 right side table: Variants that alter protein coding sequence
 				slide6_table_data_file = output_file_preMTB_table_path + "_AllReporVariants_AltProtein.txt" 
@@ -1527,13 +1593,13 @@ def main(argv):
 				slide8_header_left = 0.25
 				slide8_header_top = 0.27
 				slide8_header_width = 8.98
-				slide8_table_left = 0.3
+				slide8_table_left = 0.15
 				slide8_table_top = 0.55
 				slide8_table_width = 9.19
 				slide8_table_height = 2.81
 				slide8_table_font_size = 7
 				if_print_rowNo = True
-				table8_column_width = [0.54, 0.96, 0.96, 0.51, 0.73, 1.12, 2.26, 0.79, 0.81, 0.53]
+				table8_column_width = [0.54, 0.96, 0.96, 0.51, 0.73, 1.12, 2.26, 0.79, 0.81, 0.53, 0.53]
 				slide8_table_nrows = insert_table_to_ppt(slide8_table_data_file,slide8_table_ppSlide,slide8_table_name,slide8_header_left,slide8_header_top,slide8_header_width,slide8_table_left,slide8_table_top,slide8_table_width,slide8_table_height,slide8_table_font_size,slide8_table_header,output_ppt_file,if_print_rowNo,table8_column_width)
 
 				# Insert the CNV_overveiw_plots pictures A2, B3 and C1 into report.
@@ -1545,7 +1611,7 @@ def main(argv):
 					B3_C1_to_extract = [4, 5]
 				pdf_page_image_to_ppt(CNV_overview_plots_pdf,output_ppt_file,B3_C1_to_extract,width_scale=1,height_scale=0.5)
 
-        		# Change slides order.
+        			# Change slides order.
 				ppt = Presentation(output_ppt_file)
 				slides = ppt.slides._sldIdLst
 				slides_list = list(slides)
@@ -1579,8 +1645,6 @@ def main(argv):
 					move_ipd_material_file = shutil.move(ipd_material_file_new, extra_path)
 				if os.path.exists(ipd_material_file_2023):
 					move_ipd_material_file = shutil.move(ipd_material_file_2023, extra_path)
-				if os.path.exists(InPreD_clinical_tsoppi_data_file):
-					DNA_if_generate_report = "-"
 					update_clinical_tsoppi_file(InPreD_clinical_tsoppi_data_file,DNA_sampleID,DNA_if_generate_report,ipd_birth_year,ipd_clinical_diagnosis,ipd_gender,ipd_consent,DNA_material_id,ipd_collection_year,requisition_hospital,extraction_hospital,tumor_content_nr,batch_nr,str(sample_material),sample_type,str(tumor_type),str_TMB_DRUP,TMB_TSO500,MSI_TSO500,pipline,pathology_comment,sample_info_comment)
 					if(RNA_sampleID != ""):
 						RNA_if_generate_report = "-"
