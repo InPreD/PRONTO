@@ -1561,9 +1561,9 @@ def main(argv):
                 		# Insert tables into PP file:
 				slide8_table_header = ["Gene_symbol", "Genomic_coordinates_in_hg19_build", "Ensembl_transcript_ID", "Exon_number", "Protein_change_short", "HGVS_syntax", "Change_summary", "Coding_status", "Read_depth(variant reads/total reads)", "AF_tumor_DNA", "Filter_rescued"]
 				if(DNA_normal_sampleID != ""):
-					slide6_table_header = ["Gene_symbol", "Protein_change_short", "Coding_status", "AF_tumor_DNA", "AF_normal_DNA", "Filter_rescued"]
+					slide6_table_header = ["Gene_symbol", "Protein_change_short", "Coding_status", "AF_tumor_DNA", "AF_normal_DNA"]
 				else:
-					slide6_table_header = ["Gene_symbol", "Protein_change_short", "Coding_status", "AF_tumor_DNA", "Filter_rescued"]
+					slide6_table_header = ["Gene_symbol", "Protein_change_short", "Coding_status", "AF_tumor_DNA"]
         
                 		# Slide2, slide6 and slide7 right side table: Variants that alter protein coding sequence
 				slide6_table_data_file = output_file_preMTB_table_path + "_AllReporVariants_AltProtein.txt" 
