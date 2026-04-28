@@ -918,7 +918,7 @@ def update_ppt_variant_summary_table(data_nrows,DNA_sampleID,RNA_sampleID,TMB_DR
 			if(TMB_TSO500_nr > 5 and TMB_TSO500_nr <= 20):
 				roundshape = slide.shapes.add_shape(MSO_SHAPE.OVAL, Cm(8.27), Cm(3.90), Cm(0.58), Cm(0.58))
 				textbox6 = slide.shapes.add_textbox(Cm(8.23), Cm(3.90), Cm(0.58), Cm(0.60))
-			if(TMB_TSO500_nr > 20 and TMB_TSO500 != "" and TMB_TSO500 != "NA"):
+			if(TMB_TSO500_nr > 20):
 				roundshape = slide.shapes.add_shape(MSO_SHAPE.OVAL, Cm(10.26), Cm(3.90), Cm(0.58), Cm(0.58))
 				textbox6 = slide.shapes.add_textbox(Cm(10.20), Cm(3.95), Cm(0.58), Cm(0.60))
 			roundshape.line.color.rgb = RGBColor(255,165,0)
