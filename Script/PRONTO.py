@@ -911,89 +911,60 @@ def update_ppt_variant_summary_table(data_nrows,DNA_sampleID,RNA_sampleID,TMB_DR
 		tf5.paragraphs[0].text = str(preMTB_appendix_nrows)
 		tf5.paragraphs[0].font.size = Pt(7)
 		tf5.paragraphs[0].alignment = PP_ALIGN.CENTER
-		if(TMB_TSO500_nr >= 0 and TMB_TSO500_nr <= 5 and TMB_TSO500 != "" and TMB_TSO500 != "NA"):
-			roundshape = slide.shapes.add_shape(MSO_SHAPE.OVAL, Cm(7.07), Cm(3.90), Cm(0.58), Cm(0.58))
-			roundshape.line.color.rgb = RGBColor(255,165,0)
-			textbox5 = slide.shapes.add_textbox(Inches(2.74), Inches(1.54), Inches(0.32), Inches(0.21))
-			tf5 = textbox5.text_frame
-			tf5.paragraphs[0].text = str(TMB_TSO500_nr)
-			tf5.paragraphs[0].font.size = Pt(7)
-			tf5.paragraphs[0].font.bold = True
-			tf5.paragraphs[0].alignment = PP_ALIGN.CENTER
-			tf5.paragraphs[0].font.color.rgb = RGBColor(250,250,250)
-		if((TMB_TSO500_nr > 5 and TMB_TSO500_nr <= 20) or TMB_TSO500 == "" or TMB_TSO500 == "NA"):
-			roundshape = slide.shapes.add_shape(MSO_SHAPE.OVAL, Cm(8.27), Cm(3.90), Cm(0.58), Cm(0.58))
-			roundshape.line.color.rgb = RGBColor(255,165,0)
-			textbox5 = slide.shapes.add_textbox(Cm(8.23), Cm(3.90), Cm(0.58), Cm(0.60))
-			tf5 = textbox5.text_frame
-			tf5.paragraphs[0].text = str(TMB_TSO500_nr)
-			tf5.paragraphs[0].font.size = Pt(7)
-			tf5.paragraphs[0].font.bold = True
-			tf5.paragraphs[0].alignment = PP_ALIGN.CENTER
-			tf5.paragraphs[0].font.color.rgb = RGBColor(250,250,250)
-		if(TMB_TSO500_nr > 20 and TMB_TSO500 != "" and TMB_TSO500 != "NA"):
-			roundshape = slide.shapes.add_shape(MSO_SHAPE.OVAL, Cm(10.26), Cm(3.90), Cm(0.58), Cm(0.58))
-			roundshape.line.color.rgb = RGBColor(255,165,0)
-			textbox5 = slide.shapes.add_textbox(Cm(10.20), Cm(3.95), Cm(0.58), Cm(0.60))
-			tf5 = textbox5.text_frame
-			tf5.paragraphs[0].text = str(TMB_TSO500_nr)
-			tf5.paragraphs[0].font.size = Pt(7)
-			tf5.paragraphs[0].font.bold = True
-			tf5.paragraphs[0].alignment = PP_ALIGN.CENTER
 		if(TMB_TSO500 != "" and TMB_TSO500 != "NA"):
 			if(TMB_TSO500_nr >= 0 and TMB_TSO500_nr <= 5):
 				roundshape = slide.shapes.add_shape(MSO_SHAPE.OVAL, Cm(7.07), Cm(3.90), Cm(0.58), Cm(0.58))
-				textbox5 = slide.shapes.add_textbox(Inches(2.74), Inches(1.54), Inches(0.32), Inches(0.21))
+				textbox6 = slide.shapes.add_textbox(Inches(2.74), Inches(1.54), Inches(0.32), Inches(0.21))
 			if(TMB_TSO500_nr > 5 and TMB_TSO500_nr <= 20):
 				roundshape = slide.shapes.add_shape(MSO_SHAPE.OVAL, Cm(8.27), Cm(3.90), Cm(0.58), Cm(0.58))
-				textbox5 = slide.shapes.add_textbox(Cm(8.23), Cm(3.90), Cm(0.58), Cm(0.60))
+				textbox6 = slide.shapes.add_textbox(Cm(8.23), Cm(3.90), Cm(0.58), Cm(0.60))
 			if(TMB_TSO500_nr > 20 and TMB_TSO500 != "" and TMB_TSO500 != "NA"):
 				roundshape = slide.shapes.add_shape(MSO_SHAPE.OVAL, Cm(10.26), Cm(3.90), Cm(0.58), Cm(0.58))
-				textbox5 = slide.shapes.add_textbox(Cm(10.20), Cm(3.95), Cm(0.58), Cm(0.60))
+				textbox6 = slide.shapes.add_textbox(Cm(10.20), Cm(3.95), Cm(0.58), Cm(0.60))
 			roundshape.line.color.rgb = RGBColor(255,165,0)
-			tf5 = textbox5.text_frame
-			tf5.paragraphs[0].text = str(TMB_TSO500_nr)
-			tf5.paragraphs[0].font.size = Pt(7)
-			tf5.paragraphs[0].font.bold = True
-			tf5.paragraphs[0].alignment = PP_ALIGN.CENTER
-			tf5.paragraphs[0].font.color.rgb = RGBColor(250,250,250)
-		textbox6 = slide.shapes.add_textbox(Inches(6.23), Inches(1.06), Inches(0.97), Inches(0.19))
-		tf6 = textbox6.text_frame
-		tf6.paragraphs[0].text = splicing
-		tf6.paragraphs[0].font.size = Pt(7) 
-		tf6.paragraphs[0].alignment = PP_ALIGN.LEFT
-		textbox7 = slide.shapes.add_textbox(Inches(6.23), Inches(1.26), Inches(0.97), Inches(0.19))
-		tf7 = textbox7.text_frame	
-		tf7.paragraphs[0].text = fusion
-		tf7.paragraphs[0].font.size = Pt(7)
+			tf6 = textbox6.text_frame
+			tf6.paragraphs[0].text = str(TMB_TSO500_nr)
+			tf6.paragraphs[0].font.size = Pt(7)
+			tf6.paragraphs[0].font.bold = True
+			tf6.paragraphs[0].alignment = PP_ALIGN.CENTER
+			tf6.paragraphs[0].font.color.rgb = RGBColor(250,250,250)
+		textbox7 = slide.shapes.add_textbox(Inches(6.23), Inches(1.06), Inches(0.97), Inches(0.19))
+		tf7 = textbox7.text_frame
+		tf7.paragraphs[0].text = splicing
+		tf7.paragraphs[0].font.size = Pt(7) 
 		tf7.paragraphs[0].alignment = PP_ALIGN.LEFT
+		textbox8 = slide.shapes.add_textbox(Inches(6.23), Inches(1.26), Inches(0.97), Inches(0.19))
+		tf8 = textbox8.text_frame	
+		tf8.paragraphs[0].text = fusion
+		tf8.paragraphs[0].font.size = Pt(7)
+		tf8.paragraphs[0].alignment = PP_ALIGN.LEFT
 		if(index == 1):
-			textbox8 = slide.shapes.add_textbox(Inches(5.14), Inches(2.63), Inches(0.53), Inches(0.25))
-			tf8 = textbox8.text_frame
-			tf8.paragraphs[0].text = TMB_DRUP_str
-			tf8.paragraphs[0].font.size = Pt(8)
-			tf8.paragraphs[0].alignment = PP_ALIGN.LEFT
-			textbox9 = slide.shapes.add_textbox(Inches(3.95), Inches(3.70), Inches(0.88), Inches(0.25))
+			textbox9 = slide.shapes.add_textbox(Inches(5.14), Inches(2.63), Inches(0.53), Inches(0.25))
 			tf9 = textbox9.text_frame
-			tf9.paragraphs[0].text = TMB_illumina
+			tf9.paragraphs[0].text = TMB_DRUP_str
 			tf9.paragraphs[0].font.size = Pt(8)
 			tf9.paragraphs[0].alignment = PP_ALIGN.LEFT
-			textbox10 = slide.shapes.add_textbox(Inches(4.90), Inches(3.84), Inches(1.14), Inches(0.25))
+			textbox10 = slide.shapes.add_textbox(Inches(3.95), Inches(3.70), Inches(0.88), Inches(0.25))
 			tf10 = textbox10.text_frame
-			tf10.paragraphs[0].text = MSI_illumina
+			tf10.paragraphs[0].text = TMB_illumina
 			tf10.paragraphs[0].font.size = Pt(8)
-			tf10.paragraphs[0].alignment = PP_ALIGN.CENTER
-		if(index == 5):
-			textbox11 = slide.shapes.add_textbox(Inches(6.03), Inches(2.14), Inches(0.59), Inches(0.25))
+			tf10.paragraphs[0].alignment = PP_ALIGN.LEFT
+			textbox11 = slide.shapes.add_textbox(Inches(4.90), Inches(3.84), Inches(1.14), Inches(0.25))
 			tf11 = textbox11.text_frame
-			tf11.paragraphs[0].text = TMB_DRUP_str
-			tf11.paragraphs[0].font.size = Pt(9)
-			tf11.paragraphs[0].alignment = PP_ALIGN.LEFT
-			textbox12 = slide.shapes.add_textbox(Inches(6.22), Inches(2.29), Inches(0.88), Inches(0.25))
+			tf11.paragraphs[0].text = MSI_illumina
+			tf11.paragraphs[0].font.size = Pt(8)
+			tf11.paragraphs[0].alignment = PP_ALIGN.CENTER
+		if(index == 5):
+			textbox12 = slide.shapes.add_textbox(Inches(6.03), Inches(2.14), Inches(0.59), Inches(0.25))
 			tf12 = textbox12.text_frame
-			tf12.paragraphs[0].text = TMB_illumina
+			tf12.paragraphs[0].text = TMB_DRUP_str
 			tf12.paragraphs[0].font.size = Pt(9)
-			tf12.paragraphs[0].alignment = PP_ALIGN.LEFT		
+			tf12.paragraphs[0].alignment = PP_ALIGN.LEFT
+			textbox13 = slide.shapes.add_textbox(Inches(6.22), Inches(2.29), Inches(0.88), Inches(0.25))
+			tf13 = textbox13.text_frame
+			tf13.paragraphs[0].text = TMB_illumina
+			tf13.paragraphs[0].font.size = Pt(9)
+			tf13.paragraphs[0].alignment = PP_ALIGN.LEFT		
 	ppt.save(output_ppt_file)
 	return stable_text
 
