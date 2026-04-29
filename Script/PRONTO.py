@@ -759,9 +759,10 @@ def insert_table_to_ppt(table_file,slide_n,table_name,left_h,top_h,width_h,left_
 
 	# Add data to ppt
 	ppt = Presentation(output_ppt_file)
+	total_slides = len(ppt.slides)
 	for slide_idx in range(total_slides_needed):
 		current_slide_data = pronto.get_slide_table_data(table_data, slide_idx, table_max_rows_per_slide)
-		if(total_slides_needed == 1):
+		if(total_slides_needed == 1 and slide_n <= total_slides):
 			shapes = ppt.slides[slide_n - 1].shapes
 		else:
 			shapes = ppt.slides.add_slide(ppt.slide_layouts[6]).shapes
@@ -782,7 +783,7 @@ def insert_table_to_ppt(table_file,slide_n,table_name,left_h,top_h,width_h,left_
 		# fill in the table data and set font size
 		for row_idx, row in enumerate(table.rows):
 			for col_idx, cell in enumerate(row.cells):
-				cell.text = current_slide_data[row_idx][col_idx]
+				cell.text = str(current_slide_data[row_idx][col_idx])
 				cell.text_frame.paragraphs[0].font.size = Pt(font_size)
 
 		# add table title
