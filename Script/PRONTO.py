@@ -28,6 +28,8 @@ from pptx.enum.shapes import MSO_SHAPE
 from decimal import Decimal
 from copy import deepcopy
 import pronto.pronto as pronto
+import pandas
+import math
 from pdf2image import convert_from_path
 
 runID = ""
@@ -731,67 +733,64 @@ def insert_image_to_ppt(DNA_sampleID,DNA_normal_sampleID,RNA_sampleID,DNA_image_
 	ppt.save(output_ppt_file)
 
 
-def insert_table_to_ppt(table_data_file,slide_n,table_name,left_h,top_h,width_h,left_t,top_t,width_t,height_t,font_size,table_header,output_ppt_file,if_print_rowNo,table_column_width):
-	table_file = open(table_data_file)
-	lines = table_file.readlines()
-	if not lines:
-		return
-	first_line = lines[0]
-	rows = len(lines)
-	first_line_cells = first_line.split('\t')
-	cols = len(table_header)
-	header_not_exist_in_table = []
-	for n in range(len(table_header)):
-		if_exist = False
-		if(table_header[n] in first_line_cells):
-			if_exist = True
-		if not if_exist:
-			header_not_exist_in_table.append(n)
-	ppt = Presentation(output_ppt_file)
-	try:
-		slide = ppt.slides[slide_n-1]
-	except:
-		slide = ppt.slides.add_slide(ppt.slide_layouts[6])
-	shapes = slide.shapes
-	left = Inches(left_t)
-	top = Inches(top_t)
-	width = Inches(width_t)
-	height = Inches(height_t)
-	table = shapes.add_table(rows,cols,left,top,width,height).table
-	table_rows = rows-1
-	col_protein_change_short_position = table_header.index("Protein_change_short")
-	for c in range(cols):
-		if table_column_width:
-			table.columns[c].width = Inches(table_column_width[c])
-		table.cell(0,c).text = table_header[c]
-		table.cell(0,c).text_frame.paragraphs[0].font.size = Pt(font_size)
+def insert_table_to_ppt(table_file,slide_n,table_name,left_h,top_h,width_h,left_t,top_t,width_t,height_t,font_size,table_header,output_ppt_file,print_row_num,table_column_width,table_max_rows_per_slide):
 
-	row = 1
-	for line in open(table_data_file):
-		if(line != first_line):
-			line_cells = line.split('\t')
-			if header_not_exist_in_table:
-				for num in header_not_exist_in_table:
-					line_cells.insert(num," ")
-			if(line_cells[col_protein_change_short_position].endswith('X')):
-				line_cells[col_protein_change_short_position] = line_cells[col_protein_change_short_position][:-1] + '*'
-			for j in range(len(line_cells) - 1):
-				table.cell(row,j).text = str(line_cells[j])
-				table.cell(row,j).text_frame.paragraphs[0].font.size = Pt(font_size)
-			row += 1	
-	textbox = slide.shapes.add_textbox(Inches(left_h),Inches(top_h),Inches(width_h),Inches(0.25))
-	tf = textbox.text_frame
-	if(if_print_rowNo == True):
-		tf.paragraphs[0].text = table_name +" (N=" + str(table_rows) + ")"
-	else:
-		tf.paragraphs[0].text = table_name
-	tf.paragraphs[0].font.size = Pt(8)
-	tf.paragraphs[0].font.bold = True
-	tf.paragraphs[0].alignment = PP_ALIGN.CENTER
+	# load table data
+	try:
+		table_data = pandas.read_csv(table_file, sep='\t')
+	except pandas.errors.EmptyDataError:
+		logging.warning("{} is empty".format(table_file))
+		return
+	
+	# add empty columns for missing header columns and move additional columns to the right
+	table_data = pronto.normalize_column_index(table_data, table_header)
+
+	# round floats to 2 decimal places
+	table_data = pronto.set_column_to_2_decimals(table_data, "AF_tumor_DNA")
+
+	# determine column and row number
+	cols = len(table_header)
+	rows = len(table_data)
+
+	# how many slides are required
+	if not table_max_rows_per_slide:
+		table_max_rows_per_slide = rows
+	total_slides_needed = math.ceil(rows / table_max_rows_per_slide)
+
+	# Add data to ppt
+	ppt = Presentation(output_ppt_file)
+	total_slides = len(ppt.slides)
+	for slide_idx in range(total_slides_needed):
+		current_slide_data = pronto.get_slide_table_data(table_data, slide_idx, table_max_rows_per_slide)
+		if(total_slides_needed == 1 and slide_n <= total_slides):
+			shapes = ppt.slides[slide_n - 1].shapes
+		else:
+			shapes = ppt.slides.add_slide(ppt.slide_layouts[6]).shapes
+
+		# create new table on slide
+		left = Inches(left_t)
+		top = Inches(top_t)
+		width = Inches(width_t)
+		height = Inches(height_t)
+		table_rows = len(current_slide_data)
+		table = shapes.add_table(table_rows,cols,left,top,width,height).table
+
+		# if table_column_width is provided, set the column width
+		if len(table_column_width) == cols:
+			for col_idx, width in enumerate(table_column_width):
+				table.columns[col_idx].width = Inches(width)
+		
+		# fill in the table data and set font size
+		for row_idx, row in enumerate(table.rows):
+			for col_idx, cell in enumerate(row.cells):
+				cell.text = str(current_slide_data[row_idx][col_idx])
+				cell.text_frame.paragraphs[0].font.size = Pt(font_size)
+
+		# add table title
+		pronto.add_table_name(shapes, table_name, left_h, top_h, width_h, 0.25, 8, print_row_num, slide_idx, total_slides_needed, rows)
 
 	ppt.save(output_ppt_file)
-	data_nrows = table_rows
-	return data_nrows
+	return rows
 
 
 def update_ppt_variant_summary_table(data_nrows,DNA_sampleID,RNA_sampleID,TMB_DRUP_nr,TMB_DRUP_str,DNA_variant_summary_file,RNA_variant_summary_file,output_file_preMTB_AppendixTable,output_table_file_filterResults_AllReporVariants_CodingRegion,output_ppt_file):
@@ -1512,7 +1511,7 @@ def main(argv):
 				slide6_table_font_size = 7
 				if_print_rowNo = False
 				for table_index in slide6_table_ppSlide:
-					slide6_table_nrows = insert_table_to_ppt(slide6_table_data_file,table_index,slide6_table_name,slide6_header_left,slide6_header_top,slide6_header_width,slide6_table_left,slide6_table_top,slide6_table_width,slide6_table_height,slide6_table_font_size,slide6_table_header,output_ppt_file,if_print_rowNo,[])
+					slide6_table_nrows = insert_table_to_ppt(slide6_table_data_file,table_index,slide6_table_name,slide6_header_left,slide6_header_top,slide6_header_width,slide6_table_left,slide6_table_top,slide6_table_width,slide6_table_height,slide6_table_font_size,slide6_table_header,output_ppt_file,if_print_rowNo,[],table_max_rows_per_slide=None)
 				output_file_preMTB_AppendixTable = output_file_preMTB_table_path + "_preMTBTable_Appendix.txt"
 				output_table_file_filterResults_AllReporVariants_CodingRegion = output_file_preMTB_table_path + "_AllReporVariants_CodingRegion.txt"
 				stable_text = update_ppt_variant_summary_table(slide6_table_nrows,DNA_sampleID,RNA_sampleID,TMB_DRUP,TMB_DRUP_str,DNA_variant_summary_file,RNA_variant_summary_file,output_file_preMTB_AppendixTable,output_table_file_filterResults_AllReporVariants_CodingRegion,output_ppt_file)
@@ -1532,7 +1531,8 @@ def main(argv):
 				slide8_table_font_size = 7
 				if_print_rowNo = True
 				table8_column_width = [0.54, 0.96, 0.96, 0.51, 0.73, 1.12, 2.26, 0.79, 0.81, 0.53]
-				slide8_table_nrows = insert_table_to_ppt(slide8_table_data_file,slide8_table_ppSlide,slide8_table_name,slide8_header_left,slide8_header_top,slide8_header_width,slide8_table_left,slide8_table_top,slide8_table_width,slide8_table_height,slide8_table_font_size,slide8_table_header,output_ppt_file,if_print_rowNo,table8_column_width)
+				table_max_rows_per_slide = int(cfg.get("INPUT", "table_max_rows_per_slide"))
+				insert_table_to_ppt(slide8_table_data_file,slide8_table_ppSlide,slide8_table_name,slide8_header_left,slide8_header_top,slide8_header_width,slide8_table_left,slide8_table_top,slide8_table_width,slide8_table_height,slide8_table_font_size,slide8_table_header,output_ppt_file,if_print_rowNo,table8_column_width,table_max_rows_per_slide)
 
 				# Insert the CNV_overveiw_plots pictures A2, B3 and C1 into report.
 				A2_to_extract=[2]
@@ -1543,12 +1543,12 @@ def main(argv):
 					B3_C1_to_extract = [4, 5]
 				pdf_page_image_to_ppt(CNV_overview_plots_pdf,output_ppt_file,B3_C1_to_extract,width_scale=1,height_scale=0.5)
 
-        		# Change slides order.
+        			# Change slides order.
 				ppt = Presentation(output_ppt_file)
 				slides = ppt.slides._sldIdLst
 				slides_list = list(slides)
 				slides.remove(slides_list[7])
-				slides.insert(12,slides_list[7])
+				slides.append(slides_list[7])
 				ppt.save(output_ppt_file)
 				print("Generate report for " + DNA_sampleID)
 				ppt_nr += 1
