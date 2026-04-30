@@ -28,6 +28,8 @@ from pptx.enum.shapes import MSO_SHAPE
 from decimal import Decimal
 from copy import deepcopy
 import pronto.pronto as pronto
+import pandas
+import math
 from pdf2image import convert_from_path
 
 runID = ""
@@ -351,7 +353,9 @@ def get_patient_info_from_MTF_2023(ipd_material_file,ipd_no,DNA_sampleID,RNA_sam
 				except:
 					ipd_birth_year = "-"
 			if(sheet_material.cell_value(r,c) == columns['gender'] and ipd_gender == ""):
-				ipd_gender = str(sheet_material.cell_value(r+2,c))
+				gender = str(sheet_material.cell_value(r+2,c))
+				if(gender != "" and gender != "X"):
+					ipd_gender = gender[0]
 			if(sheet_material.cell_value(r,c) == columns['age']):
 				ipd_age = str(sheet_material.cell_value(r+2,c))
 			if(sheet_material.cell_value(r,c) == columns['consent'] and ipd_consent == ""):
@@ -483,7 +487,9 @@ def get_patient_info_from_MTF_new(ipd_material_file,ipd_no,DNA_sampleID,RNA_samp
 					except:
 						ipd_birth_year = "-"
 			if(sheet_material.cell_value(r,c) == columns['gender'] and ipd_gender == ""):
-				ipd_gender = str(sheet_material.cell_value(r+2,c))
+				gender = str(sheet_material.cell_value(r+2,c))
+				if(gender != "" and gender != "X"):
+					ipd_gender = gender[0]
 			if(sheet_material.cell_value(r,c) == columns['age']):
 				ipd_age = str(sheet_material.cell_value(r+2,c))
 			if(sheet_material.cell_value(r,c) == columns['Histopathological_diagnosis'] and sheet_material.cell_value(r+1,c) != ""):
@@ -581,10 +587,6 @@ def get_RNA_material_id(InPreD_clinical_data_file,RNA_sampleID,encoding_sys):
 
 
 def update_ppt_template_data(inpred_node,ipd_no,ipd_gender,ipd_age,ipd_diagnosis_year,DNA_material_id,RNA_material_id,ipd_consent,requisition_hospital,pathology_comment,ipd_clinical_diagnosis,tumor_type,sample_type,sample_material,sample_info_comment,pipline,tumor_content,ppt_template,output_ppt_file):
-	if(ipd_gender != "" and ipd_gender != "X"):
-		gender = ipd_gender[0]
-	else:
-		gender = ""
 	if(ipd_age != "" and ipd_age != "-" and ipd_age != "XX" and ipd_age != "<1"):
 		age = str(int(float(ipd_age)))
 	else:
@@ -597,10 +599,17 @@ def update_ppt_template_data(inpred_node,ipd_no,ipd_gender,ipd_age,ipd_diagnosis
 	today_month = time.strftime("%b", time.localtime())
 	today_year = time.strftime("%Y", time.localtime())
 	today = today_date + '\n' + today_month.upper() + '\n' + today_year
+	year_text =  "XX\nXXX\n" + today_year
 	ppt = Presentation(ppt_template)
 	indexs = [1,3,4,5,6]
 	for index in indexs:
 		slide = ppt.slides[index]
+		textbox0 = slide.shapes.add_textbox(Inches(0.06), Inches(0.06), Inches(0.47), Inches(0.63))
+		tf0 = textbox0.text_frame
+		tf0.paragraphs[0].text = year_text
+		tf0.paragraphs[0].font.size = Pt(11)
+		tf0.paragraphs[0].font.color.rgb = RGBColor(250,250,250)
+		tf0.paragraphs[0].alignment = PP_ALIGN.CENTER
 		textbox1 = slide.shapes.add_textbox(Inches(3.75), Inches(0.11), Inches(1.33), Inches(0.50))
 		tf1 = textbox1.text_frame
 		tf1.paragraphs[0].text = ipd_no
@@ -691,7 +700,7 @@ def update_ppt_template_data(inpred_node,ipd_no,ipd_gender,ipd_age,ipd_diagnosis
 			tf11.paragraphs[0].text = pathology_comment + "\n\n" + sample_info_comment.replace("|","\n")
 			tf11.paragraphs[0].font.size = Pt(10)
 			tf11.paragraphs[0].alignment = PP_ALIGN.LEFT
-		gender_age = gender + '/' + age + 'y'
+		gender_age = "{}/{}y'.format(ipd_gender, age)
 		if(RNA_material_id != ""):
 			ipd_material_id_index = "DNA:" + DNA_material_id + "\nRNA:" + RNA_material_id
 		else:
@@ -742,64 +751,64 @@ def insert_image_to_ppt(DNA_sampleID,DNA_normal_sampleID,RNA_sampleID,DNA_image_
 	ppt.save(output_ppt_file)
 
 
-def insert_table_to_ppt(table_data_file,slide_n,table_name,left_h,top_h,width_h,left_t,top_t,width_t,height_t,font_size,table_header,output_ppt_file,if_print_rowNo,table_column_width):
-	table_file = open(table_data_file)
-	lines = table_file.readlines()
-	if not lines:
-		return
-	first_line = lines[0]
-	rows = len(lines)
-	first_line_cells = first_line.split('\t')
-	cols = len(table_header)
-	header_not_exist_in_table = []
-	for n in range(len(table_header)):
-		if_exist = False
-		if(table_header[n] in first_line_cells):
-			if_exist = True
-		if not if_exist:
-			header_not_exist_in_table.append(n)
-	ppt = Presentation(output_ppt_file)
-	try:
-		slide = ppt.slides[slide_n-1]
-	except:
-		slide = ppt.slides.add_slide(ppt.slide_layouts[6])
-	shapes = slide.shapes
-	left = Inches(left_t)
-	top = Inches(top_t)
-	width = Inches(width_t)
-	height = Inches(height_t)
-	table = shapes.add_table(rows,cols,left,top,width,height).table
-	table_rows = rows-1
-	for c in range(cols):
-		if table_column_width:
-			table.columns[c].width = Inches(table_column_width[c])
-		table.cell(0,c).text = table_header[c]
-		table.cell(0,c).text_frame.paragraphs[0].font.size = Pt(font_size)
+def insert_table_to_ppt(table_file,slide_n,table_name,left_h,top_h,width_h,left_t,top_t,width_t,height_t,font_size,table_header,output_ppt_file,print_row_num,table_column_width,table_max_rows_per_slide):
 
-	row = 1
-	for line in open(table_data_file):
-		if(line != first_line):
-			line_cells = line.split('\t')
-			if header_not_exist_in_table:
-				for num in header_not_exist_in_table:
-					line_cells.insert(num," ")
-			for j in range(len(line_cells) - 1):
-				table.cell(row,j).text = str(line_cells[j])
-				table.cell(row,j).text_frame.paragraphs[0].font.size = Pt(font_size)
-			row += 1	
-	textbox = slide.shapes.add_textbox(Inches(left_h),Inches(top_h),Inches(width_h),Inches(0.25))
-	tf = textbox.text_frame
-	if(if_print_rowNo == True):
-		tf.paragraphs[0].text = table_name +" (N=" + str(table_rows) + ")"
-	else:
-		tf.paragraphs[0].text = table_name
-	tf.paragraphs[0].font.size = Pt(8)
-	tf.paragraphs[0].font.bold = True
-	tf.paragraphs[0].alignment = PP_ALIGN.CENTER
+	# load table data
+	try:
+		table_data = pandas.read_csv(table_file, sep='\t')
+	except pandas.errors.EmptyDataError:
+		logging.warning("{} is empty".format(table_file))
+		return
+	
+	# add empty columns for missing header columns and move additional columns to the right
+	table_data = pronto.normalize_column_index(table_data, table_header)
+
+	# round floats to 2 decimal places
+	table_data = pronto.set_column_to_2_decimals(table_data, "AF_tumor_DNA")
+
+	# determine column and row number
+	cols = len(table_header)
+	rows = len(table_data)
+
+	# how many slides are required
+	if not table_max_rows_per_slide:
+		table_max_rows_per_slide = rows
+	total_slides_needed = math.ceil(rows / table_max_rows_per_slide)
+
+	# Add data to ppt
+	ppt = Presentation(output_ppt_file)
+	total_slides = len(ppt.slides)
+	for slide_idx in range(total_slides_needed):
+		current_slide_data = pronto.get_slide_table_data(table_data, slide_idx, table_max_rows_per_slide)
+		if(total_slides_needed == 1 and slide_n <= total_slides):
+			shapes = ppt.slides[slide_n - 1].shapes
+		else:
+			shapes = ppt.slides.add_slide(ppt.slide_layouts[6]).shapes
+
+		# create new table on slide
+		left = Inches(left_t)
+		top = Inches(top_t)
+		width = Inches(width_t)
+		height = Inches(height_t)
+		table_rows = len(current_slide_data)
+		table = shapes.add_table(table_rows,cols,left,top,width,height).table
+
+		# if table_column_width is provided, set the column width
+		if len(table_column_width) == cols:
+			for col_idx, width in enumerate(table_column_width):
+				table.columns[col_idx].width = Inches(width)
+		
+		# fill in the table data and set font size
+		for row_idx, row in enumerate(table.rows):
+			for col_idx, cell in enumerate(row.cells):
+				cell.text = str(current_slide_data[row_idx][col_idx])
+				cell.text_frame.paragraphs[0].font.size = Pt(font_size)
+
+		# add table title
+		pronto.add_table_name(shapes, table_name, left_h, top_h, width_h, 0.25, 8, print_row_num, slide_idx, total_slides_needed, rows)
 
 	ppt.save(output_ppt_file)
-	data_nrows = table_rows
-	return data_nrows
+	return rows
 
 
 def update_ppt_variant_summary_table(data_nrows,DNA_sampleID,RNA_sampleID,TMB_DRUP_nr,TMB_DRUP_str,DNA_variant_summary_file,RNA_variant_summary_file,output_file_preMTB_AppendixTable,output_table_file_filterResults_AllReporVariants_CodingRegion,output_ppt_file):
@@ -814,6 +823,7 @@ def update_ppt_variant_summary_table(data_nrows,DNA_sampleID,RNA_sampleID,TMB_DR
 			else:
 				TMB_illumina = "TMB = " + line.split('\t')[1]
 				TMB_TSO500 = line.split('\t')[1]
+				TMB_TSO500_nr = round(float(TMB_TSO500.split()[0]))
 			if(line.split('\t')[2] == 'NA'):
 				MSI_illumina = "MSI = NA"
 				msi_text = "-"
@@ -918,73 +928,60 @@ def update_ppt_variant_summary_table(data_nrows,DNA_sampleID,RNA_sampleID,TMB_DR
 		tf5.paragraphs[0].text = str(preMTB_appendix_nrows)
 		tf5.paragraphs[0].font.size = Pt(7)
 		tf5.paragraphs[0].alignment = PP_ALIGN.CENTER
-		if(TMB_DRUP_nr >= 0 and TMB_DRUP_nr <= 5 and str_TMB_DRUP != "" and str_TMB_DRUP != "NA"):
-			roundshape = slide.shapes.add_shape(MSO_SHAPE.OVAL, Cm(7.07), Cm(3.90), Cm(0.58), Cm(0.58))
+		if(TMB_TSO500 != "" and TMB_TSO500 != "NA"):
+			if(TMB_TSO500_nr >= 0 and TMB_TSO500_nr <= 5):
+				roundshape = slide.shapes.add_shape(MSO_SHAPE.OVAL, Cm(7.07), Cm(3.90), Cm(0.58), Cm(0.58))
+				textbox6 = slide.shapes.add_textbox(Inches(2.74), Inches(1.54), Inches(0.32), Inches(0.21))
+			if(TMB_TSO500_nr > 5 and TMB_TSO500_nr <= 20):
+				roundshape = slide.shapes.add_shape(MSO_SHAPE.OVAL, Cm(8.27), Cm(3.90), Cm(0.58), Cm(0.58))
+				textbox6 = slide.shapes.add_textbox(Cm(8.23), Cm(3.90), Cm(0.58), Cm(0.60))
+			if(TMB_TSO500_nr > 20):
+				roundshape = slide.shapes.add_shape(MSO_SHAPE.OVAL, Cm(10.26), Cm(3.90), Cm(0.58), Cm(0.58))
+				textbox6 = slide.shapes.add_textbox(Cm(10.20), Cm(3.95), Cm(0.58), Cm(0.60))
 			roundshape.line.color.rgb = RGBColor(255,165,0)
-			textbox5 = slide.shapes.add_textbox(Inches(2.74), Inches(1.54), Inches(0.32), Inches(0.21))
-			tf5 = textbox5.text_frame
-			tf5.paragraphs[0].text = str_TMB_DRUP
-			tf5.paragraphs[0].font.size = Pt(7)
-			tf5.paragraphs[0].font.bold = True
-			tf5.paragraphs[0].alignment = PP_ALIGN.CENTER
-			tf5.paragraphs[0].font.color.rgb = RGBColor(250,250,250)
-		if((TMB_DRUP_nr > 5 and TMB_DRUP_nr <= 20) or str_TMB_DRUP == "" or str_TMB_DRUP == "NA"):
-			roundshape = slide.shapes.add_shape(MSO_SHAPE.OVAL, Cm(8.27), Cm(3.90), Cm(0.58), Cm(0.58))
-			roundshape.line.color.rgb = RGBColor(255,165,0)
-			textbox5 = slide.shapes.add_textbox(Cm(8.23), Cm(3.90), Cm(0.58), Cm(0.60))
-			tf5 = textbox5.text_frame
-			tf5.paragraphs[0].text = str_TMB_DRUP
-			tf5.paragraphs[0].font.size = Pt(7)
-			tf5.paragraphs[0].font.bold = True
-			tf5.paragraphs[0].alignment = PP_ALIGN.CENTER
-			tf5.paragraphs[0].font.color.rgb = RGBColor(250,250,250)
-		if(TMB_DRUP_nr > 20 and str_TMB_DRUP != "" and str_TMB_DRUP != "NA"):
-			roundshape = slide.shapes.add_shape(MSO_SHAPE.OVAL, Cm(10.26), Cm(3.90), Cm(0.58), Cm(0.58))
-			roundshape.line.color.rgb = RGBColor(255,165,0)
-			textbox5 = slide.shapes.add_textbox(Cm(10.20), Cm(3.95), Cm(0.58), Cm(0.60))
-			tf5 = textbox5.text_frame
-			tf5.paragraphs[0].text = str_TMB_DRUP
-			tf5.paragraphs[0].font.size = Pt(7)
-			tf5.paragraphs[0].font.bold = True
-			tf5.paragraphs[0].alignment = PP_ALIGN.CENTER
-			tf5.paragraphs[0].font.color.rgb = RGBColor(250,250,250)
-		textbox6 = slide.shapes.add_textbox(Inches(6.23), Inches(1.06), Inches(0.97), Inches(0.19))
-		tf6 = textbox6.text_frame
-		tf6.paragraphs[0].text = splicing
-		tf6.paragraphs[0].font.size = Pt(7) 
-		tf6.paragraphs[0].alignment = PP_ALIGN.LEFT
-		textbox7 = slide.shapes.add_textbox(Inches(6.23), Inches(1.26), Inches(0.97), Inches(0.19))
-		tf7 = textbox7.text_frame	
-		tf7.paragraphs[0].text = fusion
-		tf7.paragraphs[0].font.size = Pt(7)
+			tf6 = textbox6.text_frame
+			tf6.paragraphs[0].text = str(TMB_TSO500_nr)
+			tf6.paragraphs[0].font.size = Pt(7)
+			tf6.paragraphs[0].font.bold = True
+			tf6.paragraphs[0].alignment = PP_ALIGN.CENTER
+			tf6.paragraphs[0].font.color.rgb = RGBColor(250,250,250)
+		textbox7 = slide.shapes.add_textbox(Inches(6.23), Inches(1.06), Inches(0.97), Inches(0.19))
+		tf7 = textbox7.text_frame
+		tf7.paragraphs[0].text = splicing
+		tf7.paragraphs[0].font.size = Pt(7) 
 		tf7.paragraphs[0].alignment = PP_ALIGN.LEFT
+		textbox8 = slide.shapes.add_textbox(Inches(6.23), Inches(1.26), Inches(0.97), Inches(0.19))
+		tf8 = textbox8.text_frame	
+		tf8.paragraphs[0].text = fusion
+		tf8.paragraphs[0].font.size = Pt(7)
+		tf8.paragraphs[0].alignment = PP_ALIGN.LEFT
 		if(index == 1):
-			textbox8 = slide.shapes.add_textbox(Inches(5.14), Inches(2.63), Inches(0.53), Inches(0.25))
-			tf8 = textbox8.text_frame
-			tf8.paragraphs[0].text = TMB_DRUP_str
-			tf8.paragraphs[0].font.size = Pt(8)
-			tf8.paragraphs[0].alignment = PP_ALIGN.LEFT
-			textbox9 = slide.shapes.add_textbox(Inches(3.95), Inches(3.70), Inches(0.88), Inches(0.25))
+			textbox9 = slide.shapes.add_textbox(Inches(5.14), Inches(2.63), Inches(0.53), Inches(0.25))
 			tf9 = textbox9.text_frame
-			tf9.paragraphs[0].text = TMB_illumina
+			tf9.paragraphs[0].text = TMB_DRUP_str
 			tf9.paragraphs[0].font.size = Pt(8)
 			tf9.paragraphs[0].alignment = PP_ALIGN.LEFT
-			textbox10 = slide.shapes.add_textbox(Inches(4.90), Inches(3.84), Inches(1.14), Inches(0.25))
+			textbox10 = slide.shapes.add_textbox(Inches(3.95), Inches(3.70), Inches(0.88), Inches(0.25))
 			tf10 = textbox10.text_frame
-			tf10.paragraphs[0].text = MSI_illumina
+			tf10.paragraphs[0].text = TMB_illumina
 			tf10.paragraphs[0].font.size = Pt(8)
-			tf10.paragraphs[0].alignment = PP_ALIGN.CENTER
-		if(index == 5):
-			textbox11 = slide.shapes.add_textbox(Inches(6.03), Inches(2.14), Inches(0.59), Inches(0.25))
+			tf10.paragraphs[0].alignment = PP_ALIGN.LEFT
+			textbox11 = slide.shapes.add_textbox(Inches(4.90), Inches(3.84), Inches(1.14), Inches(0.25))
 			tf11 = textbox11.text_frame
-			tf11.paragraphs[0].text = TMB_DRUP_str
-			tf11.paragraphs[0].font.size = Pt(9)
-			tf11.paragraphs[0].alignment = PP_ALIGN.LEFT
-			textbox12 = slide.shapes.add_textbox(Inches(6.22), Inches(2.29), Inches(0.88), Inches(0.25))
+			tf11.paragraphs[0].text = MSI_illumina
+			tf11.paragraphs[0].font.size = Pt(8)
+			tf11.paragraphs[0].alignment = PP_ALIGN.CENTER
+		if(index == 5):
+			textbox12 = slide.shapes.add_textbox(Inches(6.03), Inches(2.14), Inches(0.59), Inches(0.25))
 			tf12 = textbox12.text_frame
-			tf12.paragraphs[0].text = TMB_illumina
+			tf12.paragraphs[0].text = TMB_DRUP_str
 			tf12.paragraphs[0].font.size = Pt(9)
-			tf12.paragraphs[0].alignment = PP_ALIGN.LEFT		
+			tf12.paragraphs[0].alignment = PP_ALIGN.LEFT
+			textbox13 = slide.shapes.add_textbox(Inches(6.22), Inches(2.29), Inches(0.88), Inches(0.25))
+			tf13 = textbox13.text_frame
+			tf13.paragraphs[0].text = TMB_illumina
+			tf13.paragraphs[0].font.size = Pt(9)
+			tf13.paragraphs[0].alignment = PP_ALIGN.LEFT		
 	ppt.save(output_ppt_file)
 	return stable_text
 
@@ -1078,7 +1075,7 @@ def update_clinical_master_file(InPreD_clinical_data_file,sample_id,if_generate_
 	for ln in fr:
 		if(ln.split('\t')[0] == sample_id):
 			if_exist = True
-			line = '\t'.join([sample_id, runID, if_generate_report, ipd_birth_year, ipd_diagnosis_year, clinical_diagnosis, ipd_gender[0], ipd_consent, material_id, ipd_collection_year, requisition_hospital, extraction_hospital, str(tumor_content_nr), batch_nr, pathology_comment, sample_info_comment + '\n'])
+			line = '\t'.join([sample_id, runID, if_generate_report, ipd_birth_year, ipd_diagnosis_year, clinical_diagnosis, ipd_gender, ipd_consent, material_id, ipd_collection_year, requisition_hospital, extraction_hospital, str(tumor_content_nr), batch_nr, pathology_comment, sample_info_comment + '\n'])
 			new_line = ln.replace(ln,line)
 			new_content = new_content + new_line
 		else:
@@ -1089,7 +1086,7 @@ def update_clinical_master_file(InPreD_clinical_data_file,sample_id,if_generate_
 	else:
 		fa = open(InPreD_clinical_data_file, 'a')
 	if(if_exist == False):
-		line = '\t'.join([sample_id, runID, if_generate_report, ipd_birth_year, ipd_diagnosis_year, clinical_diagnosis, ipd_gender[0], ipd_consent, material_id, ipd_collection_year, requisition_hospital, extraction_hospital, str(tumor_content_nr), batch_nr, pathology_comment, sample_info_comment + '\n'])
+		line = '\t'.join([sample_id, runID, if_generate_report, ipd_birth_year, ipd_diagnosis_year, clinical_diagnosis, ipd_gender, ipd_consent, material_id, ipd_collection_year, requisition_hospital, extraction_hospital, str(tumor_content_nr), batch_nr, pathology_comment, sample_info_comment + '\n'])
 		if(encoding_sys != ""):
 			fa = open(InPreD_clinical_data_file, 'a', encoding=encoding_sys)
 		else:
@@ -1127,14 +1124,14 @@ def update_clinical_tsoppi_file(InPreD_clinical_tsoppi_data_file,sample_id,if_ge
 		for ln in fr:
 			if(ln.split('\t')[0] == sample_id):
 				if_exist = True
-				line = '\t'.join([sample_id, runID, if_generate_report, ipd_birth_year, ipd_diagnosis_year, clinical_diagnosis, ipd_gender[0], ipd_consent, material_id, ipd_collection_year, requisition_hospital, extraction_hospital, str(tumor_content_nr), batch_nr, sample_material, sample_type, tumor_type, str(TMB_DRUP), TMB_TSO500, MSI_TSO500, pipline, pathology_comment, sample_info_comment + '\n'])
+				line = '\t'.join([sample_id, runID, if_generate_report, ipd_birth_year, ipd_diagnosis_year, clinical_diagnosis, ipd_gender, ipd_consent, material_id, ipd_collection_year, requisition_hospital, extraction_hospital, str(tumor_content_nr), batch_nr, sample_material, sample_type, tumor_type, str(TMB_DRUP), TMB_TSO500, MSI_TSO500, pipline, pathology_comment, sample_info_comment + '\n'])
 				new_line = ln.replace(ln,line)
 				new_content = new_content + new_line
 			else:
 				new_content = new_content + ln
 	fr.close()
 	if(if_exist == False):
-		line = '\t'.join([sample_id, runID, if_generate_report, ipd_birth_year, ipd_diagnosis_year, clinical_diagnosis, ipd_gender[0], ipd_consent, material_id, ipd_collection_year, requisition_hospital, extraction_hospital, str(tumor_content_nr), batch_nr, sample_material, sample_type, tumor_type, str(TMB_DRUP), TMB_TSO500, MSI_TSO500, pipline, pathology_comment, sample_info_comment + '\n'])
+		line = '\t'.join([sample_id, runID, if_generate_report, ipd_birth_year, ipd_diagnosis_year, clinical_diagnosis, ipd_gender, ipd_consent, material_id, ipd_collection_year, requisition_hospital, extraction_hospital, str(tumor_content_nr), batch_nr, sample_material, sample_type, tumor_type, str(TMB_DRUP), TMB_TSO500, MSI_TSO500, pipline, pathology_comment, sample_info_comment + '\n'])
 		with open(InPreD_clinical_tsoppi_data_file, 'a') as fa:
 			fa.write(line)
 		fa.close()
@@ -1579,7 +1576,7 @@ def main(argv):
 				slide6_table_font_size = 7
 				if_print_rowNo = False
 				for table_index in slide6_table_ppSlide:
-					slide6_table_nrows = insert_table_to_ppt(slide6_table_data_file,table_index,slide6_table_name,slide6_header_left,slide6_header_top,slide6_header_width,slide6_table_left,slide6_table_top,slide6_table_width,slide6_table_height,slide6_table_font_size,slide6_table_header,output_ppt_file,if_print_rowNo,[])
+					slide6_table_nrows = insert_table_to_ppt(slide6_table_data_file,table_index,slide6_table_name,slide6_header_left,slide6_header_top,slide6_header_width,slide6_table_left,slide6_table_top,slide6_table_width,slide6_table_height,slide6_table_font_size,slide6_table_header,output_ppt_file,if_print_rowNo,[],table_max_rows_per_slide=None)
 				output_file_preMTB_AppendixTable = output_file_preMTB_table_path + "_preMTBTable_Appendix.txt"
 				output_table_file_filterResults_AllReporVariants_CodingRegion = output_file_preMTB_table_path + "_AllReporVariants_CodingRegion.txt"
 				stable_text = update_ppt_variant_summary_table(slide6_table_nrows,DNA_sampleID,RNA_sampleID,TMB_DRUP,TMB_DRUP_str,DNA_variant_summary_file,RNA_variant_summary_file,output_file_preMTB_AppendixTable,output_table_file_filterResults_AllReporVariants_CodingRegion,output_ppt_file)
@@ -1615,7 +1612,7 @@ def main(argv):
 				slides = ppt.slides._sldIdLst
 				slides_list = list(slides)
 				slides.remove(slides_list[7])
-				slides.insert(12,slides_list[7])
+				slides.append(slides_list[7])
 				ppt.save(output_ppt_file)
 				print("Generate report for " + DNA_sampleID)
 				ppt_nr += 1
