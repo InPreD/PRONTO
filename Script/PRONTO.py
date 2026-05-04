@@ -1435,6 +1435,9 @@ def main(argv):
 									for i in range(len(existing) - len(current_content) + 1):
 										if(existing[i:i+len(current_content)] == current_content):
 											is_appear = True
+											# Only print last column for the rescued variants which are not include in Filter0-3.
+											if(existing[-1] == 'Yes\n'):
+												existing[-1] = '\n'
 											break
 								if is_appear:
 									break
