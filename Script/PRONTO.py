@@ -238,7 +238,6 @@ def add_filter_column_into_table(data_config,filter_column_add):
 		if(i == 0):
 			row.append(filter_column_add+'\n')
 		else:
-		#	row = [item.replace('\n', 'Yes\n') for item in row]
 			row.append("Yes\n")
 		data.append(row)
 	return data
@@ -700,7 +699,7 @@ def update_ppt_template_data(inpred_node,ipd_no,ipd_gender,ipd_age,ipd_diagnosis
 			tf11.paragraphs[0].text = pathology_comment + "\n\n" + sample_info_comment.replace("|","\n")
 			tf11.paragraphs[0].font.size = Pt(10)
 			tf11.paragraphs[0].alignment = PP_ALIGN.LEFT
-		gender_age = "{}/{}y'.format(ipd_gender, age)
+		gender_age = "{}/{}y".format(ipd_gender, age)
 		if(RNA_material_id != ""):
 			ipd_material_id_index = "DNA:" + DNA_material_id + "\nRNA:" + RNA_material_id
 		else:
@@ -755,7 +754,7 @@ def insert_table_to_ppt(table_file,slide_n,table_name,left_h,top_h,width_h,left_
 
 	# load table data
 	try:
-		table_data = pandas.read_csv(table_file, sep='\t')
+		table_data = pandas.read_csv(table_file, sep='\t', keep_default_na=False)
 	except pandas.errors.EmptyDataError:
 		logging.warning("{} is empty".format(table_file))
 		return
@@ -1599,7 +1598,8 @@ def main(argv):
 				slide8_table_font_size = 7
 				if_print_rowNo = True
 				table8_column_width = [0.54, 0.96, 0.96, 0.51, 0.73, 1.12, 2.26, 0.79, 0.81, 0.53, 0.53]
-				slide8_table_nrows = insert_table_to_ppt(slide8_table_data_file,slide8_table_ppSlide,slide8_table_name,slide8_header_left,slide8_header_top,slide8_header_width,slide8_table_left,slide8_table_top,slide8_table_width,slide8_table_height,slide8_table_font_size,slide8_table_header,output_ppt_file,if_print_rowNo,table8_column_width)
+				table_max_rows_per_slide = int(cfg.get("INPUT", "table_max_rows_per_slide"))
+				slide8_table_nrows = insert_table_to_ppt(slide8_table_data_file,slide8_table_ppSlide,slide8_table_name,slide8_header_left,slide8_header_top,slide8_header_width,slide8_table_left,slide8_table_top,slide8_table_width,slide8_table_height,slide8_table_font_size,slide8_table_header,output_ppt_file,if_print_rowNo,table8_column_width,table_max_rows_per_slide)
 
 				# Insert the CNV_overveiw_plots pictures A2, B3 and C1 into report.
 				A2_to_extract=[2]
