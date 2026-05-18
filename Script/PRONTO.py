@@ -1599,7 +1599,7 @@ def main(argv):
 				if_print_rowNo = True
 				table8_column_width = [0.54, 0.96, 0.96, 0.51, 0.73, 1.12, 2.26, 0.79, 0.81, 0.53, 0.53]
 				table_max_rows_per_slide = int(cfg.get("INPUT", "table_max_rows_per_slide"))
-				slide8_table_nrows = insert_table_to_ppt(slide8_table_data_file,slide8_table_ppSlide,slide8_table_name,slide8_header_left,slide8_header_top,slide8_header_width,slide8_table_left,slide8_table_top,slide8_table_width,slide8_table_height,slide8_table_font_size,slide8_table_header,output_ppt_file,if_print_rowNo,table8_column_width,table_max_rows_per_slide)
+				_ = insert_table_to_ppt(slide8_table_data_file,slide8_table_ppSlide,slide8_table_name,slide8_header_left,slide8_header_top,slide8_header_width,slide8_table_left,slide8_table_top,slide8_table_width,slide8_table_height,slide8_table_font_size,slide8_table_header,output_ppt_file,if_print_rowNo,table8_column_width,table_max_rows_per_slide)
 
 				# Insert the CNV_overveiw_plots pictures A2, B3 and C1 into report.
 				A2_to_extract=[2]
