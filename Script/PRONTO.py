@@ -1364,6 +1364,7 @@ def main(argv):
 							concat_data = pandas.concat([concat_data, small_variant_data])
 						
 						concat_data = concat_data.drop_duplicates()
+						concat_data.reset_index(drop=True, inplace=True)
 						for i, irow in concat_data.iterrows():
 							for j, jrow in concat_data.iterrows():
 								# avoid comparing the same rows twice
