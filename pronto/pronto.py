@@ -1,8 +1,10 @@
+import configparser
 import glob
 import logging
 import os
 import pandas
 import pptx
+from pandas.api.types import is_float_dtype
 
 # get tumor mutational burden label
 def get_tmb_string(val):
@@ -47,7 +49,9 @@ def normalize_column_index(df: pandas.DataFrame, exp_col_idx: list):
 def set_column_to_2_decimals(df: pandas.DataFrame, col_name: str):
 	if col_name in df.columns:
 		if df[col_name].dtype == float:
-			df[col_name] = df[col_name].map('{:.2f}'.format)
+			df = df.assign(
+				**{col_name: df[col_name].round(2).astype("string")}
+			)
 	else:
 		logging.info("Column {} not found in dataframe".format(col_name))
 	return df
@@ -78,3 +82,48 @@ def add_table_name(shapes: pptx.shapes.shapetree.SlideShapes, table_name: str, l
 	paragraph.font.size = pptx.util.Pt(font_size)
 	paragraph.font.bold = True
 	paragraph.alignment = pptx.enum.text.PP_ALIGN.CENTER
+
+# parse topfilter sections in config file and construct list of topfilter dictionaries
+def parse_topfilter(cfg : configparser.ConfigParser, output_dir: str) -> list:
+	top_filter_dict = []
+	for section in cfg.sections():
+		if section.startswith("FILTER0-"):
+			filter = dict(cfg[section])
+			filter["filter_columns"] = filter["filter_column"].split(",")
+			if "filter_column_add" not in filter:
+				filter["filter_column_add"] = None
+			if "min_depth_tumor_dna" not in filter:
+				filter["min_depth_tumor_dna"] = None
+			filter["pre_table_output_path"] = "{}_{}_pre.txt".format(output_dir, filter["output_table"])
+			filter["table_output_path"] = "{}_{}.txt".format(output_dir, filter["output_table"])
+			top_filter_dict.append(filter)
+	return top_filter_dict
+
+# Filter small variant data based on keyword being present in filter column
+def filter_small_variant_data(data: pandas.DataFrame, sample_id: str, filter_column: str, keyword: str) -> pandas.DataFrame:
+
+	# check if required columns are present in data
+	for column_name in [filter_column, "IGV_QC", "Class_judgement", "Sample_ID"]:
+		if column_name not in data.columns:
+			logging.error("Column {} not found in data".format(column_name))
+			raise ValueError
+	
+	# only consider data for the specified sample_id
+	data = data[data['Sample_ID'] == sample_id]
+
+	# check if IGV_QC is "Not OK" but Class_judgement is not "exclude"
+	if data[(data['IGV_QC'] == "Not OK") & (data['Class_judgement'] != "exclude")].shape[0] > 0:
+		logging.error("""Dataset error: 
+		IGV_QC is 'Not OK', but Class_judgement is not 'exclude'. Please check the QC Excel file and fix the mistake before run this script again!
+		""")
+		raise ValueError
+	
+	# filter according to keyword being present or not in filter column
+	if keyword.startswith('!'):
+		keys = keyword.replace('!', '').split(' && ')
+		for key in keys:
+			data = data[~data[filter_column].str.contains(key)] # remove rows that contain the key in filter column
+	else:
+		data = data[data[filter_column].str.contains(keyword.replace(',', '|'), na=False)] # only keep rows that contain the keyword in filter column
+
+	return data

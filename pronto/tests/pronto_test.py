@@ -1,3 +1,4 @@
+import configparser
 import pandas
 import pptx
 import pytest
@@ -198,7 +199,7 @@ def test_normalize_column_index(inputs, exception, want):
             does_not_raise(),
             pandas.DataFrame({
                 "one": [1, 2],
-                "two": ["3.33", "4.44"],
+                "two": pandas.Series(["3.33", "4.44"], dtype="string"),
             }),
         ),
         (
@@ -416,3 +417,269 @@ def test_add_table_name(inputs, exception, want_shape, want_paragraph):
         pronto.pronto.add_table_name(shapes, *inputs)
         check_shape(shapes[0], *want_shape)
         check_paragraph(shapes[0].text_frame.paragraphs[0], *want_paragraph)
+
+@pytest.mark.parametrize(
+    "inputs, exception, want",
+    [
+        (
+            (
+                {
+                    'FILTER0-1': {
+                        'filter_column': 'col1,col2',
+                        'key_word': 'keyword1',
+                        'columns': 'col1,col2',
+                        'filter_column_add': 'col1',
+                        'output_table': 'output_table',
+                        'min_depth_tumor_dna': '0',
+                    }
+                },
+                "output_dir/sample1"
+            ),
+            does_not_raise(),
+            [
+                    {
+                        'filter_column': 'col1,col2',
+                        'key_word': 'keyword1',
+                        'columns': 'col1,col2',
+                        'filter_column_add': 'col1',
+                        'output_table': 'output_table',
+                        'min_depth_tumor_dna': '0',
+                        'filter_columns': ['col1', 'col2'],
+                        'pre_table_output_path': 'output_dir/sample1_output_table_pre.txt',
+                        'table_output_path': 'output_dir/sample1_output_table.txt',
+                    }
+            ],
+        ),
+        (
+            (
+                {
+                    'FILTER0-1': {
+                        'filter_column': 'col1,col2',
+                        'key_word': 'keyword1',
+                        'columns': 'col1,col2',
+                        'output_table': 'output_table',
+                        'min_depth_tumor_dna': '0',
+                    }
+                },
+                "output_dir/sample1"
+            ),
+            does_not_raise(),
+            [
+                    {
+                        'filter_column': 'col1,col2',
+                        'key_word': 'keyword1',
+                        'columns': 'col1,col2',
+                        'filter_column_add': None,
+                        'output_table': 'output_table',
+                        'min_depth_tumor_dna': '0',
+                        'filter_columns': ['col1', 'col2'],
+                        'pre_table_output_path': 'output_dir/sample1_output_table_pre.txt',
+                        'table_output_path': 'output_dir/sample1_output_table.txt',
+                    }
+            ],
+        ),
+        (
+            (
+                {
+                    'FILTER0-1': {
+                        'filter_column': 'col1,col2',
+                        'key_word': 'keyword1',
+                        'columns': 'col1,col2',
+                        'output_table': 'output_table',
+                        'filter_column_add': 'col1',
+                    }
+                },
+                "output_dir/sample1"
+            ),
+            does_not_raise(),
+            [
+                    {
+                        'filter_column': 'col1,col2',
+                        'key_word': 'keyword1',
+                        'columns': 'col1,col2',
+                        'filter_column_add': 'col1',
+                        'output_table': 'output_table',
+                        'min_depth_tumor_dna': None,
+                        'filter_columns': ['col1', 'col2'],
+                        'pre_table_output_path': 'output_dir/sample1_output_table_pre.txt',
+                        'table_output_path': 'output_dir/sample1_output_table.txt',
+                    }
+            ],
+        ),
+        (
+            (
+                {
+                    'FILTER0-1': {
+                        'filter_column': 'col1',
+                        'key_word': 'keyword1',
+                        'columns': 'col1,col2',
+                        'output_table': 'output_table',
+                        'filter_column_add': 'col1',
+                        'min_depth_tumor_dna': '0',
+                    }
+                },
+                "output_dir/sample1"
+            ),
+            does_not_raise(),
+            [
+                    {
+                        'filter_column': 'col1',
+                        'key_word': 'keyword1',
+                        'columns': 'col1,col2',
+                        'filter_column_add': 'col1',
+                        'output_table': 'output_table',
+                        'min_depth_tumor_dna': '0',
+                        'filter_columns': ['col1'],
+                        'pre_table_output_path': 'output_dir/sample1_output_table_pre.txt',
+                        'table_output_path': 'output_dir/sample1_output_table.txt',
+                    }
+            ],
+        ),
+    ]
+)
+def test_parse_topfilter(inputs, exception, want):
+    with exception:
+        cfg = configparser.ConfigParser()
+        cfg.read_dict(inputs[0])
+        topfilters = pronto.pronto.parse_topfilter(cfg, inputs[1])
+        assert topfilters == want
+
+@pytest.mark.parametrize(
+    "inputs, exception, want",
+    [
+        (
+            (
+                pandas.DataFrame({
+                    "filter_column": ["keyword1", "keyword2", "keyword1,keyword2", "other"],
+                    "IGV_QC": ["OK", "Not OK", "OK", "OK"],
+                    "Class_judgement": ["exclude", "exclude", "include", "include"],
+                    "Sample_ID": ["sample1", "sample1", "sample1", "sample1"],
+                }),
+                'sample1',
+                'filter_column',
+                'keyword1',
+            ),
+            does_not_raise(),
+            pandas.DataFrame({
+                "filter_column": ["keyword1", "keyword1,keyword2"],
+                "IGV_QC": ["OK", "OK"],
+                "Class_judgement": ["exclude", "include"],
+                "Sample_ID": ["sample1", "sample1"],
+            }),
+        ),
+        (
+            (
+                pandas.DataFrame({
+                    "filter_column": ["keyword1", "keyword2", "keyword1,keyword2", "other"],
+                    "IGV_QC": ["OK", "Not OK", "OK", "OK"],
+                    "Class_judgement": ["exclude", "exclude", "include", "include"],
+                    "Sample_ID": ["sample1", "sample1", "sample2", "sample1"],
+                }),
+                'sample1',
+                'filter_column',
+                'keyword1',
+            ),
+            does_not_raise(),
+            pandas.DataFrame({
+                "filter_column": ["keyword1"],
+                "IGV_QC": ["OK"],
+                "Class_judgement": ["exclude"],
+                "Sample_ID": ["sample1"],
+            }),
+        ),
+        (
+            (
+                pandas.DataFrame({
+                    "filter_column": ["keyword1", "keyword2", "keyword1,keyword2", "other"],
+                    "IGV_QC": ["OK", "Not OK", "OK", "OK"],
+                    "Class_judgement": ["exclude", "exclude", "include", "include"],
+                    "Sample_ID": ["sample1", "sample1", "sample1", "sample1"],
+                }),
+                'sample1',
+                'filter_column',
+                'keyword1,keyword2',
+            ),
+            does_not_raise(),
+            pandas.DataFrame({
+                "filter_column": ["keyword1", "keyword2", "keyword1,keyword2"],
+                "IGV_QC": ["OK", "Not OK", "OK"],
+                "Class_judgement": ["exclude", "exclude", "include"],
+                "Sample_ID": ["sample1", "sample1", "sample1"],
+            }),
+        ),
+        (
+            (
+                pandas.DataFrame({
+                    "filter_column": ["keyword1", "keyword2", "keyword1,keyword2", "other"],
+                    "IGV_QC": ["OK", "Not OK", "OK", "OK"],
+                    "Class_judgement": ["exclude", "exclude", "include", "include"],
+                    "Sample_ID": ["sample1", "sample1", "sample1", "sample1"],
+                }),
+                'sample1',
+                'filter_column',
+                '!keyword1',
+            ),
+            does_not_raise(),
+            pandas.DataFrame({
+                "filter_column": ["keyword2", "other"],
+                "IGV_QC": ["Not OK", "OK"],
+                "Class_judgement": ["exclude", "include"],
+                "Sample_ID": ["sample1", "sample1"],
+            }),
+        ),
+        (
+            (
+                pandas.DataFrame({
+                    "filter_column": ["keyword1", "keyword2", "keyword1,keyword2", "other"],
+                    "IGV_QC": ["OK", "Not OK", "OK", "OK"],
+                    "Class_judgement": ["exclude", "exclude", "include", "include"],
+                    "Sample_ID": ["sample1", "sample1", "sample1", "sample1"],
+                }),
+                'sample1',
+                'filter_column',
+                '!keyword1 && !keyword2',
+            ),
+            does_not_raise(),
+            pandas.DataFrame({
+                "filter_column": ["other"],
+                "IGV_QC": ["OK"],
+                "Class_judgement": ["include"],
+                "Sample_ID": ["sample1"],
+            }),
+        ),
+        (
+            (
+                pandas.DataFrame({
+                    "filter_column": ["keyword1", "keyword2", "keyword1,keyword2", "other"],
+                    "IGV_QC": ["OK", "Not OK", "OK", "OK"],
+                    "Sample_ID": ["sample1", "sample1", "sample1", "sample1"],
+                }),
+                'sample1',
+                'filter_column',
+                'keyword1',
+            ),
+            pytest.raises(ValueError),
+            pandas.DataFrame(),
+        ),
+        (
+            (
+                pandas.DataFrame({
+                    "filter_column": ["keyword1", "keyword2", "keyword1,keyword2", "other"],
+                    "IGV_QC": ["OK", "Not OK", "Not OK", "OK"],
+                    "Class_judgement": ["exclude", "exclude", "include", "include"],
+                    "Sample_ID": ["sample1", "sample1", "sample1", "sample1"],
+                }),
+                'sample1',
+                'filter_column',
+                'keyword1',
+            ),
+            pytest.raises(ValueError),
+            pandas.DataFrame(),
+        ),
+    ]
+)
+def test_filter_small_variant_data(inputs, exception, want):
+    with exception:
+        data = pronto.pronto.filter_small_variant_data(inputs[0], inputs[1], inputs[2], inputs[3])
+        data = data.reset_index(drop=True)
+        assert data.equals(want)
