@@ -989,8 +989,10 @@ def remisse_mail_writer(remisse_file,ipd_no,ipd_consent,DNA_normal_sampleID,RNA_
 		if_normal_sampleID = "):\n\n"
 	if(RNA_sampleID != ""):
 		if_RNA_sampleID = " og RNA "
+		Gen-fusjoner_line = "Ingen funn av sikker klinisk betydning.\n"
 	else:
 		if_RNA_sampleID = " "
+		Gen-fusjoner_line = "RNA ikke analysert.\n"
 	try:
 		ipd_material_id_str = ipd_material_id.split(",")
 		DNA_material_id = ipd_material_id_str[0].split(":")[1]
@@ -1016,7 +1018,7 @@ def remisse_mail_writer(remisse_file,ipd_no,ipd_consent,DNA_normal_sampleID,RNA_
 	text3 = pg2.add_run("Ingen kopitall av sikker klinisk betydning.\n")
 	text3.font.color.rgb = docRGBColor(0,176,80)
 	pg2.add_run("Gen-fusjoner: ")
-	text4 = pg2.add_run("Ingen funn av sikker klinisk betydning.\n")
+	text4 = pg2.add_run(Gen-fusjoner_line)
 	text4.font.color.rgb = docRGBColor(0,176,80)
 	pg2.add_run("Somatiske punkt mutasjoner/insersjoner/delesjoner: ")
 	text5 = pg2.add_run("Ingen funn av sikker klinisk betydning.\n\n")
@@ -1025,7 +1027,7 @@ def remisse_mail_writer(remisse_file,ipd_no,ipd_consent,DNA_normal_sampleID,RNA_
 	pg2.add_run("(lim inn tekst under # i LVMS i vurderingsfeltet)\n")
 	pg2.add_run("##########################################################\n\n")
 	year = time.strftime("%Y", time.localtime())
-	text6 = pg2.add_run("Funnene er diskutert med overlege XXXX på Mol-MDT-møtet XX.XX." + year + ".\n\nPasienten er diskutert på pre-Mol-MDT-møte XX.XX." + year +".Ettersom det ikke er funn som tilsier utprøvende behandlingsmulighet har man ikke kalt inn behandlende lege til Mol-MDT-møte. Ta kontakt dersom noe er uklart.\n\nKimbane funn som skal følges opp? XXXXXXX. HGVS nomenklatur:\nGEN:ENSTxxx:c.xxx>y:p.AxxxB\n\nDet var dessverre ikke tilstrekkelig mengde og/eller kvalitet av DNA/RNA til at sekvenseringsanalysen kunne gjennomføres.\n\n")
+	text6 = pg2.add_run("Funnene er diskutert med overlege XXXX på Mol-MDT-møtet XX.XX." + year + ".\n\nPasienten er diskutert på pre-Mol-MDT-møte XX.XX." + year +".Ettersom det ikke er funn som tilsier utprøvende behandlingsmulighet har man ikke kalt inn behandlende lege til Mol-MDT-møte. Ta kontakt dersom noe er uklart.\n\nVi påviser en variant i XX-genet hvor vi ikke kan avgjøre om denne er somatisk eller i kimbane.\n(gennavn): NM_xxxx: c.xxx: p.xxx: p.XxxxX.\n\nVi anbefaler å diskutere kimbanetesting med pasienten. Behandlende lege kan rekvirere kimbanetest (blodprøve) ved medisinsk genetisk laboratorium. Rekvisisjonen må inkludere detaljert informasjon om varianten (se over). Dersom varianten påvises i kimbane, kan pasientens henvises til genetisk veiledning.\n\nDet var dessverre ikke tilstrekkelig mengde og/eller kvalitet av DNA/RNA til at sekvenseringsanalysen kunne gjennomføres.\n\n")
 	text6.font.color.rgb = docRGBColor(0,176,80)
 	pg2.add_run("Kun funn med klinisk/diagnostisk betydning er rapportert, men se den vedlagte Mol-MDT-rapporten for utfyllende informasjon om testresultatet.\n\nFor teknisk beskrivelse og metodeprinsipp av analyse, vennligst se «TSO 500 genpanelanalyse (utvidet molekylæranalyse)» på nettsiden Metodebok.no under Helse Sør-Øst og OUS.")
 
