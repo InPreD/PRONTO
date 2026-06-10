@@ -59,6 +59,7 @@ tumor_type = ""
 TMB_DRUP = ""
 str_TMB_DRUP = ""
 TMB_TSO500 = ""
+TMB_TSO500_nr = 0
 MSI_TSO500 = ""
 pipline = ""
 
@@ -788,6 +789,7 @@ def update_ppt_variant_summary_table(data_nrows,DNA_sampleID,RNA_sampleID,TMB_DR
 	DNA_summary_file = open(DNA_variant_summary_file)
 	global str_TMB_DRUP
 	global TMB_TSO500
+	global TMB_TSO500_nr
 	global MSI_TSO500
 	for line in DNA_summary_file:
 		if(line.startswith(DNA_sampleID)):
@@ -959,7 +961,7 @@ def update_ppt_variant_summary_table(data_nrows,DNA_sampleID,RNA_sampleID,TMB_DR
 	return stable_text
 
 
-def remisse_mail_writer(remisse_file,ipd_no,ipd_consent,DNA_normal_sampleID,RNA_sampleID,extraction_hospital,ipd_material_id,str_TMB_DRUP,TMB_DRUP,stable_text,sample_material,sample_type,sample_list,pipline):
+def remisse_mail_writer(remisse_file,ipd_no,ipd_consent,DNA_normal_sampleID,RNA_sampleID,extraction_hospital,ipd_material_id,TMB_TSO500_nr,stable_text,sample_material,sample_type,sample_list,pipline):
 	from docx import Document
 	from docx.shared import Pt
 	from docx.shared import RGBColor as docRGBColor
@@ -989,10 +991,10 @@ def remisse_mail_writer(remisse_file,ipd_no,ipd_consent,DNA_normal_sampleID,RNA_
 		if_normal_sampleID = "):\n\n"
 	if(RNA_sampleID != ""):
 		if_RNA_sampleID = " og RNA "
-		Gen-fusjoner_line = "Ingen funn av sikker klinisk betydning.\n"
+		Gen_fusjoner_line = "Ingen funn av sikker klinisk betydning.\n"
 	else:
 		if_RNA_sampleID = " "
-		Gen-fusjoner_line = "RNA ikke analysert.\n"
+		Gen_fusjoner_line = "RNA ikke analysert.\n"
 	try:
 		ipd_material_id_str = ipd_material_id.split(",")
 		DNA_material_id = ipd_material_id_str[0].split(":")[1]
@@ -1004,10 +1006,10 @@ def remisse_mail_writer(remisse_file,ipd_no,ipd_consent,DNA_normal_sampleID,RNA_
 	except:
 		ipd_material_id_remisse = ipd_material_id
 	pg2.add_run("Utvidet genpanelanalyse, TSO500, DNA" + if_RNA_sampleID + "(ekstrahert fra " + extraction_hospital + ") " + ipd_material_id_remisse + ":\n\n")
-	if(str_TMB_DRUP == "NA"):
+	if(TMB_TSO500 == "NA"):
 		TMB_string = "Upålitelig, ikke beregnet\n"
 	else:
-		TMB_string = pronto.get_tmb_string(TMB_DRUP)
+		TMB_string = pronto.get_tmb_string(TMB_TSO500_nr)
 	if(stable_text == "Unstable"):
 		stable_text = "Ustabil"
 	if(stable_text == "Stable"):
@@ -1018,7 +1020,7 @@ def remisse_mail_writer(remisse_file,ipd_no,ipd_consent,DNA_normal_sampleID,RNA_
 	text3 = pg2.add_run("Ingen kopitall av sikker klinisk betydning.\n")
 	text3.font.color.rgb = docRGBColor(0,176,80)
 	pg2.add_run("Gen-fusjoner: ")
-	text4 = pg2.add_run(Gen-fusjoner_line)
+	text4 = pg2.add_run(Gen_fusjoner_line)
 	text4.font.color.rgb = docRGBColor(0,176,80)
 	pg2.add_run("Somatiske punkt mutasjoner/insersjoner/delesjoner: ")
 	text5 = pg2.add_run("Ingen funn av sikker klinisk betydning.\n\n")
@@ -1574,7 +1576,7 @@ def main(argv):
 
 				if(remisse_mail == True):
 					remisse_file = output_path + ipd_no + "_Remisse_draft.docx"
-					remisse_mail_writer(remisse_file,ipd_no,ipd_consent,DNA_normal_sampleID,RNA_sampleID,extraction_hospital,ipd_material_id,str_TMB_DRUP,TMB_DRUP,stable_text,str(sample_material),sample_type,sample_list,pipline)
+					remisse_mail_writer(remisse_file,ipd_no,ipd_consent,DNA_normal_sampleID,RNA_sampleID,extraction_hospital,ipd_material_id,TMB_TSO500_nr,stable_text,str(sample_material),sample_type,sample_list,pipline)
 				# Move MTF file into extra_files folder if it exists.
 				if os.path.exists(ipd_material_file_new):
 					move_ipd_material_file = shutil.move(ipd_material_file_new, extra_path)
