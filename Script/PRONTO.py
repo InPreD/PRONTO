@@ -739,6 +739,10 @@ def insert_table_to_ppt(table_file,slide_n,table_name,left_h,top_h,width_h,left_
 	# round floats to 2 decimal places
 	table_data = pronto.set_column_to_2_decimals(table_data, "AF_tumor_DNA")
 
+	# replace X suffix with *
+	if "Protein_change_short" in table_data.columns:
+		table_data["Protein_change_short"] = table_data["Protein_change_short"].str.replace(r'X$', '*', regex=True)
+
 	# determine column and row number
 	cols = len(table_header)
 	rows = len(table_data)
