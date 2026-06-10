@@ -745,7 +745,11 @@ def insert_table_to_ppt(table_file,slide_n,table_name,left_h,top_h,width_h,left_
 
 	# how many slides are required
 	if not table_max_rows_per_slide:
-		table_max_rows_per_slide = rows
+		if rows == 0:
+			logging.warning("{} is empty".format(table_file))
+			return
+		else:
+			table_max_rows_per_slide = rows
 	total_slides_needed = math.ceil(rows / table_max_rows_per_slide)
 
 	# Add data to ppt
