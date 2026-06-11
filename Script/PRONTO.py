@@ -740,13 +740,21 @@ def insert_table_to_ppt(table_file,slide_n,table_name,left_h,top_h,width_h,left_
 	# round floats to 2 decimal places
 	table_data = pronto.set_column_to_2_decimals(table_data, "AF_tumor_DNA")
 
+	# replace X suffix with *
+	if "Protein_change_short" in table_data.columns:
+		table_data["Protein_change_short"] = table_data["Protein_change_short"].str.replace(r'X$', '*', regex=True)
+
 	# determine column and row number
 	cols = len(table_header)
 	rows = len(table_data)
 
 	# how many slides are required
 	if not table_max_rows_per_slide:
-		table_max_rows_per_slide = rows
+		if rows == 0:
+			logging.warning("{} is empty".format(table_file))
+			return
+		else:
+			table_max_rows_per_slide = rows
 	total_slides_needed = math.ceil(rows / table_max_rows_per_slide)
 
 	# Add data to ppt
@@ -1355,7 +1363,11 @@ def main(argv):
 						topfilters = pronto.parse_topfilter(cfg, output_file_preMTB_table_path)
 						for filter in topfilters:
 							for filter_column in filter['filter_columns']:
-								small_variant_data = pandas.read_csv(data_file_small_variant_table, sep='\t', comment='#')
+								try:
+									small_variant_data = pandas.read_csv(data_file_small_variant_table, sep='\t', comment='#')
+								except pandas.errors.EmptyDataError:
+									logging.warning("{} is empty".format(data_file_small_variant_table))
+									sys.exit(1)
 								try:
 									small_variant_data = pronto.filter_small_variant_data(small_variant_data, DNA_sampleID, filter_column, filter['key_word'])
 								except ValueError:
