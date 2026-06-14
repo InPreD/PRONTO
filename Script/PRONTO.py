@@ -490,7 +490,7 @@ def get_patient_info_from_MTF_new(ipd_material_file,ipd_no,DNA_sampleID,RNA_samp
 					if(sheet_material.cell_value(r,10) == columns['comment'] and sheet_material.cell_value(r+2,10) != "" and str(sheet_material.cell_value(r+2,10)) != "0.0" and str(sheet_material.cell_value(r+2,10)) != "0"):
 						comments = str(sheet_material.cell_value(r+2,10)).replace("\n", " ")
 					if(pathology_comment == ""):
-						pathology_comment = DIT_number + ":" + comments
+						pathology_comment = columns['ex_pathology_info'] + "|" + DIT_number + ":" + comments
 					else:
 						if(DIT_number != "-" or comments != "-"):
 							pathology_comment += "|" + DIT_number + ":" + comments
@@ -514,7 +514,7 @@ def get_patient_info_from_MTF_new(ipd_material_file,ipd_no,DNA_sampleID,RNA_samp
 					if(sheet_material.cell_value(r+2,10) != "" and str(sheet_material.cell_value(r+2,10)) != "0.0" and str(sheet_material.cell_value(r+2,10)) != "0"):
 						comments = str(sheet_material.cell_value(r+2,10)).replace("\n", " ")
 					if(sample_info_comment == ""):
-						sample_info_comment = "{}: {}".format(sample_ID, comments)
+						sample_info_comment = columns['ex_sample_info'] + "|" + "{}: {}".format(sample_ID, comments)
 					else:
 						if(sample_ID != "-" or comments != "-"):
 							sample_info_comment += "|" + sample_ID + ": " + comments
@@ -532,7 +532,7 @@ def get_patient_info_from_MTF_new(ipd_material_file,ipd_no,DNA_sampleID,RNA_samp
 					if(sheet_material.cell_value(r+2,10) != "" and str(sheet_material.cell_value(r+2,10)) != "0.0" and str(sheet_material.cell_value(r+2,10)) != "0"):
 						comments = str(sheet_material.cell_value(r+2,10)).replace("\n", " ")
 					if(extraction_comment == ""):
-						extraction_comment = "{}: {}".format(sample_ID, comments)
+						extraction_comment = columns['ex_data_section'] + "|" + "{}: {}".format(sample_ID, comments)
 					else:
 						if(sample_ID != "-" or comments != "-"):
 							extraction_comment += "|" + sample_ID + ": " + comments
@@ -547,7 +547,7 @@ def get_patient_info_from_MTF_new(ipd_material_file,ipd_no,DNA_sampleID,RNA_samp
 					if(sheet_material.cell_value(r+2,13) != "" and str(sheet_material.cell_value(r+2,13)) != "0.0" and str(sheet_material.cell_value(r+2,13)) != "0"):
 						comments = str(sheet_material.cell_value(r+2,13)).replace("\n", " ")
 					if(library_prepare_comment == ""):
-						library_prepare_comment == "{}: {}".format(sample_ID, comments)
+						library_prepare_comment = columns['ex_library_pre'] + "|" + "{}: {}".format(sample_ID, comments)
 					else:
 						if(sample_ID != "-" or comments != "-"):
 							library_prepare_comment += "|" + sample_ID + ": " + comments
@@ -695,7 +695,7 @@ def update_ppt_template_data(inpred_node,ipd_no,ipd_gender,ipd_age,ipd_diagnosis
 		if(index == 3):
 			textbox11 = slide.shapes.add_textbox(Inches(1.85), Inches(1.25), Inches(3.25), Inches(0.27))
 			tf11 = textbox11.text_frame
-			tf11.paragraphs[0].text = pathology_comment + "\n\n" + sample_info_comment.replace("|","\n") + "\n\n" + extraction_comment.replace("|","\n") + "\n\n" + library_prepare_comment.replace("|","\n")
+			tf11.paragraphs[0].text = pathology_comment.replace("|","\n") + "\n\n" + sample_info_comment.replace("|","\n") + "\n\n" + extraction_comment.replace("|","\n") + "\n\n" + library_prepare_comment.replace("|","\n")
 			tf11.paragraphs[0].font.size = Pt(10)
 			tf11.paragraphs[0].alignment = PP_ALIGN.LEFT
 		gender_age = "{}/{}y".format(ipd_gender, age)
@@ -1205,6 +1205,8 @@ def main(argv):
 	global batch_nr
 	global tumor_content_nr
 	global sample_info_comment
+	global extraction_comment
+	global library_prepare_comment
 	global TMB_DRUP
 	global str_TMB_DRUP
 	global TMB_TSO500
