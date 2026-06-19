@@ -550,7 +550,7 @@ def get_patient_info_from_MTF_new(ipd_material_file,ipd_no,DNA_sampleID,RNA_samp
 						library_prepare_comment =  "{}|{}: {}".format(columns['ex_library_pre'], sample_ID, comments)
 					else:
 						if(sample_ID != "-" or comments != "-"):
-							library_prepare_comment += "|" + sample_ID + ": " + comments
+							library_prepare_comment += "|{}:{}".format(sample_ID, comments)
 	open_exl_material.release_resources()
 	if(ipd_consent == "0.0"):
 		ipd_consent = ""
