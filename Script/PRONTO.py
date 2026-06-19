@@ -490,7 +490,7 @@ def get_patient_info_from_MTF_new(ipd_material_file,ipd_no,DNA_sampleID,RNA_samp
 					if(sheet_material.cell_value(r,10) == columns['comment'] and sheet_material.cell_value(r+2,10) != "" and str(sheet_material.cell_value(r+2,10)) != "0.0" and str(sheet_material.cell_value(r+2,10)) != "0"):
 						comments = str(sheet_material.cell_value(r+2,10)).replace("\n", " ")
 					if(pathology_comment == ""):
-						pathology_comment = columns['ex_pathology_info'] + "|" + DIT_number + ":" + comments
+						pathology_comment = "{}|{}:{}".format(columns['ex_pathology_info'], DIT_number, comments)
 					else:
 						if(DIT_number != "-" or comments != "-"):
 							pathology_comment += "|" + DIT_number + ":" + comments
