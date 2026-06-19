@@ -695,7 +695,7 @@ def update_ppt_template_data(inpred_node,ipd_no,ipd_gender,ipd_age,ipd_diagnosis
 		if(index == 3):
 			textbox11 = slide.shapes.add_textbox(Inches(1.85), Inches(1.25), Inches(3.25), Inches(0.27))
 			tf11 = textbox11.text_frame
-			tf11.paragraphs[0].text = pathology_comment.replace("|","\n") + "\n\n" + sample_info_comment.replace("|","\n") + "\n\n" + extraction_comment.replace("|","\n") + "\n\n" + library_prepare_comment.replace("|","\n")
+			tf11.paragraphs[0].text = "{}\n\n{}\n\n{}\n\n{}".format(pathology_comment, sample_info_comment, extraction_comment, library_prepare_comment).replace("|","\n")
 			tf11.paragraphs[0].font.size = Pt(10)
 			tf11.paragraphs[0].alignment = PP_ALIGN.LEFT
 		gender_age = "{}/{}y".format(ipd_gender, age)
