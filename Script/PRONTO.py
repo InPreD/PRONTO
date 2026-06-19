@@ -547,7 +547,7 @@ def get_patient_info_from_MTF_new(ipd_material_file,ipd_no,DNA_sampleID,RNA_samp
 					if(sheet_material.cell_value(r+2,13) != "" and str(sheet_material.cell_value(r+2,13)) != "0.0" and str(sheet_material.cell_value(r+2,13)) != "0"):
 						comments = str(sheet_material.cell_value(r+2,13)).replace("\n", " ")
 					if(library_prepare_comment == ""):
-						library_prepare_comment = columns['ex_library_pre'] + "|" + "{}: {}".format(sample_ID, comments)
+						library_prepare_comment =  "{}|{}: {}".format(columns['ex_library_pre'], sample_ID, comments)
 					else:
 						if(sample_ID != "-" or comments != "-"):
 							library_prepare_comment += "|" + sample_ID + ": " + comments
