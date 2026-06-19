@@ -535,7 +535,7 @@ def get_patient_info_from_MTF_new(ipd_material_file,ipd_no,DNA_sampleID,RNA_samp
 						extraction_comment = columns['ex_data_section'] + "|" + "{}: {}".format(sample_ID, comments)
 					else:
 						if(sample_ID != "-" or comments != "-"):
-							extraction_comment += "|" + sample_ID + ": " + comments
+							extraction_comment += "|{}:{}".format(sample_ID, comments)
 			if(sheet_material.cell_value(r,c) == columns['batch_nr'] and batch_nr == ""):
 				for r in range(r,(nrows_material-2)):
 					sample_ID = "-"
