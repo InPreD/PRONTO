@@ -2,7 +2,7 @@ name: Python test
 on: push
 
 jobs:
-  test:
+  unit-test:
     name: Run unit tests
     runs-on: ubuntu-latest
     steps:
@@ -10,10 +10,10 @@ jobs:
         name: Check out the repo
         uses: actions/checkout@v4
       -
-        name: Set up Python 3.12.8
+        name: Set up Python 3.14.0
         uses: actions/setup-python@v4
         with:
-          python-version: 3.12.8
+          python-version: 3.14.0
       - 
         name: Install dependencies
         run: pip install -r requirements.txt -r requirements-test.txt
@@ -27,3 +27,19 @@ jobs:
           custom-arguments: -q
           click-to-expand: true
           report-title: 'PRONTO unit testing'
+  full-test:
+    name: Run full test
+    runs-on: ubuntu-latest
+    steps:
+      - 
+        name: Check out the repo
+        uses: actions/checkout@v4
+      -
+        name: Build docker image
+        run: docker build -t pronto:full-test .
+      -
+        name: Run full test OUS
+        run: docker run --rm -v $(pwd)/test_data/ous:/data/sample_data/analysis_results -v $(pwd)/test_data/ous/251114_A02134_0115_BHCJCKDRX7_TSO_500_LocalApp_postprocessing_results/InPreD_PRONTO_metadata.txt:/pronto/In/InPreD_PRONTO_metadata.txt pronto:full-test /pronto/Script/PRONTO.py 
+      -
+        name: Run full test HUS
+        run: docker run --rm -v $(pwd)/test_data/hus:/data/sample_data/analysis_results -v $(pwd)/test_data/InPreD_PRONTO_metadata.txt:/pronto/In/InPreD_PRONTO_metadata.txt pronto:full-test /pronto/Script/PRONTO.py 

@@ -3,7 +3,16 @@
 {
 	"name": "Python 3",
 	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
-	"image": "mcr.microsoft.com/devcontainers/python:0-3.11",
+	"image": "mcr.microsoft.com/devcontainers/python:3.14-trixie",
+
+	"containerEnv": {
+		"HTTP_PROXY": "${localEnv:HTTP_PROXY}",
+		"HTTPS_PROXY": "${localEnv:HTTPS_PROXY}",
+		"NO_PROXY": "${localEnv:NO_PROXY}",
+		"http_proxy": "${localEnv:HTTP_PROXY}",
+		"https_proxy": "${localEnv:HTTPS_PROXY}",
+		"no_proxy": "${localEnv:NO_PROXY}"
+	},
 
 	// Features to add to the dev container. More info: https://containers.dev/features.
 	"features": {
