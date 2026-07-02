@@ -2,7 +2,7 @@ name: Python test
 on: push
 
 jobs:
-  test:
+  unit-test:
     name: Run unit tests
     runs-on: ubuntu-latest
     steps:
@@ -27,3 +27,19 @@ jobs:
           custom-arguments: -q
           click-to-expand: true
           report-title: 'PRONTO unit testing'
+  full-test:
+    name: Run full test
+    runs-on: ubuntu-latest
+    steps:
+      - 
+        name: Check out the repo
+        uses: actions/checkout@v4
+      -
+        name: Build docker image
+        run: docker build -t pronto:ci-test .
+      -
+        name: Debug
+        run: ls -la
+      -
+        name: Run full test
+        run: docker run --rm $(pwd)/test_data/ous:/data/sample_data/analysis_results -v $(pwd)/test_data/ous/251114_A02134_0115_BHCJCKDRX7_TSO_500_LocalApp_postprocessing_results/InPreD_PRONTO_metadata.txt:/pronto/In/InPreD_PRONTO_metadata.txt pronto:ci-test /pronto/Script/PRONTO.py 
