@@ -38,8 +38,8 @@ jobs:
         name: Build docker image
         run: docker build -t pronto:full-test .
       -
-        name: Debug
-        run: ls -la
-      -
-        name: Run full test
+        name: Run full test OUS
         run: docker run --rm -v $(pwd)/test_data/ous:/data/sample_data/analysis_results -v $(pwd)/test_data/ous/251114_A02134_0115_BHCJCKDRX7_TSO_500_LocalApp_postprocessing_results/InPreD_PRONTO_metadata.txt:/pronto/In/InPreD_PRONTO_metadata.txt pronto:full-test /pronto/Script/PRONTO.py 
+      -
+        name: Run full test OUS
+        run: docker run --rm -v $(pwd)/test_data/hus:/data/sample_data/analysis_results -v $(pwd)/test_data/InPreD_PRONTO_metadata.txt:/pronto/In/InPreD_PRONTO_metadata.txt pronto:full-test /pronto/Script/PRONTO.py 
