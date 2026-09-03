@@ -192,6 +192,48 @@ singularity exec \
 <br />
 
 ## ChangeLog
+### v3.0.0
+- TMB will be calculated based on Illumina's methodology rather than in-house calculations.
+- Pathogenic variants will be included even if they are present in germline databases.
+- Correct annotation of stop-gain variants (* instead of X).
+- Comment from medical geneticist is changed from "counseling" to "testing".
+- Two new columns have been added to the PRONTO metadata file to allow laboratory comments regarding extraction and library preparation.
+
+- New Features:
+  [ #93](https://github.com/InPreD/PRONTO/pull/93)
+  [ #96](https://github.com/InPreD/PRONTO/pull/96)
+  [ #99](https://github.com/InPreD/PRONTO/pull/99)
+  [ #104](https://github.com/InPreD/PRONTO/pull/104)
+  [ #105](https://github.com/InPreD/PRONTO/pull/105)
+  [ #106](https://github.com/InPreD/PRONTO/pull/106)
+  [ #116](https://github.com/InPreD/PRONTO/pull/116)
+- Resolved Isses:
+  [ #95](https://github.com/InPreD/PRONTO/pull/95)
+  [ #98](https://github.com/InPreD/PRONTO/pull/98)
+  [ #103](https://github.com/InPreD/PRONTO/pull/103)
+  [ #111](https://github.com/InPreD/PRONTO/pull/111)
+  [ #113](https://github.com/InPreD/PRONTO/pull/113)
+  [ #115](https://github.com/InPreD/PRONTO/pull/115)
+  [ #118](https://github.com/InPreD/PRONTO/pull/118)
+  [ #120](https://github.com/InPreD/PRONTO/pull/120)
+  [ #121](https://github.com/InPreD/PRONTO/pull/121)
+
+### v2.2.1
+- New Features:
+  [ #87](https://github.com/InPreD/PRONTO/pull/87)
+- Resolved Isses:
+  [ #89](https://github.com/InPreD/PRONTO/pull/89)
+
+### v2.2.0
+- Resolved Isses:
+  [ #77](https://github.com/InPreD/PRONTO/pull/77)
+  [ #81](https://github.com/InPreD/PRONTO/pull/81)
+  [ #84](https://github.com/InPreD/PRONTO/pull/84)
+  [ #85](https://github.com/InPreD/PRONTO/pull/85)
+
+### v2.1.3
+- Resolved Isses:
+  [ #75](https://github.com/InPreD/PRONTO/pull/75)
 
 ### v2.1.2
 - New Features:
