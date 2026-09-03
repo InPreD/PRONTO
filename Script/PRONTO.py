@@ -31,6 +31,7 @@ import pronto.pronto as pronto
 import pandas
 import math
 from pdf2image import convert_from_path
+from decimal import Decimal, ROUND_HALF_UP
 
 runID = ""
 DNA_sampleID = ""
@@ -831,7 +832,12 @@ def update_ppt_variant_summary_table(data_nrows,DNA_sampleID,RNA_sampleID,TMB_DR
 			else:
 				TMB_illumina = "TMB = " + line.split('\t')[1]
 				TMB_TSO500 = line.split('\t')[1]
-				TMB_TSO500_nr = round(float(TMB_TSO500.split()[0]))
+				TMB_TSO500_nr = int(
+    				Decimal(TMB_TSO500.split()[0]).quantize(
+        				Decimal("1"),
+        				rounding=ROUND_HALF_UP
+    				)
+				)
 			if(line.split('\t')[2] == 'NA'):
 				MSI_illumina = "MSI = NA"
 				msi_text = "-"
