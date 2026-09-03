@@ -818,7 +818,7 @@ def insert_table_to_ppt(table_file,slide_n,table_name,left_h,top_h,width_h,left_
 	return rows
 
 
-def update_ppt_variant_summary_table(data_nrows,DNA_sampleID,RNA_sampleID,TMB_DRUP_nr,TMB_DRUP_str,DNA_variant_summary_file,RNA_variant_summary_file,output_file_preMTB_AppendixTable,output_table_file_filterResults_AllReporVariants_CodingRegion,output_ppt_file):
+def update_ppt_variant_summary_table(data_nrows,DNA_sampleID,RNA_sampleID,TMB_DRUP_nr,TMB_DRUP_str,DNA_variant_summary_file,RNA_variant_summary_file,output_file_preMTB_workingTable,output_table_file_filterResults_AllReporVariants_CodingRegion,output_ppt_file):
 	DNA_summary_file = open(DNA_variant_summary_file)
 	global str_TMB_DRUP
 	global TMB_TSO500
@@ -893,10 +893,10 @@ def update_ppt_variant_summary_table(data_nrows,DNA_sampleID,RNA_sampleID,TMB_DR
 	appendix_nrows = len(table_file_coding_region.readlines()) - 1
 	if(appendix_nrows == -1):
 		appendix_nrows = "NA"
-	table_file_preMTBTable_Appendix = open(output_file_preMTB_AppendixTable)
-	preMTB_appendix_nrows = len(table_file_preMTBTable_Appendix.readlines()) - 1
-	if(preMTB_appendix_nrows == -1):
-		preMTB_appendix_nrows = "NA"
+	table_file_preMTB_workingTable = open(output_file_preMTB_workingTable)
+	preMTB_workingTable_nrows = len(table_file_preMTB_workingTable.readlines()) - 1
+	if(preMTB_workingTable_nrows == -1):
+		preMTB_workingTable_nrows = "NA"
 	if(TMB_DRUP_str == "-1"):
 		str_TMB_DRUP = "NA"
 		TMB_DRUP_str = "NA"
@@ -933,7 +933,7 @@ def update_ppt_variant_summary_table(data_nrows,DNA_sampleID,RNA_sampleID,TMB_DR
 		tf4.paragraphs[0].alignment = PP_ALIGN.CENTER
 		textbox5 = slide.shapes.add_textbox(Inches(3.66), Inches(1.02), Inches(0.30), Inches(0.22))
 		tf5 = textbox5.text_frame
-		tf5.paragraphs[0].text = str(preMTB_appendix_nrows)
+		tf5.paragraphs[0].text = str(preMTB_workingTable_nrows)
 		tf5.paragraphs[0].font.size = Pt(7)
 		tf5.paragraphs[0].alignment = PP_ALIGN.CENTER
 		if(TMB_TSO500 != "" and TMB_TSO500 != "NA"):
@@ -1556,9 +1556,9 @@ def main(argv):
 				if_print_rowNo = False
 				for table_index in slide6_table_ppSlide:
 					slide6_table_nrows = insert_table_to_ppt(slide6_table_data_file,table_index,slide6_table_name,slide6_header_left,slide6_header_top,slide6_header_width,slide6_table_left,slide6_table_top,slide6_table_width,slide6_table_height,slide6_table_font_size,slide6_table_header,output_ppt_file,if_print_rowNo,[],table_max_rows_per_slide=None)
-				output_file_preMTB_AppendixTable = output_file_preMTB_table_path + "_preMTBTable_Appendix.txt"
+				output_file_preMTB_workingTable = output_file_preMTB_table_path + "_preMTB_workingTable.txt"
 				output_table_file_filterResults_AllReporVariants_CodingRegion = output_file_preMTB_table_path + "_AllReporVariants_CodingRegion.txt"
-				stable_text = update_ppt_variant_summary_table(slide6_table_nrows,DNA_sampleID,RNA_sampleID,TMB_DRUP,TMB_DRUP_str,DNA_variant_summary_file,RNA_variant_summary_file,output_file_preMTB_AppendixTable,output_table_file_filterResults_AllReporVariants_CodingRegion,output_ppt_file)
+				stable_text = update_ppt_variant_summary_table(slide6_table_nrows,DNA_sampleID,RNA_sampleID,TMB_DRUP,TMB_DRUP_str,DNA_variant_summary_file,RNA_variant_summary_file,output_file_preMTB_workingTable,output_table_file_filterResults_AllReporVariants_CodingRegion,output_ppt_file)
 				output_file_sequence_summary_table = output_file_preMTB_table_path + "_sequence_summary.txt"
                 
 				# Slide8 Table: Sequence data summary: Variants alter protein code*
