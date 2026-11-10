@@ -68,7 +68,7 @@ PRONTO is a tool used to filter and analyse data from TSO500 analysis (in the fo
 
 ### Adapt the config file:
 
-- In `Config/configure_PRONTO.ini`, please specify your InPreD node by defining value of the `inpred_node` parameter. The node name will appear in the header of the reports.
+- In `Config/configure_PRONTO.ini`, please specify your InPreD node by defining value of the `inpred_node` parameter. The node name will appear in the header of the reports. The default value is "OUS".
 - In `Config/configure_PRONTO.ini`, please specify the local dataset file path of TSOPPI results by defining value of the `data_path` parameter.
 
 ### Type clinical data into the input metadata file:
