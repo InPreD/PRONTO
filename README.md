@@ -192,6 +192,18 @@ singularity exec \
 <br />
 
 ## ChangeLog
+### v3.1.2
+- Update change logs with some txt description in README file.
+- Change method to calculate Illumina TMB number in blue circle from round to "Decimal ROUND_HALF_UP". This could avoid the missing matching for the number ending with .5
+- Update sentence in README file and the email draft file.
+- bump python test version to 3.15.2
+
+- Resolved Isses:
+  [ #127](https://github.com/InPreD/PRONTO/pull/127)
+  [ #128](https://github.com/InPreD/PRONTO/pull/128)
+  [ #130](https://github.com/InPreD/PRONTO/pull/130)
+  [ #131](https://github.com/InPreD/PRONTO/pull/131)
+  
 ### v3.0.0
 - TMB will be calculated based on Illumina's methodology rather than in-house calculations.
 - Pathogenic variants will be included even if they are present in germline databases.
