@@ -1626,15 +1626,15 @@ def main(argv):
 						shutil.move(txt_file_path, extra_path)
 
 				# Move small variant data file and plots into the report folder.
-				data_file_small_variant_table_tsv_cp = os.path.join(output_path, f"{DNA_sampleID}_small_variant_table_forQC.tsv"
+				data_file_small_variant_table_tsv_cp = os.path.join(output_path, f"{DNA_sampleID}_small_variant_table_forQC.tsv")
 				data_file_small_variant_table_excel = data_file_small_variant_table.replace(".tsv", ".xlsx")
-				data_file_small_variant_table_excel_cp = os.path.join(output_path, f"{DNA_sampleID}_small_variant_table_forQC.xlsx"
+				data_file_small_variant_table_excel_cp = os.path.join(output_path, f"{DNA_sampleID}_small_variant_table_forQC.xlsx")
 				shutil.copyfile(data_file_small_variant_table, data_file_small_variant_table_tsv_cp)
 				if os.path.exists(data_file_small_variant_table_excel):
 					shutil.copyfile(data_file_small_variant_table_excel, data_file_small_variant_table_excel_cp)
 				else:
 					tsv_to_xlsx(data_file_small_variant_table, data_file_small_variant_table_excel_cp)
-				data_file_cnv_overview_plots_cp = output_path + DNA_sampleID + "_CNV_overview_plots.pdf"
+				data_file_cnv_overview_plots_cp = os.path.join(output_path, f"{DNA_sampleID}_CNV_overview_plots.pdf")
 				shutil.copyfile(data_file_cnv_overview_plots, data_file_cnv_overview_plots_cp)
 
 				if(remisse_mail == True):
