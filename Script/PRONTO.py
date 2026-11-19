@@ -1628,7 +1628,7 @@ def main(argv):
 				# Move small variant data file and plots into the report folder.
 				data_file_small_variant_table_tsv_cp = os.path.join(output_path, f"{DNA_sampleID}_small_variant_table_forQC.tsv"
 				data_file_small_variant_table_excel = data_file_small_variant_table.replace(".tsv", ".xlsx")
-				data_file_small_variant_table_excel_cp = output_path + DNA_sampleID + "_small_variant_table_forQC.xlsx"
+				data_file_small_variant_table_excel_cp = os.path.join(output_path, f"{DNA_sampleID}_small_variant_table_forQC.xlsx"
 				shutil.copyfile(data_file_small_variant_table, data_file_small_variant_table_tsv_cp)
 				if os.path.exists(data_file_small_variant_table_excel):
 					shutil.copyfile(data_file_small_variant_table_excel, data_file_small_variant_table_excel_cp)
