@@ -16,6 +16,10 @@ import sys
 import shutil
 import getopt
 import time
+import pandas
+import math
+import csv
+import pronto.pronto as pronto
 from datetime import datetime
 from configparser import ConfigParser
 from xlutils.copy import copy
@@ -27,11 +31,9 @@ from pptx.enum.text import MSO_VERTICAL_ANCHOR, PP_PARAGRAPH_ALIGNMENT
 from pptx.enum.shapes import MSO_SHAPE
 from decimal import Decimal
 from copy import deepcopy
-import pronto.pronto as pronto
-import pandas
-import math
 from pdf2image import convert_from_path
 from decimal import Decimal, ROUND_HALF_UP
+from openpyxl import Workbook
 
 runID = ""
 DNA_sampleID = ""
@@ -1176,6 +1178,16 @@ def pdf_page_image_to_ppt(pdf_file,output_ppt_file,pages,width_scale,height_scal
 		os.remove(image_path)
 	ppt.save(output_ppt_file)
 
+def tsv_to_xlsx(tsv_file, xlsx_file):
+	wb = Workbook()
+	ws = wb.active
+	ws.title = "Data"
+	with open(tsv_file, 'r', encoding='utf-8-sig', newline='') as f:
+		reader = csv.reader(f, delimiter='\t')
+		for row in reader:
+			 ws.append(row)
+	wb.save(xlsx_file)
+
 def usage(exit_status = 0):
 	print ("""Usage: python3  %s
         This script is a tool used to generate the paitent report based on the TSO500 analysis results and the personal intomation from the clinical data in In/InPreD_PRONTO_metadata.txt,
@@ -1614,9 +1626,15 @@ def main(argv):
 						shutil.move(txt_file_path, extra_path)
 
 				# Move small variant data file and plots into the report folder.
-				data_file_small_variant_table_cp = output_path + DNA_sampleID + "_small_variant_table_forQC.xlsx"
-				shutil.copyfile(data_file_small_variant_table, data_file_small_variant_table_cp)
-				data_file_cnv_overview_plots_cp = output_path + DNA_sampleID + "_CNV_overview_plots.pdf"
+				data_file_small_variant_table_tsv_cp = os.path.join(output_path, f"{DNA_sampleID}_small_variant_table_forQC.tsv")
+				data_file_small_variant_table_excel = data_file_small_variant_table.replace(".tsv", ".xlsx")
+				data_file_small_variant_table_excel_cp = os.path.join(output_path, f"{DNA_sampleID}_small_variant_table_forQC.xlsx")
+				shutil.copyfile(data_file_small_variant_table, data_file_small_variant_table_tsv_cp)
+				if os.path.exists(data_file_small_variant_table_excel):
+					shutil.copyfile(data_file_small_variant_table_excel, data_file_small_variant_table_excel_cp)
+				else:
+					tsv_to_xlsx(data_file_small_variant_table, data_file_small_variant_table_excel_cp)
+				data_file_cnv_overview_plots_cp = os.path.join(output_path, f"{DNA_sampleID}_CNV_overview_plots.pdf")
 				shutil.copyfile(data_file_cnv_overview_plots, data_file_cnv_overview_plots_cp)
 
 				if(remisse_mail == True):
