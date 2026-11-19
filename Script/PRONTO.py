@@ -1178,12 +1178,12 @@ def pdf_page_image_to_ppt(pdf_file,output_ppt_file,pages,width_scale,height_scal
 		os.remove(image_path)
 	ppt.save(output_ppt_file)
 
-def tsv_to_xlsx(tsv_file, xlsx_file, delimiter):
+def tsv_to_xlsx(tsv_file, xlsx_file):
 	wb = Workbook()
 	ws = wb.active
 	ws.title = "Data"
 	with open(tsv_file, 'r', encoding='utf-8-sig', newline='') as f:
-		reader = csv.reader(f, delimiter=delimiter)
+		reader = csv.reader(f, delimiter='\t')
 		for row in reader:
 			 ws.append(row)
 	wb.save(xlsx_file)
@@ -1633,7 +1633,7 @@ def main(argv):
 				if os.path.exists(data_file_small_variant_table_excel):
 					shutil.copyfile(data_file_small_variant_table_excel, data_file_small_variant_table_excel_cp)
 				else:
-					tsv_to_xlsx(data_file_small_variant_table, data_file_small_variant_table_excel_cp, '\t')
+					tsv_to_xlsx(data_file_small_variant_table, data_file_small_variant_table_excel_cp)
 				data_file_cnv_overview_plots_cp = output_path + DNA_sampleID + "_CNV_overview_plots.pdf"
 				shutil.copyfile(data_file_cnv_overview_plots, data_file_cnv_overview_plots_cp)
 
