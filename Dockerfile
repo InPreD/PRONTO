@@ -9,7 +9,7 @@ RUN apt-get update \
         libxml2=2.12.7+dfsg+really2.9.14-2.1+deb13u3 \
         libxslt1-dev=1.1.35-1.2+deb13u3 \
         poppler-utils=25.03.0-5+deb13u4 \
-        zlib1g-dev=1:1.3.dfsg+really1.3.1-1+b1 \
+        zlib1g-dev=1:1.3.dfsg+really1.3.1-1+deb13u1 \
     && rm -rf /var/lib/apt/lists/* \
     && apt-get clean \
     && pip install --no-cache-dir -r requirements.txt \
