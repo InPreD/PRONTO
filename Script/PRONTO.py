@@ -1645,6 +1645,8 @@ def main(argv):
 					move_ipd_material_file = shutil.move(ipd_material_file_new, extra_path)
 				if os.path.exists(ipd_material_file_2023):
 					move_ipd_material_file = shutil.move(ipd_material_file_2023, extra_path)
+				if os.path.exists(InPreD_clinical_tsoppi_data_file):
+					DNA_if_generate_report = "-"
 					update_clinical_tsoppi_file(InPreD_clinical_tsoppi_data_file,DNA_sampleID,DNA_if_generate_report,ipd_birth_year,ipd_clinical_diagnosis,ipd_gender,ipd_consent,DNA_material_id,ipd_collection_year,requisition_hospital,extraction_hospital,tumor_content_nr,batch_nr,str(sample_material),sample_type,str(tumor_type),str_TMB_DRUP,TMB_TSO500,MSI_TSO500,pipline,pathology_comment,sample_info_comment,extraction_comment,library_prepare_comment)
 					if(RNA_sampleID != ""):
 						RNA_if_generate_report = "-"
